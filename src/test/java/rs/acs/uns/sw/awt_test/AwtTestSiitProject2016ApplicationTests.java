@@ -1,4 +1,4 @@
-package rs.acs.uns.sw.teamone;
+package rs.acs.uns.sw.awt_test;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
