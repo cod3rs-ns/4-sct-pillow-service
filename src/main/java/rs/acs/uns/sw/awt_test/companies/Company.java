@@ -1,14 +1,32 @@
-package rs.acs.uns.sw.awt_test.users;
+package rs.acs.uns.sw.awt_test.companies;
 
+import rs.acs.uns.sw.awt_test.users.User;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
-// @Entity
+@Entity
+@Table(name = "companies")
+@PrimaryKeyJoinColumn(name="co_id")
 public class Company implements Serializable {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "co_id")
     private Integer id;
+
+    @Column(name = "co_name")
     private String name;
+
+    @Column(name = "co_address")
     private String address;
+
+    @Column(name = "co_telephone")
     private String telephoneNo;
+
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    private Set<User> users = new HashSet<>(0);
 
     public Integer getId() {
         return id;
@@ -40,5 +58,13 @@ public class Company implements Serializable {
 
     public void setTelephoneNo(String telephoneNo) {
         this.telephoneNo = telephoneNo;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 }
