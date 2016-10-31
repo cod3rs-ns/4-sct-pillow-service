@@ -9,13 +9,13 @@ import java.util.Date;
 
 @Entity
 @Table(name = "comments")
-@PrimaryKeyJoinColumn(name="co_id")
+@PrimaryKeyJoinColumn(name = "co_id")
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "co_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "co_content")
     private String content;
@@ -31,11 +31,11 @@ public class Comment {
     @JoinColumn(name = "co_author")
     private User author;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
