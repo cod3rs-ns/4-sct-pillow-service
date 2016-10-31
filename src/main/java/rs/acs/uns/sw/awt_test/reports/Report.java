@@ -8,13 +8,13 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "reports")
-@PrimaryKeyJoinColumn(name="rep_id")
+@PrimaryKeyJoinColumn(name = "rep_id")
 public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "rep_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "rep_email")
     private String email;
@@ -39,11 +39,24 @@ public class Report {
     @Column(name = "rep_deleted")
     private Boolean deleted;
 
-    public Integer getId() {
+    public Report() {
+    }
+
+    public Report(String email, String type, String content, String status, User reporter, Announcement announcement, Boolean deleted) {
+        this.email = email;
+        this.type = type;
+        this.content = content;
+        this.status = status;
+        this.reporter = reporter;
+        this.announcement = announcement;
+        this.deleted = deleted;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
