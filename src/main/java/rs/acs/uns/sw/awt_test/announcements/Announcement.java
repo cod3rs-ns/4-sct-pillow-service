@@ -179,5 +179,5 @@ public class Announcement {
     public void setComments(Set<Comment> comments) {
         this.comments = comments;
     }
-    
+
 }

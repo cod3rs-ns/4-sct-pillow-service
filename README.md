@@ -1,5 +1,5 @@
 # awt-test-siit-project-2016
-Predmetni projekat iz predmeta Konstrukcija i testiranje softvera i Napredne veb tehnologije. 
+Predmetni projekat iz predmeta Konstrukcija i testiranje softvera i Napredne veb tehnologije.
 
 # Članovi tima:
 - SW3-2013  Stefan Ristanović
@@ -22,7 +22,11 @@ U fajlu **application.properties** se nalaze podešavanja vezana za aplikaciju. 
 
 Da bi se aplikacija pravilno pokrenula potrebno je prethodno kreirati korisnika unutar **MySQL baze podataka** sa gore navedenim kredencijalima, a zatim za datog korisnika napraviti šemu sa imenom **awt** sljedećom komandom:
 
-```CREATE SCHEMA awt``` 
+```CREATE SCHEMA awt```
 
 
 Nakon dodavanja projekta i podešavanja baze podataka, odabrati **View -> Tool Windows -> Maven Projects**. Dalje, u Maven konzoli kucati ```mvn clean install```, pa zatim ```mvn spring-boot:run```.
+
+# API DOCS
+
+Dokumentacija trenutno aktivnog `API` dostupna je, nakon uspešnog pokretanja, na  `/swagger-ui.html` stranici.
