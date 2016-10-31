@@ -31,6 +31,16 @@ public class Comment {
     @JoinColumn(name = "co_author")
     private User author;
 
+    public Comment() {
+    }
+
+    public Comment(String content, Date date, Announcement announcement, User author) {
+        this.content = content;
+        this.date = date;
+        this.announcement = announcement;
+        this.author = author;
+    }
+
     public Long getId() {
         return id;
     }

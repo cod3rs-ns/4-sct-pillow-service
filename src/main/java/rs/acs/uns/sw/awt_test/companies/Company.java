@@ -29,6 +29,16 @@ public class Company implements Serializable {
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>(0);
 
+    public Company() {
+    }
+
+    public Company(String name, String address, String telephoneNo, Set<User> users) {
+        this.name = name;
+        this.address = address;
+        this.telephoneNo = telephoneNo;
+        this.users = users;
+    }
+
     public Long getId() {
         return id;
     }
