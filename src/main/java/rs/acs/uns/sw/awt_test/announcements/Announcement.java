@@ -12,13 +12,13 @@ import java.util.Set;
 
 @Entity
 @Table(name = "announcements")
-@PrimaryKeyJoinColumn(name="ann_id")
+@PrimaryKeyJoinColumn(name = "ann_id")
 public class Announcement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ann_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "ann_price")
     private Double price;
@@ -58,11 +58,29 @@ public class Announcement {
     @Column(name = "ann_deleted")
     private Boolean deleted;
 
-    public Integer getId() {
+    public Announcement() {
+    }
+
+    public Announcement(Double price, Date dateAnnounced, Date dateModified, Date expirationDate, String telephoneNo, String type, String verified, RealEstate realEstate, User author, Set<Mark> marks, Set<Comment> comments, Boolean deleted) {
+        this.price = price;
+        this.dateAnnounced = dateAnnounced;
+        this.dateModified = dateModified;
+        this.expirationDate = expirationDate;
+        this.telephoneNo = telephoneNo;
+        this.type = type;
+        this.verified = verified;
+        this.realEstate = realEstate;
+        this.author = author;
+        this.marks = marks;
+        this.comments = comments;
+        this.deleted = deleted;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -161,4 +179,5 @@ public class Announcement {
     public void setComments(Set<Comment> comments) {
         this.comments = comments;
     }
+
 }

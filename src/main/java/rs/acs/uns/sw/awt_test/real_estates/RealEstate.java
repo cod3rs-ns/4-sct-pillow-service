@@ -8,13 +8,13 @@ import java.util.Set;
 
 @Entity
 @Table(name = "real_estates")
-@PrimaryKeyJoinColumn(name="re_id")
+@PrimaryKeyJoinColumn(name = "re_id")
 public class RealEstate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "re_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "re_name")
     private String name;
@@ -34,11 +34,23 @@ public class RealEstate {
     @Column(name = "re_deleted")
     private Boolean deleted;
 
-    public Integer getId() {
+    public RealEstate() {
+    }
+
+    public RealEstate(String name, String type, Double area, String heatingType, Set<Announcement> announcements, Boolean deleted) {
+        this.name = name;
+        this.type = type;
+        this.area = area;
+        this.heatingType = heatingType;
+        this.announcements = announcements;
+        this.deleted = deleted;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

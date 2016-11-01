@@ -1,6 +1,7 @@
 package rs.acs.uns.sw.awt_test.companies;
 
 import rs.acs.uns.sw.awt_test.users.User;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -8,13 +9,13 @@ import java.util.Set;
 
 @Entity
 @Table(name = "companies")
-@PrimaryKeyJoinColumn(name="co_id")
+@PrimaryKeyJoinColumn(name = "co_id")
 public class Company implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "co_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "co_name")
     private String name;
@@ -28,11 +29,21 @@ public class Company implements Serializable {
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>(0);
 
-    public Integer getId() {
+    public Company() {
+    }
+
+    public Company(String name, String address, String telephoneNo, Set<User> users) {
+        this.name = name;
+        this.address = address;
+        this.telephoneNo = telephoneNo;
+        this.users = users;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
