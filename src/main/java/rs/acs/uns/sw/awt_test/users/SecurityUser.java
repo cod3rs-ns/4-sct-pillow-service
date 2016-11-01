@@ -10,7 +10,7 @@ public class SecurityUser implements UserDetails {
 
     // FIXME Remove unwanted code
 
-    private Integer id;
+    private Long id;
     private String email;
     private String password;
     private String type;
@@ -25,7 +25,7 @@ public class SecurityUser implements UserDetails {
         super();
     }
 
-    public SecurityUser(Integer id, String email, String password, String type, Collection<? extends GrantedAuthority> authorities) {
+    public SecurityUser(Long id, String email, String password, String type, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -68,11 +68,11 @@ public class SecurityUser implements UserDetails {
         return this.enabled;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
