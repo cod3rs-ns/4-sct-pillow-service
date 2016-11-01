@@ -69,6 +69,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                 .authorizeRequests()
+                    // Anyone can see API provided by Swagger
+                    .antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
+                    .antMatchers(HttpMethod.GET, "/swagger*").permitAll()
+                    .antMatchers(HttpMethod.GET, "/*/springfox-swagger-ui/**").permitAll()
+                    .antMatchers(HttpMethod.GET, "/v2/api-docs/**").permitAll()
+                    .antMatchers(HttpMethod.GET, "/images/**").permitAll()
+                    .antMatchers(HttpMethod.GET, "/configuration/**").permitAll()
+                    // Anyone can see all options provided by server
                     .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     // All routes that starts with '/api/users/...' can be accessed by anyone
                     .antMatchers("/api/users/**").permitAll()
