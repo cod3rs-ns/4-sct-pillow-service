@@ -1,7 +1,6 @@
 package rs.acs.uns.sw.awt_test.users;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import rs.acs.uns.sw.awt_test.companies.Company;
 
 import javax.persistence.*;
@@ -20,7 +19,6 @@ public class User implements Serializable {
     @Column(name = "u_email")
     private String email;
 
-    @JsonIgnore
     @Column(name = "u_password")
     private String password;
 

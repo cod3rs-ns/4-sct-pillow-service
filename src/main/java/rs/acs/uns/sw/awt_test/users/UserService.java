@@ -7,16 +7,9 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     @Autowired
-    UserDAO userDAO;
+    UserRepository userRepository;
 
-    public User findOne() {
-
-        User user = new User();
-        user.setFirstName("Sergio");
-        user.setLastName("Ramos");
-
-        // User user1 = userDAO.findOne(1);
-
-        return user;
+    public User getUserByEmail(String email) {
+        return userRepository.findOneByEmail(email);
     }
 }
