@@ -14,24 +14,27 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "u_id")
-    private Integer id;
+    private Long id;
 
-    @Column(name = "u_email")
+    @Column(name = "u_username", unique = true, nullable = false)
+    private String username;
+
+    @Column(name = "u_email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "u_password")
+    @Column(name = "u_password", nullable = false)
     private String password;
 
-    @Column(name = "u_fname")
+    @Column(name = "u_fname", nullable = false)
     private String firstName;
 
-    @Column(name = "u_lname")
+    @Column(name = "u_lname", nullable = false)
     private String lastName;
 
     @Column(name = "u_telephone")
     private String telephoneNo;
 
-    @Column(name = "u_type")
+    @Column(name = "u_type", nullable = false)
     private String type;
 
     @ManyToOne
@@ -41,18 +44,18 @@ public class User implements Serializable {
     @Column(name = "u_company_verified")
     private String companyVerified;
 
-    @Column(name = "u_deleted")
-    private Boolean deleted;
+    @Column(name = "u_deleted", nullable = false)
+    private Boolean deleted = false;
 
     public User() {
         super();
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -126,5 +129,13 @@ public class User implements Serializable {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
