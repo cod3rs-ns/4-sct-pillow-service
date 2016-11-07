@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/dmarjanovic94/awt-test-siit-project-2016-service.svg?token=i5gbtj21jsWqKhMUFjrS&branch=master)](https://travis-ci.com/dmarjanovic94/awt-test-siit-project-2016-service)
+
 # awt-test-siit-project-2016
 Predmetni projekat iz predmeta Konstrukcija i testiranje softvera i Napredne veb tehnologije.
 
@@ -38,11 +40,11 @@ awt_test.token.header=X-Auth-Token
 awt_test.token.secret=SECRET-KEY
 awt_test.token.expiration=54000
 ```
- 
+
 U klasi `CorsFilter` koja se nalazi u paketu `configuration` najbitnija je metoda `doFilter(...)` u kojoj postavljamo dodatna zaglavlja u `response`.
- 
+
 U klasi `WebSecurityConfigurerAdapter` paketa obratiti pažnju na metodu `configure` u kojoj definišemo pristupne preduslove za metode našeg REST servisa. U samoj metodi imaju komentari pa se nadam da je to dovoljno.
- 
+
 ### Paket `security`
 - Klasa `AuthenticationTokenFilter` u svojoj najbitnijoj metodi `doFilter(...)` izdvaja zaglavlje tokena iz *HTTP requesta* i dobavlja *username* (u našem slučaju *email*). Ako postoji, onda dobavlja korisnika iz baze i kreira instancu `SecureUser`-a. Pokušava da validira token metodom `validateToken(...)`iz klase `TokenUtils`.
 - Klasa `TokenUtils` sadrži metoda `generateToken(UserDetails userDetails)` koju koristimo prilikom generisanja tokena autentikovanom korisniku. `this.secret` je tajni ključ našeg servisa (koji samo mi znamo) i nalazi se u `aplication.properties` datoteci.
