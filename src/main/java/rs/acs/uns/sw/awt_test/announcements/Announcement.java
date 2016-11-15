@@ -6,6 +6,8 @@ import rs.acs.uns.sw.awt_test.real_estates.RealEstate;
 import rs.acs.uns.sw.awt_test.users.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,29 +15,36 @@ import java.util.Set;
 @Entity
 @Table(name = "announcements")
 @PrimaryKeyJoinColumn(name = "ann_id")
-public class Announcement {
+public class Announcement implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ann_id")
     private Long id;
 
-    @Column(name = "ann_price")
+    @NotNull
+    @Column(name = "ann_price", nullable = false)
     private Double price;
 
-    @Column(name = "ann_date_announced")
+    @NotNull
+    @Column(name = "ann_date_announced", nullable = false)
     private Date dateAnnounced;
 
     @Column(name = "ann_date_modified")
     private Date dateModified;
 
-    @Column(name = "ann_expiration_date")
+    @NotNull
+    @Column(name = "ann_expiration_date", nullable = false)
     private Date expirationDate;
 
-    @Column(name = "ann_telephone")
+    @NotNull
+    @Column(name = "ann_telephone", nullable = false)
     private String telephoneNo;
 
-    @Column(name = "ann_type")
+    @NotNull
+    @Column(name = "ann_type", nullable = false)
     private String type;
 
     @Column(name = "ann_verified")
@@ -92,12 +101,22 @@ public class Announcement {
         this.price = price;
     }
 
+    public Announcement price(Double price) {
+        this.price = price;
+        return this;
+    }
+
     public Date getDateAnnounced() {
         return dateAnnounced;
     }
 
     public void setDateAnnounced(Date dateAnnounced) {
         this.dateAnnounced = dateAnnounced;
+    }
+
+    public Announcement dateAnnounced(Date dateAnnounced) {
+        this.dateAnnounced = dateAnnounced;
+        return this;
     }
 
     public Date getDateModified() {
@@ -108,12 +127,22 @@ public class Announcement {
         this.dateModified = dateModified;
     }
 
+    public Announcement dateModified(Date dateModified) {
+        this.dateModified = dateModified;
+        return this;
+    }
+
     public Date getExpirationDate() {
         return expirationDate;
     }
 
     public void setExpirationDate(Date expirationDate) {
         this.expirationDate = expirationDate;
+    }
+
+    public Announcement expirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
+        return this;
     }
 
     public String getTelephoneNo() {
@@ -124,12 +153,22 @@ public class Announcement {
         this.telephoneNo = telephoneNo;
     }
 
+    public Announcement telephoneNo(String telephoneNo) {
+        this.telephoneNo = telephoneNo;
+        return this;
+    }
+
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Announcement type(String type) {
+        this.type = type;
+        return this;
     }
 
     public String getVerified() {
@@ -140,6 +179,11 @@ public class Announcement {
         this.verified = verified;
     }
 
+    public Announcement verified(String verified) {
+        this.verified = verified;
+        return this;
+    }
+
     public RealEstate getRealEstate() {
         return realEstate;
     }
@@ -148,12 +192,22 @@ public class Announcement {
         this.realEstate = realEstate;
     }
 
+    public Announcement realEstate(RealEstate realEstate) {
+        this.realEstate = realEstate;
+        return this;
+    }
+
     public User getAuthor() {
         return author;
     }
 
-    public void setAuthor(User author) {
-        this.author = author;
+    public void setAuthor(User user) {
+        this.author = user;
+    }
+
+    public Announcement author(User user) {
+        this.author = user;
+        return this;
     }
 
     public Boolean getDeleted() {
