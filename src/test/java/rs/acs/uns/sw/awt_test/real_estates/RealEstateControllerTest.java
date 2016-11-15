@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Test class for the RealEstateResource REST controller.
+ * Test class for the RealEstate REST controller.
  *
  * @see RealEstateController
  */

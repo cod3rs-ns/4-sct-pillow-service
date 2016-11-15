@@ -12,6 +12,8 @@ import java.util.Set;
 @PrimaryKeyJoinColumn(name = "co_id")
 public class Company implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "co_id")
@@ -55,6 +57,11 @@ public class Company implements Serializable {
         this.name = name;
     }
 
+    public Company name(String name) {
+        this.name = name;
+        return this;
+    }
+
     public String getAddress() {
         return address;
     }
@@ -63,12 +70,22 @@ public class Company implements Serializable {
         this.address = address;
     }
 
+    public Company address(String address) {
+        this.address = address;
+        return this;
+    }
+
     public String getTelephoneNo() {
         return telephoneNo;
     }
 
     public void setTelephoneNo(String telephoneNo) {
         this.telephoneNo = telephoneNo;
+    }
+
+    public Company telephoneNo(String telephoneNo) {
+        this.telephoneNo = telephoneNo;
+        return this;
     }
 
     public Set<User> getUsers() {
