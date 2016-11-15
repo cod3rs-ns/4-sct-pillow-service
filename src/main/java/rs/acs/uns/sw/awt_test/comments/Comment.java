@@ -4,23 +4,29 @@ import rs.acs.uns.sw.awt_test.announcements.Announcement;
 import rs.acs.uns.sw.awt_test.users.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Date;
 
 
 @Entity
 @Table(name = "comments")
 @PrimaryKeyJoinColumn(name = "co_id")
-public class Comment {
+public class Comment implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "co_id")
     private Long id;
 
-    @Column(name = "co_content")
+    @NotNull
+    @Column(name = "co_content", nullable = false)
     private String content;
 
-    @Column(name = "co_date")
+    @NotNull
+    @Column(name = "co_date", nullable = false)
     private Date date;
 
     @ManyToOne
@@ -57,12 +63,22 @@ public class Comment {
         this.content = content;
     }
 
+    public Comment content(String content) {
+        this.content = content;
+        return this;
+    }
+
     public Date getDate() {
         return date;
     }
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Comment date(Date date) {
+        this.date = date;
+        return this;
     }
 
     public Announcement getAnnouncement() {

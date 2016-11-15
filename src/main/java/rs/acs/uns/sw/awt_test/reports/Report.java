@@ -4,28 +4,36 @@ import rs.acs.uns.sw.awt_test.announcements.Announcement;
 import rs.acs.uns.sw.awt_test.users.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 
 @Entity
 @Table(name = "reports")
 @PrimaryKeyJoinColumn(name = "rep_id")
-public class Report {
+public class Report implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "rep_id")
     private Long id;
 
-    @Column(name = "rep_email")
+    @NotNull
+    @Column(name = "rep_email", nullable = false)
     private String email;
 
-    @Column(name = "rep_type")
+    @NotNull
+    @Column(name = "rep_type", nullable = false)
     private String type;
 
-    @Column(name = "rep_content")
+    @NotNull
+    @Column(name = "rep_content", nullable = false)
     private String content;
 
-    @Column(name = "rep_status")
+    @NotNull
+    @Column(name = "rep_status", nullable = false)
     private String status;
 
     @ManyToOne
@@ -36,20 +44,16 @@ public class Report {
     @JoinColumn(name = "rep_announcement")
     private Announcement announcement;
 
-    @Column(name = "rep_deleted")
-    private Boolean deleted;
-
     public Report() {
     }
 
-    public Report(String email, String type, String content, String status, User reporter, Announcement announcement, Boolean deleted) {
+    public Report(String email, String type, String content, String status, User reporter, Announcement announcement) {
         this.email = email;
         this.type = type;
         this.content = content;
         this.status = status;
         this.reporter = reporter;
         this.announcement = announcement;
-        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -68,6 +72,11 @@ public class Report {
         this.email = email;
     }
 
+    public Report email(String email) {
+        this.email = email;
+        return this;
+    }
+
     public String getType() {
         return type;
     }
@@ -76,12 +85,27 @@ public class Report {
         this.type = type;
     }
 
+    public Report type(String type) {
+        this.type = type;
+        return this;
+    }
+
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Report content(String content) {
+        this.content = content;
+        return this;
+    }
+
+    public Report status(String status) {
+        this.status = status;
+        return this;
     }
 
     public String getStatus() {
@@ -98,14 +122,6 @@ public class Report {
 
     public void setReporter(User reporter) {
         this.reporter = reporter;
-    }
-
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
     }
 
     public Announcement getAnnouncement() {

@@ -3,6 +3,7 @@ package rs.acs.uns.sw.awt_test.real_estates;
 import rs.acs.uns.sw.awt_test.announcements.Announcement;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,23 +20,29 @@ public class RealEstate implements Serializable {
     @Column(name = "re_id")
     private Long id;
 
+    @NotNull
     @Column(name = "re_name", nullable = false)
     private String name;
 
+    @NotNull
     @Column(name = "re_type", nullable = false)
     private String type;
 
+    @NotNull
     @Column(name = "re_area", nullable = false)
     private Double area;
 
+    @NotNull
     @Column(name = "re_heating_type", nullable = false)
     private String heatingType;
+
+    @NotNull
+    @Column(name = "re_deleted", nullable = false)
+    private Boolean deleted;
 
     @OneToMany(mappedBy = "realEstate", fetch = FetchType.LAZY)
     private Set<Announcement> announcements = new HashSet<>(0);
 
-    @Column(name = "re_deleted", nullable = false)
-    private Boolean deleted;
 
     public RealEstate() {
     }

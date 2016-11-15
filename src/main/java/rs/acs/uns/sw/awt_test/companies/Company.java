@@ -3,6 +3,7 @@ package rs.acs.uns.sw.awt_test.companies;
 import rs.acs.uns.sw.awt_test.users.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,18 +13,23 @@ import java.util.Set;
 @PrimaryKeyJoinColumn(name = "co_id")
 public class Company implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "co_id")
     private Long id;
 
-    @Column(name = "co_name")
+    @NotNull
+    @Column(name = "co_name", nullable = false)
     private String name;
 
-    @Column(name = "co_address")
+    @NotNull
+    @Column(name = "co_address", nullable = false)
     private String address;
 
-    @Column(name = "co_telephone")
+    @NotNull
+    @Column(name = "co_telephone", nullable = false)
     private String telephoneNo;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
@@ -55,6 +61,11 @@ public class Company implements Serializable {
         this.name = name;
     }
 
+    public Company name(String name) {
+        this.name = name;
+        return this;
+    }
+
     public String getAddress() {
         return address;
     }
@@ -63,12 +74,22 @@ public class Company implements Serializable {
         this.address = address;
     }
 
+    public Company address(String address) {
+        this.address = address;
+        return this;
+    }
+
     public String getTelephoneNo() {
         return telephoneNo;
     }
 
     public void setTelephoneNo(String telephoneNo) {
         this.telephoneNo = telephoneNo;
+    }
+
+    public Company telephoneNo(String telephoneNo) {
+        this.telephoneNo = telephoneNo;
+        return this;
     }
 
     public Set<User> getUsers() {
