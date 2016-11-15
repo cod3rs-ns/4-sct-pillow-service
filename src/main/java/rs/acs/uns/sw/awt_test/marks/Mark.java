@@ -5,20 +5,25 @@ import rs.acs.uns.sw.awt_test.announcements.Announcement;
 import rs.acs.uns.sw.awt_test.users.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 
 @Entity
 @Table(name = "marks")
 @PrimaryKeyJoinColumn(name = "m_id")
-public class Mark {
+public class Mark implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "m_id")
     private Long id;
 
-    @Column(name = "m_value")
-    private Double value;
+    @NotNull
+    @Column(name = "m_value", nullable = false)
+    private Integer value;
 
     @ManyToOne
     @JoinColumn(name = "m_grader")
@@ -32,18 +37,14 @@ public class Mark {
     @JoinColumn(name = "m_announcement")
     private Announcement announcement;
 
-    @Column(name = "re_deleted")
-    private Boolean deleted;
-
     public Mark() {
     }
 
-    public Mark(Double value, User grader, User graded_announcer, Announcement announcement, Boolean deleted) {
+    public Mark(Integer value, User grader, User graded_announcer, Announcement announcement) {
         this.value = value;
         this.grader = grader;
         this.graded_announcer = graded_announcer;
         this.announcement = announcement;
-        this.deleted = deleted;
     }
 
     public Long getId() {
@@ -54,12 +55,17 @@ public class Mark {
         this.id = id;
     }
 
-    public Double getValue() {
+    public Integer getValue() {
         return value;
     }
 
-    public void setValue(Double value) {
+    public void setValue(Integer value) {
         this.value = value;
+    }
+
+    public Mark value(Integer value) {
+        this.value = value;
+        return this;
     }
 
     public User getGrader() {
@@ -86,11 +92,4 @@ public class Mark {
         this.announcement = announcement;
     }
 
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
-    }
 }
