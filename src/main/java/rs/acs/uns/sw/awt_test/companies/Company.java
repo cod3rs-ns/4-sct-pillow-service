@@ -3,6 +3,7 @@ package rs.acs.uns.sw.awt_test.companies;
 import rs.acs.uns.sw.awt_test.users.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,13 +20,16 @@ public class Company implements Serializable {
     @Column(name = "co_id")
     private Long id;
 
-    @Column(name = "co_name")
+    @NotNull
+    @Column(name = "co_name", nullable = false)
     private String name;
 
-    @Column(name = "co_address")
+    @NotNull
+    @Column(name = "co_address", nullable = false)
     private String address;
 
-    @Column(name = "co_telephone")
+    @NotNull
+    @Column(name = "co_telephone", nullable = false)
     private String telephoneNo;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)

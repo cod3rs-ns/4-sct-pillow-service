@@ -123,6 +123,97 @@ public class RealEstateControllerTest {
         assertThat(testRealEstate.isDeleted()).isEqualTo(DEFAULT_DELETED);
     }
 
+
+    @Test
+    @Transactional
+    public void checkNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = realEstateRepository.findAll().size();
+        // set the field null
+        realEstate.setName(null);
+
+        // Create the RealEstate, which fails.
+
+        restRealEstateMockMvc.perform(post("/api/real-estates")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(realEstate)))
+                .andExpect(status().isBadRequest());
+
+        List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkTypeIsRequired() throws Exception {
+        int databaseSizeBeforeTest = realEstateRepository.findAll().size();
+        // set the field null
+        realEstate.setType(null);
+
+        // Create the RealEstate, which fails.
+
+        restRealEstateMockMvc.perform(post("/api/real-estates")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(realEstate)))
+                .andExpect(status().isBadRequest());
+
+        List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkAreaIsRequired() throws Exception {
+        int databaseSizeBeforeTest = realEstateRepository.findAll().size();
+        // set the field null
+        realEstate.setArea(null);
+
+        // Create the RealEstate, which fails.
+
+        restRealEstateMockMvc.perform(post("/api/real-estates")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(realEstate)))
+                .andExpect(status().isBadRequest());
+
+        List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkHeatingTypeIsRequired() throws Exception {
+        int databaseSizeBeforeTest = realEstateRepository.findAll().size();
+        // set the field null
+        realEstate.setHeatingType(null);
+
+        // Create the RealEstate, which fails.
+
+        restRealEstateMockMvc.perform(post("/api/real-estates")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(realEstate)))
+                .andExpect(status().isBadRequest());
+
+        List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkDeletedIsRequired() throws Exception {
+        int databaseSizeBeforeTest = realEstateRepository.findAll().size();
+        // set the field null
+        realEstate.setDeleted(null);
+
+        // Create the RealEstate, which fails.
+
+        restRealEstateMockMvc.perform(post("/api/real-estates")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(realEstate)))
+                .andExpect(status().isBadRequest());
+
+        List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeTest);
+    }
+
     @Test
     @Transactional
     public void getAllRealEstates() throws Exception {

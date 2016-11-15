@@ -113,6 +113,61 @@ public class CompanyControllerTest {
         assertThat(testCompany.getTelephoneNo()).isEqualTo(DEFAULT_TELEPHONE_NO);
     }
 
+
+    @Test
+    @Transactional
+    public void checkNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = companyRepository.findAll().size();
+        // set the field null
+        company.setName(null);
+
+        // Create the Company, which fails.
+
+        restCompanyMockMvc.perform(post("/api/companies")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(company)))
+                .andExpect(status().isBadRequest());
+
+        List<Company> companies = companyRepository.findAll();
+        assertThat(companies).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkAddressIsRequired() throws Exception {
+        int databaseSizeBeforeTest = companyRepository.findAll().size();
+        // set the field null
+        company.setAddress(null);
+
+        // Create the Company, which fails.
+
+        restCompanyMockMvc.perform(post("/api/companies")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(company)))
+                .andExpect(status().isBadRequest());
+
+        List<Company> companies = companyRepository.findAll();
+        assertThat(companies).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkTelephoneNoIsRequired() throws Exception {
+        int databaseSizeBeforeTest = companyRepository.findAll().size();
+        // set the field null
+        company.setTelephoneNo(null);
+
+        // Create the Company, which fails.
+
+        restCompanyMockMvc.perform(post("/api/companies")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(company)))
+                .andExpect(status().isBadRequest());
+
+        List<Company> companies = companyRepository.findAll();
+        assertThat(companies).hasSize(databaseSizeBeforeTest);
+    }
+
     @Test
     @Transactional
     public void getAllCompanies() throws Exception {
