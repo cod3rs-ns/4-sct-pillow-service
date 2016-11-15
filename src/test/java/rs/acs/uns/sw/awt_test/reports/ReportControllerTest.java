@@ -38,8 +38,14 @@ public class ReportControllerTest {
     private static final String DEFAULT_EMAIL = "AAAAA";
     private static final String UPDATED_EMAIL = "BBBBB";
 
-    private static final String DEFAULT_TYPE = "AAAAA";
-    private static final String UPDATED_TYPE = "BBBBB";
+    private static final String DEFAULT_TYPE = "TYPE_A";
+    private static final String UPDATED_TYPE = "TYPE_B";
+
+    private static final String DEFAULT_STATUS = "STATUS_A";
+    private static final String UPDATED_STATUS = "STATUS_B";
+
+    private static final String DEFAULT_CONTENT = "AAAAA";
+    private static final String UPDATED_CONTENT = "BBBBB";
 
     @Autowired
     private ReportRepository reportRepository;
@@ -69,7 +75,9 @@ public class ReportControllerTest {
     public static Report createEntity(EntityManager em) {
         Report report = new Report()
                 .email(DEFAULT_EMAIL)
-                .type(DEFAULT_TYPE);
+                .type(DEFAULT_TYPE)
+                .status(DEFAULT_STATUS)
+                .content(DEFAULT_CONTENT);
         return report;
     }
 
@@ -106,6 +114,8 @@ public class ReportControllerTest {
         Report testReport = reports.get(reports.size() - 1);
         assertThat(testReport.getEmail()).isEqualTo(DEFAULT_EMAIL);
         assertThat(testReport.getType()).isEqualTo(DEFAULT_TYPE);
+        assertThat(testReport.getStatus()).isEqualTo(DEFAULT_STATUS);
+        assertThat(testReport.getContent()).isEqualTo(DEFAULT_CONTENT);
     }
 
     @Test
@@ -156,7 +166,9 @@ public class ReportControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(report.getId().intValue())))
                 .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL.toString())))
-                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+                .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
+                .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)));
     }
 
     @Test
@@ -171,7 +183,9 @@ public class ReportControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(report.getId().intValue()))
                 .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL.toString()))
-                .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()));
+                .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
+                .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
+                .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT));
     }
 
     @Test
@@ -194,7 +208,9 @@ public class ReportControllerTest {
         Report updatedReport = reportRepository.findOne(report.getId());
         updatedReport
                 .email(UPDATED_EMAIL)
-                .type(UPDATED_TYPE);
+                .type(UPDATED_TYPE)
+                .status(UPDATED_STATUS)
+                .content(UPDATED_CONTENT);
 
         restReportMockMvc.perform(put("/api/reports")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -207,6 +223,8 @@ public class ReportControllerTest {
         Report testReport = reports.get(reports.size() - 1);
         assertThat(testReport.getEmail()).isEqualTo(UPDATED_EMAIL);
         assertThat(testReport.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testReport.getStatus()).isEqualTo(UPDATED_STATUS);
+        assertThat(testReport.getContent()).isEqualTo(UPDATED_CONTENT);
     }
 
     @Test
