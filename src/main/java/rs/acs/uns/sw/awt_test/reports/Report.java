@@ -32,6 +32,7 @@ public class Report implements Serializable {
     @Column(name = "rep_content", nullable = false)
     private String content;
 
+    @NotNull
     @Column(name = "rep_status", nullable = false)
     private String status;
 
@@ -101,7 +102,6 @@ public class Report implements Serializable {
         this.content = content;
         return this;
     }
-
 
     public Report status(String status) {
         this.status = status;

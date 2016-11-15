@@ -18,7 +18,6 @@ import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 import rs.acs.uns.sw.awt_test.util.TestUtil;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,8 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = AwtTestSiitProject2016ApplicationTests.class)
 public class ReportControllerTest {
 
-    private static final String DEFAULT_EMAIL = "AAAAA";
-    private static final String UPDATED_EMAIL = "BBBBB";
+    private static final String DEFAULT_EMAIL = "a@gmail.com";
+    private static final String UPDATED_EMAIL = "b@gmail.com";
 
     private static final String DEFAULT_TYPE = "TYPE_A";
     private static final String UPDATED_TYPE = "TYPE_B";
@@ -44,8 +43,8 @@ public class ReportControllerTest {
     private static final String DEFAULT_STATUS = "STATUS_A";
     private static final String UPDATED_STATUS = "STATUS_B";
 
-    private static final String DEFAULT_CONTENT = "AAAAA";
-    private static final String UPDATED_CONTENT = "BBBBB";
+    private static final String DEFAULT_CONTENT = "CONTENT_A";
+    private static final String UPDATED_CONTENT = "CONTENT_B";
 
     @Autowired
     private ReportRepository reportRepository;
@@ -59,9 +58,6 @@ public class ReportControllerTest {
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
-    @Autowired
-    private EntityManager em;
-
     private MockMvc restReportMockMvc;
 
     private Report report;
@@ -72,13 +68,13 @@ public class ReportControllerTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Report createEntity(EntityManager em) {
-        Report report = new Report()
+    public static Report createEntity() {
+        return new Report()
                 .email(DEFAULT_EMAIL)
                 .type(DEFAULT_TYPE)
                 .status(DEFAULT_STATUS)
                 .content(DEFAULT_CONTENT);
-        return report;
+
     }
 
     @PostConstruct
@@ -93,7 +89,7 @@ public class ReportControllerTest {
 
     @Before
     public void initTest() {
-        report = createEntity(em);
+        report = createEntity();
     }
 
     @Test
@@ -156,6 +152,42 @@ public class ReportControllerTest {
 
     @Test
     @Transactional
+    public void checkStatusIsRequired() throws Exception {
+        int databaseSizeBeforeTest = reportRepository.findAll().size();
+        // set the field null
+        report.setStatus(null);
+
+        // Create the Report, which fails.
+
+        restReportMockMvc.perform(post("/api/reports")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(report)))
+                .andExpect(status().isBadRequest());
+
+        List<Report> reports = reportRepository.findAll();
+        assertThat(reports).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkContentIsRequired() throws Exception {
+        int databaseSizeBeforeTest = reportRepository.findAll().size();
+        // set the field null
+        report.setContent(null);
+
+        // Create the Report, which fails.
+
+        restReportMockMvc.perform(post("/api/reports")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(report)))
+                .andExpect(status().isBadRequest());
+
+        List<Report> reports = reportRepository.findAll();
+        assertThat(reports).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     public void getAllReports() throws Exception {
         // Initialize the database
         reportRepository.saveAndFlush(report);
@@ -165,8 +197,8 @@ public class ReportControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(report.getId().intValue())))
-                .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL.toString())))
-                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+                .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
                 .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)));
     }
@@ -182,8 +214,8 @@ public class ReportControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(report.getId().intValue()))
-                .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL.toString()))
-                .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
+                .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
+                .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
                 .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
                 .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT));
     }
