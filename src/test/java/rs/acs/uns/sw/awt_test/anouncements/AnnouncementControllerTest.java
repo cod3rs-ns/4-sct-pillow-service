@@ -23,7 +23,6 @@ import rs.acs.uns.sw.awt_test.util.DateUtil;
 import rs.acs.uns.sw.awt_test.util.TestUtil;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -54,11 +53,11 @@ public class AnnouncementControllerTest {
     private static final Date DEFAULT_EXPIRATION_DATE = DateUtil.asDate(LocalDate.ofEpochDay(0L));
     private static final Date UPDATED_EXPIRATION_DATE = DateUtil.asDate(LocalDate.ofEpochDay(1L));
 
-    private static final String DEFAULT_TELEPHONE_NO = "AAAAA";
-    private static final String UPDATED_TELEPHONE_NO = "BBBBB";
+    private static final String DEFAULT_TELEPHONE_NO = "0600000000";
+    private static final String UPDATED_TELEPHONE_NO = "0611111111";
 
-    private static final String DEFAULT_TYPE = "AAAAA";
-    private static final String UPDATED_TYPE = "BBBBB";
+    private static final String DEFAULT_TYPE = "TYPE_AAA";
+    private static final String UPDATED_TYPE = "TYPE_BBB";
 
     @Autowired
     private AnnouncementRepository announcementRepository;
@@ -72,9 +71,6 @@ public class AnnouncementControllerTest {
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
-    @Autowired
-    private EntityManager em;
-
     private MockMvc restAnnouncementMockMvc;
 
     private Announcement announcement;
@@ -85,15 +81,14 @@ public class AnnouncementControllerTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Announcement createEntity(EntityManager em) {
-        Announcement announcement = new Announcement()
+    public static Announcement createEntity() {
+        return new Announcement()
                 .price(DEFAULT_PRICE)
                 .dateAnnounced(DEFAULT_DATE_ANNOUNCED)
                 .dateModified(DEFAULT_DATE_MODIFIED)
                 .expirationDate(DEFAULT_EXPIRATION_DATE)
                 .telephoneNo(DEFAULT_TELEPHONE_NO)
                 .type(DEFAULT_TYPE);
-        return announcement;
     }
 
     @PostConstruct
@@ -108,7 +103,7 @@ public class AnnouncementControllerTest {
 
     @Before
     public void initTest() {
-        announcement = createEntity(em);
+        announcement = createEntity();
     }
 
     @Test
@@ -236,12 +231,12 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
-                .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE.doubleValue())))
+                .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
                 .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
-                .andExpect(jsonPath("$.[*].telephoneNo").value(hasItem(DEFAULT_TELEPHONE_NO.toString())))
-                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
+                .andExpect(jsonPath("$.[*].telephoneNo").value(hasItem(DEFAULT_TELEPHONE_NO)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)));
     }
 
     @Test
@@ -255,12 +250,12 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(announcement.getId().intValue()))
-                .andExpect(jsonPath("$.price").value(DEFAULT_PRICE.doubleValue()))
+                .andExpect(jsonPath("$.price").value(DEFAULT_PRICE))
                 .andExpect(jsonPath("$.dateAnnounced").value(String.valueOf(DEFAULT_DATE_ANNOUNCED.getTime())))
                 .andExpect(jsonPath("$.dateModified").value(String.valueOf(DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.expirationDate").value(String.valueOf(DEFAULT_EXPIRATION_DATE.getTime())))
-                .andExpect(jsonPath("$.telephoneNo").value(DEFAULT_TELEPHONE_NO.toString()))
-                .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()));
+                .andExpect(jsonPath("$.telephoneNo").value(DEFAULT_TELEPHONE_NO))
+                .andExpect(jsonPath("$.type").value(DEFAULT_TYPE));
     }
 
     @Test

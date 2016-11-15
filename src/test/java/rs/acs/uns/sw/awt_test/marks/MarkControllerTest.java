@@ -18,7 +18,6 @@ import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 import rs.acs.uns.sw.awt_test.util.TestUtil;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,9 +49,6 @@ public class MarkControllerTest {
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
-    @Autowired
-    private EntityManager em;
-
     private MockMvc restMarkMockMvc;
 
     private Mark mark;
@@ -63,10 +59,9 @@ public class MarkControllerTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Mark createEntity(EntityManager em) {
-        Mark mark = new Mark()
+    public static Mark createEntity() {
+        return new Mark()
                 .value(DEFAULT_VALUE);
-        return mark;
     }
 
     @PostConstruct
@@ -81,7 +76,7 @@ public class MarkControllerTest {
 
     @Before
     public void initTest() {
-        mark = createEntity(em);
+        mark = createEntity();
     }
 
     @Test

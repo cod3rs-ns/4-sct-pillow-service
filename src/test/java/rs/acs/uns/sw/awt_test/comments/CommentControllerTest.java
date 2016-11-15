@@ -19,7 +19,6 @@ import rs.acs.uns.sw.awt_test.util.DateUtil;
 import rs.acs.uns.sw.awt_test.util.TestUtil;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -39,8 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = AwtTestSiitProject2016ApplicationTests.class)
 public class CommentControllerTest {
 
-    private static final String DEFAULT_CONTENT = "AAAAA";
-    private static final String UPDATED_CONTENT = "BBBBB";
+    private static final String DEFAULT_CONTENT = "CONTENT_AAA";
+    private static final String UPDATED_CONTENT = "CONTENT_BBB";
 
     private static final Date DEFAULT_DATE = DateUtil.asDate(LocalDate.ofEpochDay(0L));
     private static final Date UPDATED_DATE = DateUtil.asDate(LocalDate.now(ZoneId.systemDefault()));
@@ -57,8 +56,6 @@ public class CommentControllerTest {
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
-    @Autowired
-    private EntityManager em;
 
     private MockMvc restCommentMockMvc;
 
@@ -70,11 +67,10 @@ public class CommentControllerTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Comment createEntity(EntityManager em) {
-        Comment comment = new Comment()
+    public static Comment createEntity() {
+        return new Comment()
                 .content(DEFAULT_CONTENT)
                 .date(DEFAULT_DATE);
-        return comment;
     }
 
     @PostConstruct
@@ -89,7 +85,7 @@ public class CommentControllerTest {
 
     @Before
     public void initTest() {
-        comment = createEntity(em);
+        comment = createEntity();
     }
 
     @Test
@@ -159,7 +155,7 @@ public class CommentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(comment.getId().intValue())))
-                .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())))
+                .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)))
                 .andExpect(jsonPath("$.[*].date").value(hasItem((int) DEFAULT_DATE.getTime())));
     }
 
@@ -174,7 +170,7 @@ public class CommentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(comment.getId().intValue()))
-                .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT.toString()))
+                .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT))
                 .andExpect(jsonPath("$.date").value((int) DEFAULT_DATE.getTime()));
     }
 

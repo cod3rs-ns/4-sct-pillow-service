@@ -18,7 +18,6 @@ import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 import rs.acs.uns.sw.awt_test.util.TestUtil;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,14 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = AwtTestSiitProject2016ApplicationTests.class)
 public class CompanyControllerTest {
 
-    private static final String DEFAULT_NAME = "A";
-    private static final String UPDATED_NAME = "B";
+    private static final String DEFAULT_NAME = "NAME_AAA";
+    private static final String UPDATED_NAME = "NAME_BBB";
 
-    private static final String DEFAULT_ADDRESS = "AAAAA";
-    private static final String UPDATED_ADDRESS = "BBBBB";
+    private static final String DEFAULT_ADDRESS = "ADDRESS_AAA";
+    private static final String UPDATED_ADDRESS = "ADDRESS_BBB";
 
-    private static final String DEFAULT_TELEPHONE_NO = "AAAAA";
-    private static final String UPDATED_TELEPHONE_NO = "BBBBB";
+    private static final String DEFAULT_TELEPHONE_NO = "0600000000";
+    private static final String UPDATED_TELEPHONE_NO = "0611111111";
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -56,9 +55,6 @@ public class CompanyControllerTest {
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
-    @Autowired
-    private EntityManager em;
-
     private MockMvc restCompanyMockMvc;
 
     private Company company;
@@ -69,12 +65,11 @@ public class CompanyControllerTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Company createEntity(EntityManager em) {
-        Company company = new Company()
+    public static Company createEntity() {
+        return new Company()
                 .name(DEFAULT_NAME)
                 .address(DEFAULT_ADDRESS)
                 .telephoneNo(DEFAULT_TELEPHONE_NO);
-        return company;
     }
 
     @PostConstruct
@@ -89,7 +84,7 @@ public class CompanyControllerTest {
 
     @Before
     public void initTest() {
-        company = createEntity(em);
+        company = createEntity();
     }
 
     @Test
@@ -179,9 +174,9 @@ public class CompanyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(company.getId().intValue())))
-                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-                .andExpect(jsonPath("$.[*].address").value(hasItem(DEFAULT_ADDRESS.toString())))
-                .andExpect(jsonPath("$.[*].telephoneNo").value(hasItem(DEFAULT_TELEPHONE_NO.toString())));
+                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+                .andExpect(jsonPath("$.[*].address").value(hasItem(DEFAULT_ADDRESS)))
+                .andExpect(jsonPath("$.[*].telephoneNo").value(hasItem(DEFAULT_TELEPHONE_NO)));
     }
 
     @Test
@@ -195,9 +190,9 @@ public class CompanyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(company.getId().intValue()))
-                .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
-                .andExpect(jsonPath("$.address").value(DEFAULT_ADDRESS.toString()))
-                .andExpect(jsonPath("$.telephoneNo").value(DEFAULT_TELEPHONE_NO.toString()));
+                .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
+                .andExpect(jsonPath("$.address").value(DEFAULT_ADDRESS))
+                .andExpect(jsonPath("$.telephoneNo").value(DEFAULT_TELEPHONE_NO));
     }
 
     @Test
