@@ -18,10 +18,7 @@ import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 import rs.acs.uns.sw.awt_test.util.TestUtil;
 
 import javax.annotation.PostConstruct;
-<<<<<<< HEAD
-=======
 import javax.persistence.EntityManager;
->>>>>>> auth-tests-feature
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,11 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
-<<<<<<< HEAD
  * Test class for the RealEstate REST controller.
-=======
- * Test class for the RealEstateResource REST controller.
->>>>>>> auth-tests-feature
  *
  * @see RealEstateController
  */
@@ -42,30 +35,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = AwtTestSiitProject2016ApplicationTests.class)
 public class RealEstateControllerTest {
 
-<<<<<<< HEAD
     private static final String DEFAULT_NAME = "NAME_AAA";
     private static final String UPDATED_NAME = "NAME_BBB";
 
     private static final String DEFAULT_TYPE = "TYPE_AAA";
     private static final String UPDATED_TYPE = "TYPE_BBB";
-=======
-    private static final String DEFAULT_NAME = "AA";
-    private static final String UPDATED_NAME = "BB";
-
-    private static final String DEFAULT_TYPE = "AAAAA";
-    private static final String UPDATED_TYPE = "BBBBB";
->>>>>>> auth-tests-feature
 
     private static final Double DEFAULT_AREA = 1D;
     private static final Double UPDATED_AREA = 2D;
 
-<<<<<<< HEAD
     private static final String DEFAULT_HEATING_TYPE = "HEATING_AAA";
     private static final String UPDATED_HEATING_TYPE = "HEATING_BBB";
-=======
-    private static final String DEFAULT_HEATING_TYPE = "AAAAA";
-    private static final String UPDATED_HEATING_TYPE = "BBBBB";
->>>>>>> auth-tests-feature
 
     private static final Boolean DEFAULT_DELETED = false;
     private static final Boolean UPDATED_DELETED = true;
@@ -82,12 +62,9 @@ public class RealEstateControllerTest {
     @Autowired
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
-<<<<<<< HEAD
-=======
     @Autowired
     private EntityManager em;
 
->>>>>>> auth-tests-feature
     private MockMvc restRealEstateMockMvc;
 
     private RealEstate realEstate;
@@ -98,22 +75,13 @@ public class RealEstateControllerTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-<<<<<<< HEAD
     public static RealEstate createEntity() {
         return new RealEstate()
-=======
-    public static RealEstate createEntity(EntityManager em) {
-        RealEstate realEstate = new RealEstate()
->>>>>>> auth-tests-feature
                 .name(DEFAULT_NAME)
                 .type(DEFAULT_TYPE)
                 .area(DEFAULT_AREA)
                 .heatingType(DEFAULT_HEATING_TYPE)
                 .deleted(DEFAULT_DELETED);
-<<<<<<< HEAD
-=======
-        return realEstate;
->>>>>>> auth-tests-feature
     }
 
     @PostConstruct
@@ -128,11 +96,7 @@ public class RealEstateControllerTest {
 
     @Before
     public void initTest() {
-<<<<<<< HEAD
         realEstate = createEntity();
-=======
-        realEstate = createEntity(em);
->>>>>>> auth-tests-feature
     }
 
     @Test
@@ -157,8 +121,6 @@ public class RealEstateControllerTest {
         assertThat(testRealEstate.getHeatingType()).isEqualTo(DEFAULT_HEATING_TYPE);
         assertThat(testRealEstate.isDeleted()).isEqualTo(DEFAULT_DELETED);
     }
-
-<<<<<<< HEAD
 
     @Test
     @Transactional
@@ -250,8 +212,6 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeTest);
     }
 
-=======
->>>>>>> auth-tests-feature
     @Test
     @Transactional
     public void getAllRealEstates() throws Exception {
@@ -263,19 +223,11 @@ public class RealEstateControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(realEstate.getId().intValue())))
-<<<<<<< HEAD
                 .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].area").value(hasItem(DEFAULT_AREA)))
                 .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE)))
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)));
-=======
-                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-                .andExpect(jsonPath("$.[*].area").value(hasItem(DEFAULT_AREA.doubleValue())))
-                .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE.toString())))
-                .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED.booleanValue())));
->>>>>>> auth-tests-feature
     }
 
     @Test
@@ -289,19 +241,11 @@ public class RealEstateControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(realEstate.getId().intValue()))
-<<<<<<< HEAD
                 .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
                 .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
                 .andExpect(jsonPath("$.area").value(DEFAULT_AREA))
                 .andExpect(jsonPath("$.heatingType").value(DEFAULT_HEATING_TYPE))
                 .andExpect(jsonPath("$.deleted").value(DEFAULT_DELETED));
-=======
-                .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
-                .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
-                .andExpect(jsonPath("$.area").value(DEFAULT_AREA.doubleValue()))
-                .andExpect(jsonPath("$.heatingType").value(DEFAULT_HEATING_TYPE.toString()))
-                .andExpect(jsonPath("$.deleted").value(DEFAULT_DELETED.booleanValue()));
->>>>>>> auth-tests-feature
     }
 
     @Test
