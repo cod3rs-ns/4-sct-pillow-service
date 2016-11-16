@@ -43,7 +43,6 @@ public class RealEstate implements Serializable {
     @OneToMany(mappedBy = "realEstate", fetch = FetchType.LAZY)
     private Set<Announcement> announcements = new HashSet<>(0);
 
-
     public RealEstate() {
     }
 
