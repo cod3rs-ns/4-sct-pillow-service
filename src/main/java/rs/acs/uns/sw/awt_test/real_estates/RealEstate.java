@@ -3,36 +3,45 @@ package rs.acs.uns.sw.awt_test.real_estates;
 import rs.acs.uns.sw.awt_test.announcements.Announcement;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "real_estates")
 @PrimaryKeyJoinColumn(name = "re_id")
-public class RealEstate {
+public class RealEstate implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "re_id")
     private Long id;
 
-    @Column(name = "re_name")
+    @NotNull
+    @Column(name = "re_name", nullable = false)
     private String name;
 
-    @Column(name = "re_type")
+    @NotNull
+    @Column(name = "re_type", nullable = false)
     private String type;
 
-    @Column(name = "re_area")
+    @NotNull
+    @Column(name = "re_area", nullable = false)
     private Double area;
 
-    @Column(name = "re_heating_type")
+    @NotNull
+    @Column(name = "re_heating_type", nullable = false)
     private String heatingType;
+
+    @NotNull
+    @Column(name = "re_deleted", nullable = false)
+    private Boolean deleted;
 
     @OneToMany(mappedBy = "realEstate", fetch = FetchType.LAZY)
     private Set<Announcement> announcements = new HashSet<>(0);
-
-    @Column(name = "re_deleted")
-    private Boolean deleted;
 
     public RealEstate() {
     }
@@ -62,12 +71,22 @@ public class RealEstate {
         this.name = name;
     }
 
+    public RealEstate name(String name) {
+        this.name = name;
+        return this;
+    }
+
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public RealEstate type(String type) {
+        this.type = type;
+        return this;
     }
 
     public Double getArea() {
@@ -78,6 +97,11 @@ public class RealEstate {
         this.area = area;
     }
 
+    public RealEstate area(Double area) {
+        this.area = area;
+        return this;
+    }
+
     public String getHeatingType() {
         return heatingType;
     }
@@ -86,19 +110,29 @@ public class RealEstate {
         this.heatingType = heatingType;
     }
 
+    public RealEstate heatingType(String heatingType) {
+        this.heatingType = heatingType;
+        return this;
+    }
+
+    public Boolean isDeleted() {
+        return deleted;
+    }
+
+    public RealEstate deleted(Boolean deleted) {
+        this.deleted = deleted;
+        return this;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
     public Set<Announcement> getAnnouncements() {
         return announcements;
     }
 
     public void setAnnouncements(Set<Announcement> announcements) {
         this.announcements = announcements;
-    }
-
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
     }
 }

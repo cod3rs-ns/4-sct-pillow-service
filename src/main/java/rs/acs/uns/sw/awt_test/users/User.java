@@ -4,6 +4,7 @@ package rs.acs.uns.sw.awt_test.users;
 import rs.acs.uns.sw.awt_test.companies.Company;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity
@@ -11,17 +12,22 @@ import java.io.Serializable;
 @PrimaryKeyJoinColumn(name="u_id")
 public class User implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "u_id")
     private Long id;
 
+    @NotNull
     @Column(name = "u_username", unique = true, nullable = false)
     private String username;
 
+    @NotNull
     @Column(name = "u_email", unique = true, nullable = false)
     private String email;
 
+    @NotNull
     @Column(name = "u_password", nullable = false)
     private String password;
 
@@ -34,6 +40,7 @@ public class User implements Serializable {
     @Column(name = "u_telephone")
     private String telephoneNo;
 
+    @NotNull
     @Column(name = "u_type", nullable = false)
     private String type;
 
@@ -67,12 +74,22 @@ public class User implements Serializable {
         this.email = email;
     }
 
+    public User email(String email) {
+        this.email = email;
+        return this;
+    }
+
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public User password(String password) {
+        this.password = password;
+        return this;
     }
 
     public String getFirstName() {
@@ -107,6 +124,11 @@ public class User implements Serializable {
         this.type = type;
     }
 
+    public User type(String type) {
+        this.type = type;
+        return this;
+    }
+
     public String getCompanyVerified() {
         return companyVerified;
     }
@@ -137,5 +159,10 @@ public class User implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public User username(String username) {
+        this.username = username;
+        return this;
     }
 }
