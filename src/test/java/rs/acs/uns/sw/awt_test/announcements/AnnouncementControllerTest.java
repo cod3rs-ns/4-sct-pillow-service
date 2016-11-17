@@ -1,4 +1,4 @@
-package rs.acs.uns.sw.awt_test.anouncements;
+package rs.acs.uns.sw.awt_test.announcements;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,10 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
-import rs.acs.uns.sw.awt_test.announcements.Announcement;
-import rs.acs.uns.sw.awt_test.announcements.AnnouncementController;
-import rs.acs.uns.sw.awt_test.announcements.AnnouncementRepository;
-import rs.acs.uns.sw.awt_test.announcements.AnnouncementService;
 import rs.acs.uns.sw.awt_test.util.DateUtil;
 import rs.acs.uns.sw.awt_test.util.TestUtil;
 

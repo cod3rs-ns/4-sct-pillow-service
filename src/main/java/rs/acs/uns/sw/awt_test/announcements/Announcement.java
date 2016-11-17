@@ -70,7 +70,8 @@ public class Announcement implements Serializable {
     public Announcement() {
     }
 
-    public Announcement(Double price, Date dateAnnounced, Date dateModified, Date expirationDate, String telephoneNo, String type, String verified, RealEstate realEstate, User author, Set<Mark> marks, Set<Comment> comments, Boolean deleted) {
+    public Announcement(Long id, Double price, Date dateAnnounced, Date dateModified, Date expirationDate, String telephoneNo, String type, String verified, RealEstate realEstate, User author, Set<Mark> marks, Set<Comment> comments, Boolean deleted) {
+        this.id = id;
         this.price = price;
         this.dateAnnounced = dateAnnounced;
         this.dateModified = dateModified;

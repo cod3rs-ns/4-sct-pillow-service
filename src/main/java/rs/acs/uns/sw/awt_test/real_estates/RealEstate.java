@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.awt_test.real_estates;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import rs.acs.uns.sw.awt_test.announcements.Announcement;
 
 import javax.persistence.*;
@@ -40,13 +41,15 @@ public class RealEstate implements Serializable {
     @Column(name = "re_deleted", nullable = false)
     private Boolean deleted;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "realEstate", fetch = FetchType.LAZY)
     private Set<Announcement> announcements = new HashSet<>(0);
 
     public RealEstate() {
     }
 
-    public RealEstate(String name, String type, Double area, String heatingType, Set<Announcement> announcements, Boolean deleted) {
+    public RealEstate(Long id, String name, String type, Double area, String heatingType, Set<Announcement> announcements, Boolean deleted) {
+        this.id = id;
         this.name = name;
         this.type = type;
         this.area = area;
@@ -61,6 +64,11 @@ public class RealEstate implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public RealEstate id(Long id) {
+        this.id = id;
+        return this;
     }
 
     public String getName() {

@@ -47,6 +47,11 @@ public class UserControllerTest {
 
     private static final String DEFAULT_PASSWORD = "password";
 
+    private static final String DEFAULT_FIRST_NAME = "Miloš";
+
+    private static final String DEFAULT_LAST_NAME = "Teodosić";
+
+
     private User advertiser;
 
     @Autowired
@@ -77,7 +82,9 @@ public class UserControllerTest {
                 .email(DEFAULT_EMAIL)
                 .username(DEFAULT_USERNAME)
                 .password(DEFAULT_PASSWORD)
-                .type(USER_TYPE);
+                .type(USER_TYPE)
+                .firstName(DEFAULT_FIRST_NAME)
+                .lastName(DEFAULT_LAST_NAME);
     }
 
     @PostConstruct
