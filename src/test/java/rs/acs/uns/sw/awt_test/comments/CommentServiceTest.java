@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -110,5 +111,28 @@ public class CommentServiceTest {
 
         Comment dbComment = commentService.findOne(REMOVE_ID);
         assertThat(dbComment).isNull();
+    }
+
+
+    /*
+	 * Negative tests
+	 */
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullContent() {
+        newComment.setContent(null);
+        commentService.save(newComment);
+        // rollback previous content
+        newComment.setContent(NEW_CONTENT);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullDate() {
+        newComment.setDate(null);
+        commentService.save(newComment);
+        // rollback previous date
+        newComment.setDate(NEW_DATE);
     }
 }

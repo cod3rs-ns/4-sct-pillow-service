@@ -5,13 +5,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -118,4 +118,39 @@ public class RealEstateServiceTest {
 	 * Negative tests
 	 */
 
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullName() {
+        newRealEstate.setName(null);
+        realEstateService.save(newRealEstate);
+        // rollback previous name
+        newRealEstate.setName(NEW_NAME);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullType() {
+        newRealEstate.setType(null);
+        realEstateService.save(newRealEstate);
+        // rollback previous type
+        newRealEstate.setType(NEW_TYPE);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullArea() {
+        newRealEstate.setArea(null);
+        realEstateService.save(newRealEstate);
+        // rollback previous area
+        newRealEstate.setArea(NEW_AREA);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullHeatingType() {
+        newRealEstate.setHeatingType(null);
+        realEstateService.save(newRealEstate);
+        // rollback previous heating type
+        newRealEstate.setHeatingType(NEW_HEATING_TYPE);
+    }
 }

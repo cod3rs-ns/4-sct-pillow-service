@@ -13,6 +13,7 @@ import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 import rs.acs.uns.sw.awt_test.users.User;
 import rs.acs.uns.sw.awt_test.users.UserService;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -125,4 +126,16 @@ public class MarkServiceTest {
         assertThat(dbMark).isNull();
     }
 
+    /*
+	 * Negative tests
+	 */
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullValue() {
+        newMark.setValue(null);
+        markService.save(newMark);
+        // rollback previous value
+        newMark.setValue(NEW_VALUE);
+    }
 }

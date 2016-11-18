@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -109,4 +110,36 @@ public class CompanyServiceTest {
         assertThat(dbCompany).isNull();
     }
 
+
+    /*
+	 * Negative tests
+	 */
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullName() {
+        newCompany.setName(null);
+        companyService.save(newCompany);
+        // rollback previous name
+        newCompany.setName(NEW_NAME);
+    }
+
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullAddress() {
+        newCompany.setAddress(null);
+        companyService.save(newCompany);
+        // rollback previous address
+        newCompany.setAddress(NEW_ADDRESS);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullTelephoneNo() {
+        newCompany.setTelephoneNo(null);
+        companyService.save(newCompany);
+        // rollback previous telephone no
+        newCompany.setTelephoneNo(NEW_TELEPHONE_NO);
+    }
 }

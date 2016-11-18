@@ -10,6 +10,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
+
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -177,5 +179,23 @@ public class UserServiceTest {
         userService.save(newUser);
         // rollback previous last name
         newUser.setLastName(NEW_USER_LAST_NAME);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullType() {
+        newUser.setType(null);
+        userService.save(newUser);
+        // rollback previous type
+        newUser.setType(NEW_USER_TYPE);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullPassword() {
+        newUser.setPassword(null);
+        userService.save(newUser);
+        // rollback previous password
+        newUser.setPassword(NEW_USER_PASSWORD);
     }
 }

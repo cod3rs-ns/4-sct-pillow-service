@@ -5,13 +5,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -130,4 +130,49 @@ public class AnnouncementServiceTest {
     /*
 	 * Negative tests
 	 */
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullPrice() {
+        newAnnouncement.setPrice(null);
+        announcementService.save(newAnnouncement);
+        // rollback previous price
+        newAnnouncement.setPrice(NEW_PRICE);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullDateAnnounced() {
+        newAnnouncement.setDateAnnounced(null);
+        announcementService.save(newAnnouncement);
+        // rollback previous date announced
+        newAnnouncement.setDateAnnounced(NEW_DATE_ANNOUNCED);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullExpirationDate() {
+        newAnnouncement.setExpirationDate(null);
+        announcementService.save(newAnnouncement);
+        // rollback previous expiration date
+        newAnnouncement.setExpirationDate(NEW_EXPIRATION_DATE);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullDateTelephoneNo() {
+        newAnnouncement.setTelephoneNo(null);
+        announcementService.save(newAnnouncement);
+        // rollback previous telephone no
+        newAnnouncement.setTelephoneNo(NEW_TELEPHONE_NO);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullType() {
+        newAnnouncement.setType(null);
+        announcementService.save(newAnnouncement);
+        // rollback previous type
+        newAnnouncement.setType(NEW_TYPE);
+    }
 }

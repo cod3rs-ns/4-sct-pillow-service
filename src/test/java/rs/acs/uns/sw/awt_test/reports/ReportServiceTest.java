@@ -10,8 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
-import rs.acs.uns.sw.awt_test.announcements.Announcement;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -117,4 +117,43 @@ public class ReportServiceTest {
         assertThat(dbReport).isNull();
     }
 
+    /*
+	 * Negative tests
+	 */
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullEmail() {
+        newReport.setEmail(null);
+        reportService.save(newReport);
+        // rollback previous email
+        newReport.setEmail(NEW_EMAIL);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullType() {
+        newReport.setType(null);
+        reportService.save(newReport);
+        // rollback previous type
+        newReport.setType(NEW_TYPE);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullContent() {
+        newReport.setContent(null);
+        reportService.save(newReport);
+        // rollback previous content
+        newReport.setContent(NEW_CONTENT);
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullStatus() {
+        newReport.setStatus(null);
+        reportService.save(newReport);
+        // rollback previous status
+        newReport.setStatus(NEW_STATUS);
+    }
 }
