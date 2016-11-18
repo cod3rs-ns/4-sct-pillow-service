@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.awt_test.reports;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +23,6 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class ReportController {
 
-    private final Logger log = LoggerFactory.getLogger(ReportController.class);
-
     @Autowired
     private ReportService reportService;
 
@@ -39,7 +35,6 @@ public class ReportController {
      */
     @PostMapping("/reports")
     public ResponseEntity<Report> createReport(@Valid @RequestBody Report report) throws URISyntaxException {
-        log.debug("REST request to save Report : {}", report);
         if (report.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("report", "idexists", "A new report cannot already have an ID")).body(null);
         }
@@ -60,7 +55,6 @@ public class ReportController {
      */
     @PutMapping("/reports")
     public ResponseEntity<Report> updateReport(@Valid @RequestBody Report report) throws URISyntaxException {
-        log.debug("REST request to update Report : {}", report);
         if (report.getId() == null) {
             return createReport(report);
         }
@@ -80,7 +74,6 @@ public class ReportController {
     @GetMapping("/reports")
     public ResponseEntity<List<Report>> getAllReports(Pageable pageable)
             throws URISyntaxException {
-        log.debug("REST request to get a page of Reports");
         Page<Report> page = reportService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -94,7 +87,6 @@ public class ReportController {
      */
     @GetMapping("/reports/{id}")
     public ResponseEntity<Report> getReport(@PathVariable Long id) {
-        log.debug("REST request to get Report : {}", id);
         Report report = reportService.findOne(id);
         return Optional.ofNullable(report)
                 .map(result -> new ResponseEntity<>(
@@ -111,7 +103,6 @@ public class ReportController {
      */
     @DeleteMapping("/reports/{id}")
     public ResponseEntity<Void> deleteReport(@PathVariable Long id) {
-        log.debug("REST request to delete Report : {}", id);
         reportService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("report", id.toString())).build();
     }

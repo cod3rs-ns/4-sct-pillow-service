@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.awt_test.real_estates;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +23,6 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class RealEstateController {
 
-    private final Logger log = LoggerFactory.getLogger(RealEstateController.class);
-
     @Autowired
     private RealEstateService realEstateService;
 
@@ -39,7 +35,6 @@ public class RealEstateController {
      */
     @PostMapping("/real-estates")
     public ResponseEntity<RealEstate> createRealEstate(@Valid @RequestBody RealEstate realEstate) throws URISyntaxException {
-        log.debug("REST request to save RealEstate : {}", realEstate);
         if (realEstate.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("realEstate", "idexists", "A new realEstate cannot already have an ID")).body(null);
         }
@@ -60,7 +55,6 @@ public class RealEstateController {
      */
     @PutMapping("/real-estates")
     public ResponseEntity<RealEstate> updateRealEstate(@Valid @RequestBody RealEstate realEstate) throws URISyntaxException {
-        log.debug("REST request to update RealEstate : {}", realEstate);
         if (realEstate.getId() == null) {
             return createRealEstate(realEstate);
         }
@@ -80,7 +74,6 @@ public class RealEstateController {
     @GetMapping("/real-estates")
     public ResponseEntity<List<RealEstate>> getAllRealEstates(Pageable pageable)
             throws URISyntaxException {
-        log.debug("REST request to get a page of RealEstates");
         Page<RealEstate> page = realEstateService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/real-estates");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -94,7 +87,6 @@ public class RealEstateController {
      */
     @GetMapping("/real-estates/{id}")
     public ResponseEntity<RealEstate> getRealEstate(@PathVariable Long id) {
-        log.debug("REST request to get RealEstate : {}", id);
         RealEstate realEstate = realEstateService.findOne(id);
         return Optional.ofNullable(realEstate)
                 .map(result -> new ResponseEntity<>(
@@ -111,7 +103,6 @@ public class RealEstateController {
      */
     @DeleteMapping("/real-estates/{id}")
     public ResponseEntity<Void> deleteRealEstate(@PathVariable Long id) {
-        log.debug("REST request to delete RealEstate : {}", id);
         realEstateService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("realEstate", id.toString())).build();
     }
