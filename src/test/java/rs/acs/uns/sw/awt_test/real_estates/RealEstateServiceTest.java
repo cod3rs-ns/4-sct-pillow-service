@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
 
@@ -17,7 +17,7 @@ import java.util.List;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static rs.acs.uns.sw.awt_test.constants.RealEstateConstants.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = AwtTestSiitProject2016ApplicationTests.class)
 public class RealEstateServiceTest {
 
