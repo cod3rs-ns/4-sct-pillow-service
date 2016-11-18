@@ -8,7 +8,7 @@ import java.util.Set;
 public interface RealEstateConstants {
 
     int PAGE_SIZE = 2;
-    int DB_COUNT_REAL_ESTATES = 2;
+    int DB_COUNT_REAL_ESTATES = 3;
 
     Long REMOVE_ID = 2L;
 

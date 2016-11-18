@@ -47,7 +47,8 @@ public class Report implements Serializable {
     public Report() {
     }
 
-    public Report(String email, String type, String content, String status, User reporter, Announcement announcement) {
+    public Report(Long id, String email, String type, String content, String status, User reporter, Announcement announcement) {
+        this.id = id;
         this.email = email;
         this.type = type;
         this.content = content;

@@ -13,8 +13,8 @@ import java.util.Set;
 
 public interface AnnouncementConstants {
 
-    int DB_COUNT_ANNOUNCEMENT = 1;
-    int PAGE_SIZE = 1;
+    int DB_COUNT_ANNOUNCEMENT = 2;
+    int PAGE_SIZE = 2;
 
     Long ID = 1L;
     Double PRICE = 50D;
