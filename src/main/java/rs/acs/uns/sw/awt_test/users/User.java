@@ -58,12 +58,27 @@ public class User implements Serializable {
         super();
     }
 
+    public User(String username, String email, String password, String firstName, String lastName, String telephoneNo, String type) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.telephoneNo = telephoneNo;
+        this.type = type;
+    }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User id(Long id) {
+        this.id = id;
+        return this;
     }
 
     public String getEmail() {
@@ -100,6 +115,11 @@ public class User implements Serializable {
         this.firstName = firstName;
     }
 
+    public User firstName(String firstName){
+        this.firstName = firstName;
+        return  this;
+    }
+
     public String getLastName() {
         return lastName;
     }
@@ -108,12 +128,22 @@ public class User implements Serializable {
         this.lastName = lastName;
     }
 
+    public User lastName(String lastName){
+        this.lastName = lastName;
+        return  this;
+    }
+
     public String getTelephoneNo() {
         return telephoneNo;
     }
 
     public void setTelephoneNo(String telephoneNo) {
         this.telephoneNo = telephoneNo;
+    }
+
+    public User telephoneNo(String telephoneNo){
+        this.telephoneNo = telephoneNo;
+        return  this;
     }
 
     public String getType() {
@@ -165,4 +195,6 @@ public class User implements Serializable {
         this.username = username;
         return this;
     }
+
+
 }

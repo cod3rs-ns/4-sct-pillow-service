@@ -38,7 +38,8 @@ public class Company implements Serializable {
     public Company() {
     }
 
-    public Company(String name, String address, String telephoneNo, Set<User> users) {
+    public Company(Long id, String name, String address, String telephoneNo, Set<User> users) {
+        this.id = id;
         this.name = name;
         this.address = address;
         this.telephoneNo = telephoneNo;

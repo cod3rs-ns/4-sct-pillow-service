@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.awt_test.announcements;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import rs.acs.uns.sw.awt_test.comments.Comment;
 import rs.acs.uns.sw.awt_test.marks.Mark;
 import rs.acs.uns.sw.awt_test.real_estates.RealEstate;
@@ -58,6 +59,7 @@ public class Announcement implements Serializable {
     @JoinColumn(name = "re_author_id")
     private User author;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "announcement", fetch = FetchType.LAZY)
     private Set<Mark> marks = new HashSet<>(0);
 
@@ -70,7 +72,8 @@ public class Announcement implements Serializable {
     public Announcement() {
     }
 
-    public Announcement(Double price, Date dateAnnounced, Date dateModified, Date expirationDate, String telephoneNo, String type, String verified, RealEstate realEstate, User author, Set<Mark> marks, Set<Comment> comments, Boolean deleted) {
+    public Announcement(Long id, Double price, Date dateAnnounced, Date dateModified, Date expirationDate, String telephoneNo, String type, String verified, RealEstate realEstate, User author, Set<Mark> marks, Set<Comment> comments, Boolean deleted) {
+        this.id = id;
         this.price = price;
         this.dateAnnounced = dateAnnounced;
         this.dateModified = dateModified;
@@ -91,6 +94,11 @@ public class Announcement implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Announcement id(Long id) {
+        this.id = id;
+        return this;
     }
 
     public Double getPrice() {

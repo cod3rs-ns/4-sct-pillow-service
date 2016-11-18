@@ -40,7 +40,8 @@ public class Mark implements Serializable {
     public Mark() {
     }
 
-    public Mark(Integer value, User grader, User graded_announcer, Announcement announcement) {
+    public Mark(Long id, Integer value, User grader, User graded_announcer, Announcement announcement) {
+        this.id = id;
         this.value = value;
         this.grader = grader;
         this.graded_announcer = graded_announcer;

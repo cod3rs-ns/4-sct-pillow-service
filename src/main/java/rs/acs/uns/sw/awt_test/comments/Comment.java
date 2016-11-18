@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.awt_test.comments;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import rs.acs.uns.sw.awt_test.announcements.Announcement;
 import rs.acs.uns.sw.awt_test.users.User;
 
@@ -29,6 +30,7 @@ public class Comment implements Serializable {
     @Column(name = "co_date", nullable = false)
     private Date date;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "co_announcement")
     private Announcement announcement;
@@ -40,7 +42,8 @@ public class Comment implements Serializable {
     public Comment() {
     }
 
-    public Comment(String content, Date date, Announcement announcement, User author) {
+    public Comment(Long id, String content, Date date, Announcement announcement, User author) {
+        this.id = id;
         this.content = content;
         this.date = date;
         this.announcement = announcement;

@@ -33,9 +33,11 @@ public class UserService {
     public User save(User newUser) {
         log.debug("Request to save User : {}", newUser);
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode(newUser.getPassword());
-        newUser.setPassword(hashedPassword);
+        if (newUser.getPassword() != null) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String hashedPassword = passwordEncoder.encode(newUser.getPassword());
+            newUser.setPassword(hashedPassword);
+        }
 
         User result = userRepository.save(newUser);
         return result;
