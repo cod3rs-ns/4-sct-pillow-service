@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.awt_test.comments;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +23,6 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class CommentController {
 
-    private final Logger log = LoggerFactory.getLogger(CommentController.class);
-
     @Autowired
     private CommentService commentService;
 
@@ -39,7 +35,6 @@ public class CommentController {
      */
     @PostMapping("/comments")
     public ResponseEntity<Comment> createComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
-        log.debug("REST request to save Comment : {}", comment);
         if (comment.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("comment", "idexists", "A new comment cannot already have an ID")).body(null);
         }
@@ -60,7 +55,6 @@ public class CommentController {
      */
     @PutMapping("/comments")
     public ResponseEntity<Comment> updateComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
-        log.debug("REST request to update Comment : {}", comment);
         if (comment.getId() == null) {
             return createComment(comment);
         }
@@ -80,7 +74,6 @@ public class CommentController {
     @GetMapping("/comments")
     public ResponseEntity<List<Comment>> getAllComments(Pageable pageable)
             throws URISyntaxException {
-        log.debug("REST request to get a page of Comments");
         Page<Comment> page = commentService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/comments");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -94,7 +87,6 @@ public class CommentController {
      */
     @GetMapping("/comments/{id}")
     public ResponseEntity<Comment> getComment(@PathVariable Long id) {
-        log.debug("REST request to get Comment : {}", id);
         Comment comment = commentService.findOne(id);
         return Optional.ofNullable(comment)
                 .map(result -> new ResponseEntity<>(
@@ -111,7 +103,6 @@ public class CommentController {
      */
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
-        log.debug("REST request to delete Comment : {}", id);
         commentService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("comment", id.toString())).build();
     }

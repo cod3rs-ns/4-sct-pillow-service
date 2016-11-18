@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.awt_test.marks;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +23,6 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class MarkController {
 
-    private final Logger log = LoggerFactory.getLogger(MarkService.class);
-
     @Autowired
     private MarkService markService;
 
@@ -39,7 +35,6 @@ public class MarkController {
      */
     @PostMapping("/marks")
     public ResponseEntity<Mark> createMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
-        log.debug("REST request to save Mark : {}", mark);
         if (mark.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("mark", "idexists", "A new mark cannot already have an ID")).body(null);
         }
@@ -60,7 +55,6 @@ public class MarkController {
      */
     @PutMapping("/marks")
     public ResponseEntity<Mark> updateMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
-        log.debug("REST request to update Mark : {}", mark);
         if (mark.getId() == null) {
             return createMark(mark);
         }
@@ -80,7 +74,6 @@ public class MarkController {
     @GetMapping("/marks")
     public ResponseEntity<List<Mark>> getAllMarks(Pageable pageable)
             throws URISyntaxException {
-        log.debug("REST request to get a page of Marks");
         Page<Mark> page = markService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/marks");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -94,7 +87,6 @@ public class MarkController {
      */
     @GetMapping("/marks/{id}")
     public ResponseEntity<Mark> getMark(@PathVariable Long id) {
-        log.debug("REST request to get Mark : {}", id);
         Mark mark = markService.findOne(id);
         return Optional.ofNullable(mark)
                 .map(result -> new ResponseEntity<>(
@@ -111,7 +103,6 @@ public class MarkController {
      */
     @DeleteMapping("/marks/{id}")
     public ResponseEntity<Void> deleteMark(@PathVariable Long id) {
-        log.debug("REST request to delete Mark : {}", id);
         markService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("mark", id.toString())).build();
     }

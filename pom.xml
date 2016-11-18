@@ -5,11 +5,11 @@
 
     <groupId>rs.acs.uns.sw.teamone</groupId>
     <artifactId>awt-test-siit-project-2016</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>awt-test-siit-project-2016</name>
-    <description>Demo project for Spring Boot</description>
+    <name>awt-test-sw-project-2016</name>
+    <description>Project for courses Advanced Web Technologies and Construction and Testing of Software</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

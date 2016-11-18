@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.awt_test.marks;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class MarkService {
 
-    private final Logger log = LoggerFactory.getLogger(MarkService.class);
-
     @Autowired
     private MarkRepository markRepository;
 
@@ -27,7 +23,6 @@ public class MarkService {
      * @return the persisted entity
      */
     public Mark save(Mark mark) {
-        log.debug("Request to save Mark : {}", mark);
         Mark result = markRepository.save(mark);
         return result;
     }
@@ -40,7 +35,6 @@ public class MarkService {
      */
     @Transactional(readOnly = true)
     public Page<Mark> findAll(Pageable pageable) {
-        log.debug("Request to get all Marks");
         Page<Mark> result = markRepository.findAll(pageable);
         return result;
     }
@@ -53,7 +47,6 @@ public class MarkService {
      */
     @Transactional(readOnly = true)
     public Mark findOne(Long id) {
-        log.debug("Request to get Mark : {}", id);
         Mark mark = markRepository.findOne(id);
         return mark;
     }
@@ -64,7 +57,6 @@ public class MarkService {
      * @param id the id of the entity
      */
     public void delete(Long id) {
-        log.debug("Request to delete Mark : {}", id);
         markRepository.delete(id);
     }
 }

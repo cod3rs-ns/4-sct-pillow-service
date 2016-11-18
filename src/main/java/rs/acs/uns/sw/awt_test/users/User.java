@@ -31,10 +31,10 @@ public class User implements Serializable {
     @Column(name = "u_password", nullable = false)
     private String password;
 
-    @Column(name = "u_fname", nullable = false)
+    @Column(name = "u_fname")
     private String firstName;
 
-    @Column(name = "u_lname", nullable = false)
+    @Column(name = "u_lname")
     private String lastName;
 
     @Column(name = "u_telephone")
