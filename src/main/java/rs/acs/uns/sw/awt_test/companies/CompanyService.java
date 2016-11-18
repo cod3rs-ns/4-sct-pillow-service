@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.awt_test.companies;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CompanyService {
 
-    private final Logger log = LoggerFactory.getLogger(CompanyService.class);
-
     @Autowired
     private CompanyRepository companyRepository;
 
@@ -28,7 +24,6 @@ public class CompanyService {
      * @return the persisted entity
      */
     public Company save(Company company) {
-        log.debug("Request to save Company : {}", company);
         Company result = companyRepository.save(company);
         return result;
     }
@@ -41,7 +36,6 @@ public class CompanyService {
      */
     @Transactional(readOnly = true)
     public Page<Company> findAll(Pageable pageable) {
-        log.debug("Request to get all Companies");
         Page<Company> result = companyRepository.findAll(pageable);
         return result;
     }
@@ -54,7 +48,6 @@ public class CompanyService {
      */
     @Transactional(readOnly = true)
     public Company findOne(Long id) {
-        log.debug("Request to get Company : {}", id);
         Company company = companyRepository.findOne(id);
         return company;
     }
@@ -65,7 +58,6 @@ public class CompanyService {
      * @param id the id of the entity
      */
     public void delete(Long id) {
-        log.debug("Request to delete Company : {}", id);
         companyRepository.delete(id);
     }
 }

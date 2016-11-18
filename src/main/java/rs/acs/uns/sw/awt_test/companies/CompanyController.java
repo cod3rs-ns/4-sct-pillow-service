@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.awt_test.companies;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +23,6 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class CompanyController {
 
-    private final Logger log = LoggerFactory.getLogger(CompanyController.class);
-
     @Autowired
     private CompanyService companyService;
 
@@ -39,7 +35,6 @@ public class CompanyController {
      */
     @PostMapping("/companies")
     public ResponseEntity<Company> createCompany(@Valid @RequestBody Company company) throws URISyntaxException {
-        log.debug("REST request to save Company : {}", company);
         if (company.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("company", "idexists", "A new company cannot already have an ID")).body(null);
         }
@@ -60,7 +55,6 @@ public class CompanyController {
      */
     @PutMapping("/companies")
     public ResponseEntity<Company> updateCompany(@Valid @RequestBody Company company) throws URISyntaxException {
-        log.debug("REST request to update Company : {}", company);
         if (company.getId() == null) {
             return createCompany(company);
         }
@@ -80,7 +74,6 @@ public class CompanyController {
     @GetMapping("/companies")
     public ResponseEntity<List<Company>> getAllCompanies(Pageable pageable)
             throws URISyntaxException {
-        log.debug("REST request to get a page of Companies");
         Page<Company> page = companyService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/companies");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -94,7 +87,6 @@ public class CompanyController {
      */
     @GetMapping("/companies/{id}")
     public ResponseEntity<Company> getCompany(@PathVariable Long id) {
-        log.debug("REST request to get Company : {}", id);
         Company company = companyService.findOne(id);
         return Optional.ofNullable(company)
                 .map(result -> new ResponseEntity<>(
@@ -111,7 +103,6 @@ public class CompanyController {
      */
     @DeleteMapping("/companies/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
-        log.debug("REST request to delete Company : {}", id);
         companyService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("company", id.toString())).build();
     }

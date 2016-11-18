@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.awt_test.announcements;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +23,6 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class AnnouncementController {
 
-    private final Logger log = LoggerFactory.getLogger(AnnouncementController.class);
-
     @Autowired
     private AnnouncementService announcementService;
 
@@ -39,7 +35,6 @@ public class AnnouncementController {
      */
     @PostMapping("/announcements")
     public ResponseEntity<Announcement> createAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
-        log.debug("REST request to save Announcement : {}", announcement);
         if (announcement.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("announcement", "idexists", "A new announcement cannot already have an ID")).body(null);
         }
@@ -60,7 +55,6 @@ public class AnnouncementController {
      */
     @PutMapping("/announcements")
     public ResponseEntity<Announcement> updateAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
-        log.debug("REST request to update Announcement : {}", announcement);
         if (announcement.getId() == null) {
             return createAnnouncement(announcement);
         }
@@ -80,7 +74,6 @@ public class AnnouncementController {
     @GetMapping("/announcements")
     public ResponseEntity<List<Announcement>> getAllAnnouncements(Pageable pageable)
             throws URISyntaxException {
-        log.debug("REST request to get a page of Announcements");
         Page<Announcement> page = announcementService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -94,7 +87,6 @@ public class AnnouncementController {
      */
     @GetMapping("/announcements/{id}")
     public ResponseEntity<Announcement> getAnnouncement(@PathVariable Long id) {
-        log.debug("REST request to get Announcement : {}", id);
         Announcement announcement = announcementService.findOne(id);
         return Optional.ofNullable(announcement)
                 .map(result -> new ResponseEntity<>(
@@ -111,7 +103,6 @@ public class AnnouncementController {
      */
     @DeleteMapping("/announcements/{id}")
     public ResponseEntity<Void> deleteAnnouncement(@PathVariable Long id) {
-        log.debug("REST request to delete Announcement : {}", id);
         announcementService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("announcement", id.toString())).build();
     }
