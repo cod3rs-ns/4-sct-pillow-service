@@ -10,6 +10,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 
+/**
+ * A user comment.
+ */
 @Entity
 @Table(name = "comments")
 public class Comment implements Serializable {
@@ -18,36 +21,24 @@ public class Comment implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "co_id")
     private Long id;
 
     @NotNull
-    @Column(name = "co_content", nullable = false)
+    @Column(nullable = false)
     private String content;
 
     @NotNull
-    @Column(name = "co_date", nullable = false)
+    @Column(nullable = false)
     private Date date;
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "co_announcement")
+    @JoinColumn()
     private Announcement announcement;
 
     @ManyToOne
-    @JoinColumn(name = "co_author")
+    @JoinColumn()
     private User author;
-
-    public Comment() {
-    }
-
-    public Comment(Long id, String content, Date date, Announcement announcement, User author) {
-        this.id = id;
-        this.content = content;
-        this.date = date;
-        this.announcement = announcement;
-        this.author = author;
-    }
 
     public Long getId() {
         return id;
@@ -55,6 +46,17 @@ public class Comment implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param id comment identifier
+     * @return Comment (this)
+     */
+    public Comment id(Long id) {
+        this.id = id;
+        return this;
     }
 
     public String getContent() {
@@ -65,6 +67,12 @@ public class Comment implements Serializable {
         this.content = content;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param content comment content
+     * @return Comment (this)
+     */
     public Comment content(String content) {
         this.content = content;
         return this;
@@ -78,6 +86,12 @@ public class Comment implements Serializable {
         this.date = date;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param date date on which comment is posted
+     * @return Comment (this)
+     */
     public Comment date(Date date) {
         this.date = date;
         return this;

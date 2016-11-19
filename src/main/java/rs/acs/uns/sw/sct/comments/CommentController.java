@@ -36,11 +36,11 @@ public class CommentController {
     @PostMapping("/comments")
     public ResponseEntity<Comment> createComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
         if (comment.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("comment", "idexists", "A new comment cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.COMMENT, "id_exists", "A new comment cannot already have an ID")).body(null);
         }
         Comment result = commentService.save(comment);
         return ResponseEntity.created(new URI("/api/comments/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("comment", result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.COMMENT, result.getId().toString()))
                 .body(result);
     }
 
@@ -60,7 +60,7 @@ public class CommentController {
         }
         Comment result = commentService.save(comment);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("comment", comment.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.COMMENT, comment.getId().toString()))
                 .body(result);
     }
 
@@ -104,7 +104,7 @@ public class CommentController {
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
         commentService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("comment", id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.COMMENT, id.toString())).build();
     }
 
 }

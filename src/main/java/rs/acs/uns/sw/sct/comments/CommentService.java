@@ -24,8 +24,7 @@ public class CommentService {
      * @return the persisted entity
      */
     public Comment save(Comment comment) {
-        Comment result = commentRepository.save(comment);
-        return result;
+        return commentRepository.save(comment);
     }
 
     /**
@@ -36,8 +35,7 @@ public class CommentService {
      */
     @Transactional(readOnly = true)
     public Page<Comment> findAll(Pageable pageable) {
-        Page<Comment> result = commentRepository.findAll(pageable);
-        return result;
+        return commentRepository.findAll(pageable);
     }
 
     /**
@@ -48,8 +46,7 @@ public class CommentService {
      */
     @Transactional(readOnly = true)
     public Comment findOne(Long id) {
-        Comment comment = commentRepository.findOne(id);
-        return comment;
+        return commentRepository.findOne(id);
     }
 
     /**
