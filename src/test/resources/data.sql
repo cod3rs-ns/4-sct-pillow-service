@@ -1,15 +1,3 @@
-SET foreign_key_checks = 0;
-
-TRUNCATE TABLE `announcements`;
-TRUNCATE TABLE `comments`;
-TRUNCATE TABLE `companies`;
-TRUNCATE TABLE `marks`;
-TRUNCATE TABLE `real_estates`;
-TRUNCATE TABLE `reports`;
-TRUNCATE TABLE `users`;
-
-SET foreign_key_checks = 1;
-
 /* Insert new users */
 INSERT INTO `users` (`u_id`, `u_deleted`, `u_email`, `u_fname`, `u_lname`, `u_password`, `u_telephone`, `u_type`, `u_username`) VALUES (1, 0, 'isco@gmail.com', 'Isco', 'Alarcon', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065066665', 'oglašavač', 'isco');
 INSERT INTO `users` (`u_id`, `u_deleted`, `u_email`, `u_fname`, `u_lname`, `u_password`, `u_telephone`, `u_type`, `u_username`) VALUES (2, 0, 'sr4@gmail.com', 'Sergio', 'Ramos', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065066665', 'verifikator', 'sr4');
@@ -42,10 +30,10 @@ INSERT INTO `companies` (`co_id`, `co_address`, `co_name`, `co_telephone`) VALUE
 
 
 /* Insert new marks*/
-INSERT INTO `marks` (`m_id`, `re_deleted`, `m_value`, `m_announcement`, `m_grader`) VALUES ('1', 0, '4', '2', '3');
-INSERT INTO `marks` (`m_id`, `re_deleted`, `m_value`, `m_announcement`, `m_grader`) VALUES ('2', 0, '5', '2', '4');
-INSERT INTO `marks` (`m_id`, `re_deleted`, `m_value`, `m_graded_announcer`, `m_grader`) VALUES ('3', 0, '3', '1', '3');
+INSERT INTO `marks`  VALUES ('1', '4', '2', '1', '3');
+INSERT INTO `marks`  VALUES ('2', '5', '2', '1', '4');
+INSERT INTO `marks`  VALUES ('3', '3', '2', '1', '3');
 
 
 /* Insert new */
-INSERT INTO `reports` (`rep_id`, `rep_content`, `rep_deleted`, `rep_status`, `rep_type`, `rep_announcement`, `rep_reporter`) VALUES ('1', 'Inappropriate content', 0, 'active', 'admin', '2', '6');
+INSERT INTO `reports` (`rep_id`,`rep_email`, `rep_content`, `rep_status`, `rep_type`, `rep_announcement`, `rep_reporter`) VALUES ('1', 'user6@mail.com', 'Inappropriate content', 'active', 'admin', '2', '6');

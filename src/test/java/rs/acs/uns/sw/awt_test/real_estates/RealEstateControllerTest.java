@@ -14,7 +14,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
+import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016Application;
 import rs.acs.uns.sw.awt_test.util.TestUtil;
 
 import javax.annotation.PostConstruct;
@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see RealEstateController
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AwtTestSiitProject2016ApplicationTests.class)
+@SpringBootTest(classes = AwtTestSiitProject2016Application.class)
 public class RealEstateControllerTest {
 
     private static final String DEFAULT_NAME = "NAME_AAA";

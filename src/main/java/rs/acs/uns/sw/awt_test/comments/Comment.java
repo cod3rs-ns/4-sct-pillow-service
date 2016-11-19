@@ -12,7 +12,6 @@ import java.util.Date;
 
 @Entity
 @Table(name = "comments")
-@PrimaryKeyJoinColumn(name = "co_id")
 public class Comment implements Serializable {
 
     private static final long serialVersionUID = 1L;

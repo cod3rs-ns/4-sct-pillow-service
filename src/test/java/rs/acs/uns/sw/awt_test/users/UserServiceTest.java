@@ -9,7 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
+import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016Application;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 import static rs.acs.uns.sw.awt_test.constants.UserConstants.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AwtTestSiitProject2016ApplicationTests.class)
+@SpringBootTest(classes = AwtTestSiitProject2016Application.class)
 public class UserServiceTest {
 
     @Autowired
@@ -163,7 +163,7 @@ public class UserServiceTest {
         existingUser.setId(USER_ID);
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullFirstName() {
         newUser.setFirstName(null);
@@ -172,7 +172,7 @@ public class UserServiceTest {
         newUser.setFirstName(NEW_USER_FIRST_NAME);
     }
 
-    @Test(expected = DataIntegrityViolationException.class)
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullLastName() {
         newUser.setLastName(null);

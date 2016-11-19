@@ -26,15 +26,12 @@ public class Mark implements Serializable {
     private Integer value;
 
     @ManyToOne
-    @JoinColumn(name = "m_grader")
     private User grader;
 
     @ManyToOne
-    @JoinColumn(name = "m_graded_announcer")
     private User graded_announcer;
 
     @ManyToOne
-    @JoinColumn(name = "m_announcement")
     private Announcement announcement;
 
     public Mark() {

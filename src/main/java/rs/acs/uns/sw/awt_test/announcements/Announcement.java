@@ -15,7 +15,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "announcements")
-@PrimaryKeyJoinColumn(name = "ann_id")
 public class Announcement implements Serializable {
 
     private static final long serialVersionUID = 1L;

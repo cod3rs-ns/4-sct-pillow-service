@@ -10,7 +10,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "companies")
-@PrimaryKeyJoinColumn(name = "co_id")
 public class Company implements Serializable {
 
     private static final long serialVersionUID = 1L;

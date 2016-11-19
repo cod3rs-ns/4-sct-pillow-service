@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
-import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
+import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016Application;
 import rs.acs.uns.sw.awt_test.util.Constants;
 import rs.acs.uns.sw.awt_test.util.TestUtil;
 
@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see UserController
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AwtTestSiitProject2016ApplicationTests.class)
+@SpringBootTest(classes = AwtTestSiitProject2016Application.class)
 public class UserControllerTest {
 
     private static final String DEFAULT_EMAIL = "user@email.com";

@@ -7,9 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016ApplicationTests;
+import rs.acs.uns.sw.awt_test.AwtTestSiitProject2016Application;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -18,7 +19,8 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static rs.acs.uns.sw.awt_test.constants.ReportConstants.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AwtTestSiitProject2016ApplicationTests.class)
+@SpringBootTest(classes = AwtTestSiitProject2016Application.class)
+@TestPropertySource(locations="classpath:application.properties")
 public class ReportServiceTest {
     @Autowired
     private ReportService reportService;
@@ -37,6 +39,8 @@ public class ReportServiceTest {
         assertThat(report1.getType()).isEqualTo(report2.getType());
         assertThat(report1.getAnnouncement().getId()).isEqualTo(report2.getAnnouncement().getId());
         if (report1.getEmail() != null && report2.getEmail() != null)
+            System.out.println(report1.getEmail());
+        System.out.println(report2.getEmail());
             assertThat(report1.getEmail()).isEqualTo(report2.getEmail());
         if (report1.getReporter() != null && report2.getReporter() != null)
             assertThat(report1.getReporter().getId()).isEqualTo(report2.getReporter().getId());
@@ -53,6 +57,7 @@ public class ReportServiceTest {
     }
 
     @Test
+    @Transactional(readOnly = true)
     public void testFindAllPageable() {
         PageRequest pageRequest = new PageRequest(0, PAGE_SIZE);
         Page<Report> reports = reportRepository.findAll(pageRequest);
@@ -60,15 +65,18 @@ public class ReportServiceTest {
     }
 
     @Test
+    @Transactional(readOnly = true)
     public void testFindAll() {
         List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(DB_COUNT_REPORTS);
     }
 
     @Test
+    @Transactional(readOnly = true)
     public void testFindOne(){
         Report report = reportService.findOne(ID);
         assertThat(report).isNotNull();
+        System.out.println(report);
 
         compareReports(report, existingReport);
     }
@@ -95,6 +103,7 @@ public class ReportServiceTest {
 
         dbReport.setContent(UPDATED_CONTENT);
         dbReport.setReporter(UPDATED_REPORTER);
+        dbReport.setEmail(UPDATED_EMAIL);
         dbReport.setStatus(UPDATED_STATUS);
         dbReport.setType(UPDATED_TYPE);
 

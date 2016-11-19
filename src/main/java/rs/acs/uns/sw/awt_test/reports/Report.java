@@ -10,7 +10,6 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "reports")
-@PrimaryKeyJoinColumn(name = "rep_id")
 public class Report implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -131,5 +130,18 @@ public class Report implements Serializable {
 
     public void setAnnouncement(Announcement announcement) {
         this.announcement = announcement;
+    }
+
+    @Override
+    public String toString() {
+        return "Report{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", type='" + type + '\'' +
+                ", content='" + content + '\'' +
+                ", status='" + status + '\'' +
+                ", reporter=" + reporter +
+                ", announcement=" + announcement +
+                '}';
     }
 }
