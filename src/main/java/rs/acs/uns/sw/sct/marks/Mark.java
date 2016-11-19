@@ -8,42 +8,31 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-
+/**
+ * A mark - rating.
+ */
 @Entity
 @Table(name = "marks")
-@PrimaryKeyJoinColumn(name = "m_id")
 public class Mark implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "m_id")
     private Long id;
 
     @NotNull
-    @Column(name = "m_value", nullable = false)
+    @Column(nullable = false)
     private Integer value;
 
     @ManyToOne
     private User grader;
 
     @ManyToOne
-    private User graded_announcer;
+    private User gradedAnnouncer;
 
     @ManyToOne
     private Announcement announcement;
-
-    public Mark() {
-    }
-
-    public Mark(Long id, Integer value, User grader, User graded_announcer, Announcement announcement) {
-        this.id = id;
-        this.value = value;
-        this.grader = grader;
-        this.graded_announcer = graded_announcer;
-        this.announcement = announcement;
-    }
 
     public Long getId() {
         return id;
@@ -51,6 +40,17 @@ public class Mark implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param id mark identifier
+     * @return Mark (this)
+     */
+    public Mark id(Long id) {
+        this.id = id;
+        return this;
     }
 
     public Integer getValue() {
@@ -61,6 +61,12 @@ public class Mark implements Serializable {
         this.value = value;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param value mark value
+     * @return Mark (this)
+     */
     public Mark value(Integer value) {
         this.value = value;
         return this;
@@ -74,12 +80,34 @@ public class Mark implements Serializable {
         this.grader = grader;
     }
 
-    public User getGraded_announcer() {
-        return graded_announcer;
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param grader user who posted mark
+     * @return Mark (this)
+     */
+    public Mark grader(User grader) {
+        this.grader = grader;
+        return this;
     }
 
-    public void setGraded_announcer(User graded_announcer) {
-        this.graded_announcer = graded_announcer;
+    public User getGradedAnnouncer() {
+        return gradedAnnouncer;
+    }
+
+    public void setGradedAnnouncer(User gradedAnnouncer) {
+        this.gradedAnnouncer = gradedAnnouncer;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param gradedAnnouncer user who is graded
+     * @return Mark (this)
+     */
+    public Mark gradedAnnouncer(User gradedAnnouncer) {
+        this.gradedAnnouncer = gradedAnnouncer;
+        return this;
     }
 
     public Announcement getAnnouncement() {
@@ -90,4 +118,14 @@ public class Mark implements Serializable {
         this.announcement = announcement;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param announcement announcement which is graded
+     * @return Mark (this)
+     */
+    public Mark announcement(Announcement announcement) {
+        this.announcement = announcement;
+        return this;
+    }
 }

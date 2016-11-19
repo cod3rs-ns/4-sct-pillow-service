@@ -36,11 +36,11 @@ public class MarkController {
     @PostMapping("/marks")
     public ResponseEntity<Mark> createMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
         if (mark.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("mark", "idexists", "A new mark cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.MARK, "id_exists", "A new mark cannot already have an ID")).body(null);
         }
         Mark result = markService.save(mark);
         return ResponseEntity.created(new URI("/api/marks/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("mark", result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.MARK, result.getId().toString()))
                 .body(result);
     }
 
@@ -60,7 +60,7 @@ public class MarkController {
         }
         Mark result = markService.save(mark);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("mark", mark.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.MARK, mark.getId().toString()))
                 .body(result);
     }
 
@@ -104,7 +104,7 @@ public class MarkController {
     @DeleteMapping("/marks/{id}")
     public ResponseEntity<Void> deleteMark(@PathVariable Long id) {
         markService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("mark", id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.MARK, id.toString())).build();
     }
 
 }

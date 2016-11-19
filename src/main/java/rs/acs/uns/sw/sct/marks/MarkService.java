@@ -23,8 +23,7 @@ public class MarkService {
      * @return the persisted entity
      */
     public Mark save(Mark mark) {
-        Mark result = markRepository.save(mark);
-        return result;
+        return markRepository.save(mark);
     }
 
     /**
@@ -35,8 +34,7 @@ public class MarkService {
      */
     @Transactional(readOnly = true)
     public Page<Mark> findAll(Pageable pageable) {
-        Page<Mark> result = markRepository.findAll(pageable);
-        return result;
+        return markRepository.findAll(pageable);
     }
 
     /**
@@ -47,8 +45,7 @@ public class MarkService {
      */
     @Transactional(readOnly = true)
     public Mark findOne(Long id) {
-        Mark mark = markRepository.findOne(id);
-        return mark;
+        return markRepository.findOne(id);
     }
 
     /**
