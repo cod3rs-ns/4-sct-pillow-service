@@ -36,11 +36,11 @@ public class CompanyController {
     @PostMapping("/companies")
     public ResponseEntity<Company> createCompany(@Valid @RequestBody Company company) throws URISyntaxException {
         if (company.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("company", "idexists", "A new company cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.COMPANY, "id_exists", "A new company cannot already have an ID")).body(null);
         }
         Company result = companyService.save(company);
         return ResponseEntity.created(new URI("/api/companies/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("company", result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.COMPANY, result.getId().toString()))
                 .body(result);
     }
 
@@ -60,7 +60,7 @@ public class CompanyController {
         }
         Company result = companyService.save(company);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("company", company.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.COMPANY, company.getId().toString()))
                 .body(result);
     }
 
@@ -104,7 +104,7 @@ public class CompanyController {
     @DeleteMapping("/companies/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         companyService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("company", id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.COMPANY, id.toString())).build();
     }
 
 }

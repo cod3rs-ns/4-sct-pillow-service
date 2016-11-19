@@ -105,7 +105,7 @@ public class CompanyControllerTest {
         Company testCompany = companies.get(companies.size() - 1);
         assertThat(testCompany.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCompany.getAddress()).isEqualTo(DEFAULT_ADDRESS);
-        assertThat(testCompany.getTelephoneNo()).isEqualTo(DEFAULT_TELEPHONE_NO);
+        assertThat(testCompany.getPhoneNumber()).isEqualTo(DEFAULT_TELEPHONE_NO);
     }
 
 
@@ -150,7 +150,7 @@ public class CompanyControllerTest {
     public void checkTelephoneNoIsRequired() throws Exception {
         int databaseSizeBeforeTest = companyRepository.findAll().size();
         // set the field null
-        company.setTelephoneNo(null);
+        company.setPhoneNumber(null);
 
         // Create the Company, which fails.
 
@@ -229,7 +229,7 @@ public class CompanyControllerTest {
         Company testCompany = companies.get(companies.size() - 1);
         assertThat(testCompany.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCompany.getAddress()).isEqualTo(UPDATED_ADDRESS);
-        assertThat(testCompany.getTelephoneNo()).isEqualTo(UPDATED_TELEPHONE_NO);
+        assertThat(testCompany.getPhoneNumber()).isEqualTo(UPDATED_TELEPHONE_NO);
     }
 
     @Test

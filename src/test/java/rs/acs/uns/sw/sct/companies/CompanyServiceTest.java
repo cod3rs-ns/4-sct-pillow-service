@@ -35,7 +35,7 @@ public class CompanyServiceTest {
             assertThat(company1.getId()).isEqualTo(company2.getId());
         assertThat(company1.getName()).isEqualTo(company2.getName());
         assertThat(company1.getAddress()).isEqualTo(company2.getAddress());
-        assertThat(company1.getTelephoneNo()).isEqualTo(company2.getTelephoneNo());
+        assertThat(company1.getPhoneNumber()).isEqualTo(company2.getPhoneNumber());
     }
 
 
@@ -89,7 +89,7 @@ public class CompanyServiceTest {
 
         dbCompany.setName(UPDATED_NAME);
         dbCompany.setAddress(UPDATED_ADDRESS);
-        dbCompany.setTelephoneNo(UPDATED_TELEPHONE_NO);
+        dbCompany.setPhoneNumber(UPDATED_TELEPHONE_NO);
 
         Company updatedDbCompany = companyService.save(dbCompany);
         assertThat(updatedDbCompany).isNotNull();
@@ -137,9 +137,9 @@ public class CompanyServiceTest {
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullTelephoneNo() {
-        newCompany.setTelephoneNo(null);
+        newCompany.setPhoneNumber(null);
         companyService.save(newCompany);
         // rollback previous telephone no
-        newCompany.setTelephoneNo(NEW_TELEPHONE_NO);
+        newCompany.setPhoneNumber(NEW_TELEPHONE_NO);
     }
 }

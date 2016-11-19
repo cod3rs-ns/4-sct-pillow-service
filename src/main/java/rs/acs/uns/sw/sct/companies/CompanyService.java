@@ -24,8 +24,7 @@ public class CompanyService {
      * @return the persisted entity
      */
     public Company save(Company company) {
-        Company result = companyRepository.save(company);
-        return result;
+        return companyRepository.save(company);
     }
 
     /**
@@ -36,8 +35,7 @@ public class CompanyService {
      */
     @Transactional(readOnly = true)
     public Page<Company> findAll(Pageable pageable) {
-        Page<Company> result = companyRepository.findAll(pageable);
-        return result;
+        return companyRepository.findAll(pageable);
     }
 
     /**
@@ -48,8 +46,7 @@ public class CompanyService {
      */
     @Transactional(readOnly = true)
     public Company findOne(Long id) {
-        Company company = companyRepository.findOne(id);
-        return company;
+        return companyRepository.findOne(id);
     }
 
     /**

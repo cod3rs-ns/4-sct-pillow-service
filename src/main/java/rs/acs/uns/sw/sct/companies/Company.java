@@ -8,6 +8,9 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A company.
+ */
 @Entity
 @Table(name = "companies")
 public class Company implements Serializable {
@@ -16,34 +19,22 @@ public class Company implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "co_id")
     private Long id;
 
     @NotNull
-    @Column(name = "co_name", nullable = false)
+    @Column(nullable = false)
     private String name;
 
     @NotNull
-    @Column(name = "co_address", nullable = false)
+    @Column(nullable = false)
     private String address;
 
     @NotNull
-    @Column(name = "co_telephone", nullable = false)
-    private String telephoneNo;
+    @Column(nullable = false)
+    private String phoneNumber;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>(0);
-
-    public Company() {
-    }
-
-    public Company(Long id, String name, String address, String telephoneNo, Set<User> users) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.telephoneNo = telephoneNo;
-        this.users = users;
-    }
 
     public Long getId() {
         return id;
@@ -51,6 +42,17 @@ public class Company implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param id company identifier
+     * @return Company (this)
+     */
+    public Company id(Long id) {
+        this.id = id;
+        return this;
     }
 
     public String getName() {
@@ -61,6 +63,12 @@ public class Company implements Serializable {
         this.name = name;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param name company full name
+     * @return Company (this)
+     */
     public Company name(String name) {
         this.name = name;
         return this;
@@ -74,21 +82,33 @@ public class Company implements Serializable {
         this.address = address;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param address company address
+     * @return Company (this)
+     */
     public Company address(String address) {
         this.address = address;
         return this;
     }
 
-    public String getTelephoneNo() {
-        return telephoneNo;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setTelephoneNo(String telephoneNo) {
-        this.telephoneNo = telephoneNo;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public Company telephoneNo(String telephoneNo) {
-        this.telephoneNo = telephoneNo;
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param phoneNumber company phone number
+     * @return Company (this)
+     */
+    public Company phoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
         return this;
     }
 
