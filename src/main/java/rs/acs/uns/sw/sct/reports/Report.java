@@ -7,7 +7,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-
+/**
+ * A report.
+ */
 @Entity
 @Table(name = "reports")
 public class Report implements Serializable {
@@ -16,45 +18,31 @@ public class Report implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "rep_id")
     private Long id;
 
     @NotNull
-    @Column(name = "rep_email", nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @NotNull
-    @Column(name = "rep_type", nullable = false)
+    @Column(nullable = false)
     private String type;
 
     @NotNull
-    @Column(name = "rep_content", nullable = false)
+    @Column(nullable = false)
     private String content;
 
     @NotNull
-    @Column(name = "rep_status", nullable = false)
+    @Column(nullable = false)
     private String status;
 
     @ManyToOne
-    @JoinColumn(name = "rep_reporter")
+    @JoinColumn()
     private User reporter;
 
     @ManyToOne
-    @JoinColumn(name = "rep_announcement")
+    @JoinColumn()
     private Announcement announcement;
-
-    public Report() {
-    }
-
-    public Report(Long id, String email, String type, String content, String status, User reporter, Announcement announcement) {
-        this.id = id;
-        this.email = email;
-        this.type = type;
-        this.content = content;
-        this.status = status;
-        this.reporter = reporter;
-        this.announcement = announcement;
-    }
 
     public Long getId() {
         return id;
@@ -62,6 +50,17 @@ public class Report implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param id report identifier
+     * @return Report (this)
+     */
+    public Report id(Long id) {
+        this.id = id;
+        return this;
     }
 
     public String getEmail() {
@@ -72,6 +71,12 @@ public class Report implements Serializable {
         this.email = email;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param email email of the user that posted report
+     * @return Report (this)
+     */
     public Report email(String email) {
         this.email = email;
         return this;
@@ -85,6 +90,12 @@ public class Report implements Serializable {
         this.type = type;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param type report type
+     * @return Report (this)
+     */
     public Report type(String type) {
         this.type = type;
         return this;
@@ -98,13 +109,14 @@ public class Report implements Serializable {
         this.content = content;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param content report content - reason for report
+     * @return Report (this)
+     */
     public Report content(String content) {
         this.content = content;
-        return this;
-    }
-
-    public Report status(String status) {
-        this.status = status;
         return this;
     }
 
@@ -114,6 +126,17 @@ public class Report implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param status report status
+     * @return Report (this)
+     */
+    public Report status(String status) {
+        this.status = status;
+        return this;
     }
 
     public User getReporter() {

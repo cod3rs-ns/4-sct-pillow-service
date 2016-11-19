@@ -23,8 +23,7 @@ public class ReportService {
      * @return the persisted entity
      */
     public Report save(Report report) {
-        Report result = reportRepository.save(report);
-        return result;
+        return reportRepository.save(report);
     }
 
     /**
@@ -35,8 +34,7 @@ public class ReportService {
      */
     @Transactional(readOnly = true)
     public Page<Report> findAll(Pageable pageable) {
-        Page<Report> result = reportRepository.findAll(pageable);
-        return result;
+        return reportRepository.findAll(pageable);
     }
 
     /**
@@ -47,8 +45,7 @@ public class ReportService {
      */
     @Transactional(readOnly = true)
     public Report findOne(Long id) {
-        Report report = reportRepository.findOne(id);
-        return report;
+        return reportRepository.findOne(id);
     }
 
     /**

@@ -36,11 +36,11 @@ public class ReportController {
     @PostMapping("/reports")
     public ResponseEntity<Report> createReport(@Valid @RequestBody Report report) throws URISyntaxException {
         if (report.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("report", "idexists", "A new report cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "id_exists", "A new report cannot already have an ID")).body(null);
         }
         Report result = reportService.save(report);
         return ResponseEntity.created(new URI("/api/reports/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("report", result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.REPORT, result.getId().toString()))
                 .body(result);
     }
 
@@ -60,7 +60,7 @@ public class ReportController {
         }
         Report result = reportService.save(report);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("report", report.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.REPORT, report.getId().toString()))
                 .body(result);
     }
 
@@ -104,7 +104,7 @@ public class ReportController {
     @DeleteMapping("/reports/{id}")
     public ResponseEntity<Void> deleteReport(@PathVariable Long id) {
         reportService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("report", id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.REPORT, id.toString())).build();
     }
 
 }
