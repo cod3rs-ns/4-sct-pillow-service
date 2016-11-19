@@ -1,4 +1,4 @@
-package rs.acs.uns.sw.sct.real_estates;
+package rs.acs.uns.sw.sct.realestates;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import rs.acs.uns.sw.sct.announcements.Announcement;
@@ -9,6 +9,9 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A real estate.
+ */
 @Entity
 @Table(name = "real_estates")
 public class RealEstate implements Serializable {
@@ -17,45 +20,31 @@ public class RealEstate implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "re_id")
     private Long id;
 
     @NotNull
-    @Column(name = "re_name", nullable = false)
+    @Column(nullable = false)
     private String name;
 
     @NotNull
-    @Column(name = "re_type", nullable = false)
+    @Column(nullable = false)
     private String type;
 
     @NotNull
-    @Column(name = "re_area", nullable = false)
+    @Column(nullable = false)
     private Double area;
 
     @NotNull
-    @Column(name = "re_heating_type", nullable = false)
+    @Column(nullable = false)
     private String heatingType;
 
     @NotNull
-    @Column(name = "re_deleted", nullable = false)
+    @Column(nullable = false)
     private Boolean deleted;
 
     @JsonIgnore
     @OneToMany(mappedBy = "realEstate", fetch = FetchType.LAZY)
     private Set<Announcement> announcements = new HashSet<>(0);
-
-    public RealEstate() {
-    }
-
-    public RealEstate(Long id, String name, String type, Double area, String heatingType, Set<Announcement> announcements, Boolean deleted) {
-        this.id = id;
-        this.name = name;
-        this.type = type;
-        this.area = area;
-        this.heatingType = heatingType;
-        this.announcements = announcements;
-        this.deleted = deleted;
-    }
 
     public Long getId() {
         return id;
@@ -65,6 +54,12 @@ public class RealEstate implements Serializable {
         this.id = id;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param id real estate identifier
+     * @return RealEstate (this)
+     */
     public RealEstate id(Long id) {
         this.id = id;
         return this;
@@ -78,6 +73,12 @@ public class RealEstate implements Serializable {
         this.name = name;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param name real estate name
+     * @return RealEstate (this)
+     */
     public RealEstate name(String name) {
         this.name = name;
         return this;
@@ -91,6 +92,12 @@ public class RealEstate implements Serializable {
         this.type = type;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param type real estate type
+     * @return RealEstate (this)
+     */
     public RealEstate type(String type) {
         this.type = type;
         return this;
@@ -104,6 +111,12 @@ public class RealEstate implements Serializable {
         this.area = area;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param area real estate area
+     * @return RealEstate (this)
+     */
     public RealEstate area(Double area) {
         this.area = area;
         return this;
@@ -117,6 +130,12 @@ public class RealEstate implements Serializable {
         this.heatingType = heatingType;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param heatingType real estate heating type
+     * @return RealEstate (this)
+     */
     public RealEstate heatingType(String heatingType) {
         this.heatingType = heatingType;
         return this;
@@ -126,15 +145,21 @@ public class RealEstate implements Serializable {
         return deleted;
     }
 
-    public RealEstate deleted(Boolean deleted) {
-        this.deleted = deleted;
-        return this;
-    }
-
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param deleted real estate logical deletion status
+     * @return RealEstate (this)
+     */
+    public RealEstate deleted(Boolean deleted) {
+        this.deleted = deleted;
+        return this;
+    }
+    
     public Set<Announcement> getAnnouncements() {
         return announcements;
     }

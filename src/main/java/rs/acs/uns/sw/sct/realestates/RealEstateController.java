@@ -1,4 +1,4 @@
-package rs.acs.uns.sw.sct.real_estates;
+package rs.acs.uns.sw.sct.realestates;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,11 +36,11 @@ public class RealEstateController {
     @PostMapping("/real-estates")
     public ResponseEntity<RealEstate> createRealEstate(@Valid @RequestBody RealEstate realEstate) throws URISyntaxException {
         if (realEstate.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("realEstate", "idexists", "A new realEstate cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REAL_ESTATE, "id_exists", "A new realEstate cannot already have an ID")).body(null);
         }
         RealEstate result = realEstateService.save(realEstate);
         return ResponseEntity.created(new URI("/api/real-estates/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("realEstate", result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.REAL_ESTATE, result.getId().toString()))
                 .body(result);
     }
 
@@ -60,7 +60,7 @@ public class RealEstateController {
         }
         RealEstate result = realEstateService.save(realEstate);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("realEstate", realEstate.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.REAL_ESTATE, realEstate.getId().toString()))
                 .body(result);
     }
 
@@ -104,7 +104,7 @@ public class RealEstateController {
     @DeleteMapping("/real-estates/{id}")
     public ResponseEntity<Void> deleteRealEstate(@PathVariable Long id) {
         realEstateService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("realEstate", id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.REAL_ESTATE, id.toString())).build();
     }
 
 }

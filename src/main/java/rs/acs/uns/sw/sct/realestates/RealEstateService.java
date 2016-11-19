@@ -1,4 +1,4 @@
-package rs.acs.uns.sw.sct.real_estates;
+package rs.acs.uns.sw.sct.realestates;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,8 +23,7 @@ public class RealEstateService {
      * @return the persisted entity
      */
     public RealEstate save(RealEstate realEstate) {
-        RealEstate result = realEstateRepository.save(realEstate);
-        return result;
+        return realEstateRepository.save(realEstate);
     }
 
     /**
@@ -35,8 +34,7 @@ public class RealEstateService {
      */
     @Transactional(readOnly = true)
     public Page<RealEstate> findAll(Pageable pageable) {
-        Page<RealEstate> result = realEstateRepository.findAll(pageable);
-        return result;
+        return realEstateRepository.findAll(pageable);
     }
 
     /**
@@ -47,8 +45,7 @@ public class RealEstateService {
      */
     @Transactional(readOnly = true)
     public RealEstate findOne(Long id) {
-        RealEstate realEstate = realEstateRepository.findOne(id);
-        return realEstate;
+        return realEstateRepository.findOne(id);
     }
 
     /**

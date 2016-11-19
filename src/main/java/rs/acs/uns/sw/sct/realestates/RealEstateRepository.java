@@ -1,4 +1,4 @@
-package rs.acs.uns.sw.sct.real_estates;
+package rs.acs.uns.sw.sct.realestates;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
