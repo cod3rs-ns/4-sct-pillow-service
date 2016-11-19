@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.sct.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 
 /**
@@ -9,7 +7,14 @@ import org.springframework.http.HttpHeaders;
  */
 public final class HeaderUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(HeaderUtil.class);
+    public static final String ANNOUNCEMENT = "announcement";
+    public static final String COMMENT = "comment";
+    public static final String COMPANY = "company";
+    public static final String MARK = "mark";
+    public static final String USER = "user";
+    public static final String REAL_ESTATE = "real_estate";
+    public static final String REPORT = "report";
+    
 
     private HeaderUtil() {
     }
@@ -34,7 +39,6 @@ public final class HeaderUtil {
     }
 
     public static HttpHeaders createFailureAlert(String entityName, String errorKey, String defaultMessage) {
-        log.error("Entity creation failed, {}", defaultMessage);
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-awt-test-alert", defaultMessage);
         headers.add("X-awt-test-params", entityName);

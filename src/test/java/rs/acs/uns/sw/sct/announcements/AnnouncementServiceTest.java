@@ -42,7 +42,7 @@ public class AnnouncementServiceTest {
             assertThat(ann1.getDateModified()).isEqualTo(ann2.getDateModified());
         if (ann1.getExpirationDate() != null && ann2.getExpirationDate() != null)
             assertThat(ann1.getExpirationDate()).isEqualTo(ann2.getExpirationDate());
-        assertThat(ann1.getTelephoneNo()).isEqualTo(ann2.getTelephoneNo());
+        assertThat(ann1.getPhoneNumber()).isEqualTo(ann2.getPhoneNumber());
         assertThat(ann1.getVerified()).isEqualTo(ann2.getVerified());
         if (ann1.getRealEstate() != null && ann2.getRealEstate() != null)
             assertThat(ann1.getRealEstate().getId()).isEqualTo(ann2.getRealEstate().getId());
@@ -104,7 +104,7 @@ public class AnnouncementServiceTest {
         dbAnnouncement.setExpirationDate(UPDATED_EXPIRATION_DATE);
         dbAnnouncement.setAuthor(UPDATED_AUTHOR);
         dbAnnouncement.setType(UPDATED_TYPE);
-        dbAnnouncement.setTelephoneNo(UPDATED_TELEPHONE_NO);
+        dbAnnouncement.setPhoneNumber(UPDATED_TELEPHONE_NO);
         dbAnnouncement.setRealEstate(UPDATED_REAL_ESTATE);
 
         Announcement updatedDbAnnouncement = announcementService.save(dbAnnouncement);
@@ -161,10 +161,10 @@ public class AnnouncementServiceTest {
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullDateTelephoneNo() {
-        newAnnouncement.setTelephoneNo(null);
+        newAnnouncement.setPhoneNumber(null);
         announcementService.save(newAnnouncement);
         // rollback previous telephone no
-        newAnnouncement.setTelephoneNo(NEW_TELEPHONE_NO);
+        newAnnouncement.setPhoneNumber(NEW_TELEPHONE_NO);
     }
 
     @Test(expected = ConstraintViolationException.class)

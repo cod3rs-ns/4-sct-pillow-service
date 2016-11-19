@@ -13,6 +13,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * An Announcement. Entity which is center of the whole application.
+ */
 @Entity
 @Table(name = "announcements")
 public class Announcement implements Serializable {
@@ -21,71 +24,54 @@ public class Announcement implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "ann_id")
     private Long id;
 
     @NotNull
-    @Column(name = "ann_price", nullable = false)
+    @Column(nullable = false)
     private Double price;
 
     @NotNull
-    @Column(name = "ann_date_announced", nullable = false)
+    @Column(nullable = false)
     private Date dateAnnounced;
 
-    @Column(name = "ann_date_modified")
+    @Column
     private Date dateModified;
 
     @NotNull
-    @Column(name = "ann_expiration_date", nullable = false)
+    @Column(nullable = false)
     private Date expirationDate;
 
     @NotNull
-    @Column(name = "ann_telephone", nullable = false)
-    private String telephoneNo;
+    @Column(nullable = false)
+    private String phoneNumber;
 
     @NotNull
-    @Column(name = "ann_type", nullable = false)
+    @Column(nullable = false)
     private String type;
 
-    @Column(name = "ann_verified")
+    @NotNull
+    @Column(nullable = false)
     private String verified;
 
+    @NotNull
+    @Column(nullable = false)
+    private Boolean deleted;
+
     @ManyToOne
-    @JoinColumn(name = "ann_real_estate_id")
+    @JoinColumn()
     private RealEstate realEstate;
 
     @ManyToOne
-    @JoinColumn(name = "re_author_id")
+    @JoinColumn()
     private User author;
 
     @JsonIgnore
     @OneToMany(mappedBy = "announcement", fetch = FetchType.LAZY)
     private Set<Mark> marks = new HashSet<>(0);
 
+    @JsonIgnore
     @OneToMany(mappedBy = "announcement", fetch = FetchType.LAZY)
     private Set<Comment> comments = new HashSet<>(0);
-
-    @Column(name = "ann_deleted")
-    private Boolean deleted;
-
-    public Announcement() {
-    }
-
-    public Announcement(Long id, Double price, Date dateAnnounced, Date dateModified, Date expirationDate, String telephoneNo, String type, String verified, RealEstate realEstate, User author, Set<Mark> marks, Set<Comment> comments, Boolean deleted) {
-        this.id = id;
-        this.price = price;
-        this.dateAnnounced = dateAnnounced;
-        this.dateModified = dateModified;
-        this.expirationDate = expirationDate;
-        this.telephoneNo = telephoneNo;
-        this.type = type;
-        this.verified = verified;
-        this.realEstate = realEstate;
-        this.author = author;
-        this.marks = marks;
-        this.comments = comments;
-        this.deleted = deleted;
-    }
 
     public Long getId() {
         return id;
@@ -95,6 +81,12 @@ public class Announcement implements Serializable {
         this.id = id;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param id announcement identifier
+     * @return Announcement (this)
+     */
     public Announcement id(Long id) {
         this.id = id;
         return this;
@@ -108,6 +100,12 @@ public class Announcement implements Serializable {
         this.price = price;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param price announcement rice
+     * @return Announcement (this)
+     */
     public Announcement price(Double price) {
         this.price = price;
         return this;
@@ -121,6 +119,12 @@ public class Announcement implements Serializable {
         this.dateAnnounced = dateAnnounced;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param dateAnnounced date on which announcement is created.
+     * @return Announcement (this)
+     */
     public Announcement dateAnnounced(Date dateAnnounced) {
         this.dateAnnounced = dateAnnounced;
         return this;
@@ -134,6 +138,12 @@ public class Announcement implements Serializable {
         this.dateModified = dateModified;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param dateModified date on which announcement is last time modified.
+     * @return Announcement (this)
+     */
     public Announcement dateModified(Date dateModified) {
         this.dateModified = dateModified;
         return this;
@@ -147,21 +157,34 @@ public class Announcement implements Serializable {
         this.expirationDate = expirationDate;
     }
 
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param expirationDate date on which announcement will expire.
+     * @return Announcement (this)
+     */
     public Announcement expirationDate(Date expirationDate) {
         this.expirationDate = expirationDate;
         return this;
     }
 
-    public String getTelephoneNo() {
-        return telephoneNo;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setTelephoneNo(String telephoneNo) {
-        this.telephoneNo = telephoneNo;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public Announcement telephoneNo(String telephoneNo) {
-        this.telephoneNo = telephoneNo;
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param phoneNumber phone number of author.
+     * @return Announcement (this)
+     */
+    public Announcement phoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
         return this;
     }
 
@@ -173,6 +196,12 @@ public class Announcement implements Serializable {
         this.type = type;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param type type of announcement.
+     * @return Announcement (this)
+     */
     public Announcement type(String type) {
         this.type = type;
         return this;
@@ -186,8 +215,33 @@ public class Announcement implements Serializable {
         this.verified = verified;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param verified verified status.
+     * @return Announcement (this)
+     */
     public Announcement verified(String verified) {
         this.verified = verified;
+        return this;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param deleted representing announcement logical deletion state.
+     * @return Announcement (this)
+     */
+    public Announcement deleted(Boolean deleted) {
+        this.deleted = deleted;
         return this;
     }
 
@@ -199,6 +253,12 @@ public class Announcement implements Serializable {
         this.realEstate = realEstate;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param realEstate Real Estate object.
+     * @return Announcement (this)
+     */
     public Announcement realEstate(RealEstate realEstate) {
         this.realEstate = realEstate;
         return this;
@@ -212,17 +272,15 @@ public class Announcement implements Serializable {
         this.author = user;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param user author of announcement.
+     * @return Announcement (this)
+     */
     public Announcement author(User user) {
         this.author = user;
         return this;
-    }
-
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
     }
 
     public Set<Mark> getMarks() {

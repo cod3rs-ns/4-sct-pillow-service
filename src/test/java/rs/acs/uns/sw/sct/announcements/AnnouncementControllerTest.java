@@ -122,7 +122,7 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
         assertThat(testAnnouncement.getDateModified()).isEqualTo(DEFAULT_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_EXPIRATION_DATE);
-        assertThat(testAnnouncement.getTelephoneNo()).isEqualTo(DEFAULT_TELEPHONE_NO);
+        assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(DEFAULT_TELEPHONE_NO);
         assertThat(testAnnouncement.getType()).isEqualTo(DEFAULT_TYPE);
     }
 
@@ -185,7 +185,7 @@ public class AnnouncementControllerTest {
     public void checkTelephoneNoIsRequired() throws Exception {
         int databaseSizeBeforeTest = announcementRepository.findAll().size();
         // set the field null
-        announcement.setTelephoneNo(null);
+        announcement.setPhoneNumber(null);
 
         // Create the Announcement, which fails.
 
@@ -293,7 +293,7 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(UPDATED_DATE_ANNOUNCED);
         assertThat(testAnnouncement.getDateModified()).isEqualTo(UPDATED_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(UPDATED_EXPIRATION_DATE);
-        assertThat(testAnnouncement.getTelephoneNo()).isEqualTo(UPDATED_TELEPHONE_NO);
+        assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(UPDATED_TELEPHONE_NO);
         assertThat(testAnnouncement.getType()).isEqualTo(UPDATED_TYPE);
     }
 

@@ -23,8 +23,7 @@ public class AnnouncementService {
      * @return the persisted entity
      */
     public Announcement save(Announcement announcement) {
-        Announcement result = announcementRepository.save(announcement);
-        return result;
+        return announcementRepository.save(announcement);
     }
 
     /**
@@ -35,8 +34,7 @@ public class AnnouncementService {
      */
     @Transactional(readOnly = true)
     public Page<Announcement> findAll(Pageable pageable) {
-        Page<Announcement> result = announcementRepository.findAll(pageable);
-        return result;
+        return announcementRepository.findAll(pageable);
     }
 
     /**
@@ -47,8 +45,7 @@ public class AnnouncementService {
      */
     @Transactional(readOnly = true)
     public Announcement findOne(Long id) {
-        Announcement announcement = announcementRepository.findOne(id);
-        return announcement;
+        return announcementRepository.findOne(id);
     }
 
     /**

@@ -36,11 +36,11 @@ public class AnnouncementController {
     @PostMapping("/announcements")
     public ResponseEntity<Announcement> createAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
         if (announcement.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("announcement", "idexists", "A new announcement cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.ANNOUNCEMENT, "id_exists", "A new announcement cannot already have an ID")).body(null);
         }
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.created(new URI("/api/announcements/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("announcement", result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.ANNOUNCEMENT, result.getId().toString()))
                 .body(result);
     }
 
@@ -60,7 +60,7 @@ public class AnnouncementController {
         }
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("announcement", announcement.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.ANNOUNCEMENT, announcement.getId().toString()))
                 .body(result);
     }
 
@@ -104,7 +104,7 @@ public class AnnouncementController {
     @DeleteMapping("/announcements/{id}")
     public ResponseEntity<Void> deleteAnnouncement(@PathVariable Long id) {
         announcementService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("announcement", id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.ANNOUNCEMENT, id.toString())).build();
     }
 
 }

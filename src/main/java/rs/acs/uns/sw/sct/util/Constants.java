@@ -2,6 +2,8 @@ package rs.acs.uns.sw.sct.util;
 
 public final class Constants {
 
+
+
     public static final class Roles {
         public static final String ADVERTISER   = "advertiser";
         public static final String VERIFIER     = "verifier";
