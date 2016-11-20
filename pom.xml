@@ -5,11 +5,11 @@
 
     <groupId>rs.acs.uns.sw.teamone</groupId>
     <artifactId>sct-project-2016</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
 
     <name>sct-sw-project-2016</name>
-    <description>Project for courses Advanced Web Technologies and Construction and Testing of Software</description>
+    <description>Project for course Construction and Testing of Software</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
