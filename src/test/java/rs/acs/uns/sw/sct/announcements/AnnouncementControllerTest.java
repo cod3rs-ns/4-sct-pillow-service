@@ -56,7 +56,7 @@ public class AnnouncementControllerTest {
     private static final String UPDATED_TYPE = "TYPE_BBB";
 
     private static final Boolean DEFAULT_DELETED = false;
-    private static final Boolean UPDATED_DELETD = true;
+    private static final Boolean UPDATED_DELETED = true;
 
     private static final String DEFAULT_VERIFIED = "VERIFIED_AAA";
     private static final String UPDATED_VERIFIED = "VERIFIED_BBB";

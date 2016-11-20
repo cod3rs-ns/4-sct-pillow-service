@@ -50,7 +50,16 @@ public final class PaginationUtil {
         return headers;
     }
 
-    private static String generateUri(String baseUrl, int page, int size) throws URISyntaxException {
+    /**
+     * Generates URI based on arguments.
+     *
+     * @param baseUrl base app url
+     * @param page    current page of repository
+     * @param size    current size of repository
+     * @return
+     * @throws URISyntaxException
+     */
+    public static String generateUri(String baseUrl, int page, int size) throws URISyntaxException {
         return UriComponentsBuilder.fromUriString(baseUrl).queryParam("page", page).queryParam("size", size).toUriString();
     }
 }

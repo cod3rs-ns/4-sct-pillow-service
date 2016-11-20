@@ -38,9 +38,15 @@ public class RealEstate implements Serializable {
     @Column(nullable = false)
     private String heatingType;
 
+    @Column
+    private String equipment;
+
     @NotNull
     @Column(nullable = false)
     private Boolean deleted;
+
+    @ManyToOne
+    private Location location;
 
     @JsonIgnore
     @OneToMany(mappedBy = "realEstate", fetch = FetchType.LAZY)
@@ -141,6 +147,25 @@ public class RealEstate implements Serializable {
         return this;
     }
 
+    public String getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(String equipment) {
+        this.equipment = equipment;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param equipment real estate technical equipment
+     * @return RealEstate (this)
+     */
+    public RealEstate equipment(String equipment) {
+        this.equipment = equipment;
+        return this;
+    }
+
     public Boolean isDeleted() {
         return deleted;
     }
@@ -157,6 +182,25 @@ public class RealEstate implements Serializable {
      */
     public RealEstate deleted(Boolean deleted) {
         this.deleted = deleted;
+        return this;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param location real estate location
+     * @return RealEstate (this)
+     */
+    public RealEstate location(Location location) {
+        this.location = location;
         return this;
     }
 

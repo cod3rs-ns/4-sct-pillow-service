@@ -73,12 +73,13 @@ public final class HeaderUtil {
      * @param entityName     name of the entity - header value
      * @param errorKey       error key
      * @param defaultMessage default message to be shown - header value
-     * @return
+     * @return HttpHeader
      */
     public static HttpHeaders createFailureAlert(String entityName, String errorKey, String defaultMessage) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-awt-test-alert", defaultMessage);
-        headers.add("X-awt-test-params", entityName);
+        headers.add("X-sct-app-alert", defaultMessage);
+        headers.add("X-sct-app-params", entityName);
+        headers.add("X-sct-app-error-key", errorKey);
         return headers;
     }
 }

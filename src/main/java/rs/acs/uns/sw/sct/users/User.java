@@ -52,8 +52,11 @@ public class User implements Serializable {
     @JoinColumn()
     private Company company;
 
-    @Column()
+    @Column
     private String companyVerified;
+
+    @Column
+    private String imagePath;
 
     @Column(nullable = false)
     private Boolean deleted = false;
@@ -248,6 +251,25 @@ public class User implements Serializable {
         return this;
     }
 
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param imagePath path to the image (file or URL)
+     * @return User (this)
+     */
+    public User imagePath(String imagePath) {
+        this.imagePath = imagePath;
+        return this;
+    }
+
     public Boolean isDeleted() {
         return deleted;
     }
@@ -279,6 +301,7 @@ public class User implements Serializable {
                 ", type='" + type + '\'' +
                 ", company=" + company +
                 ", companyVerified='" + companyVerified + '\'' +
+                ", imagePath='" + imagePath + '\'' +
                 ", deleted=" + deleted +
                 '}';
     }

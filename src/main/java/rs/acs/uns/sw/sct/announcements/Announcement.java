@@ -73,6 +73,9 @@ public class Announcement implements Serializable {
     @OneToMany(mappedBy = "announcement", fetch = FetchType.LAZY)
     private Set<Comment> comments = new HashSet<>(0);
 
+    @OneToMany
+    private Set<Image> images = new HashSet<>(0);
+
     public Long getId() {
         return id;
     }
@@ -318,6 +321,25 @@ public class Announcement implements Serializable {
      */
     public Announcement comments(Set<Comment> comments) {
         this.comments = comments;
+        return this;
+    }
+
+    public Set<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(Set<Image> images) {
+        this.images = images;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param images images of announcement
+     * @return Announcement (this)
+     */
+    public Announcement images(Set<Image> images) {
+        this.images = images;
         return this;
     }
 
