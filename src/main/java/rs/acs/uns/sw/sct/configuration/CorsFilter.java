@@ -7,6 +7,9 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * CORS Filter settings.
+ */
 @Component
 public class CorsFilter implements Filter {
 
@@ -15,7 +18,7 @@ public class CorsFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
+        // Standard init - must override
     }
 
     @Override
@@ -33,6 +36,6 @@ public class CorsFilter implements Filter {
 
     @Override
     public void destroy() {
-
+        // Standard destroy - must override
     }
 }

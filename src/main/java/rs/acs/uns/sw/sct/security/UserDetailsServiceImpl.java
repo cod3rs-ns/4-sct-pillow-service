@@ -9,6 +9,9 @@ import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserFactory;
 import rs.acs.uns.sw.sct.users.UserRepository;
 
+/**
+ * Implementation of UserDetailsService.
+ */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -16,7 +19,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findOneByEmail(username);
 
         if (user == null) {

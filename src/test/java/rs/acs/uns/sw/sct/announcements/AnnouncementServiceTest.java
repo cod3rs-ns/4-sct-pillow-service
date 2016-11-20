@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import rs.acs.uns.sw.sct.AwtTestSiitProject2016Application;
+import rs.acs.uns.sw.sct.SctServiceApplication;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AwtTestSiitProject2016Application.class)
+@SpringBootTest(classes = SctServiceApplication.class)
 public class AnnouncementServiceTest {
 
     @Autowired

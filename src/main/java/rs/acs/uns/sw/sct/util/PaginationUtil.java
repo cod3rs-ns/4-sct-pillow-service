@@ -18,11 +18,19 @@ public final class PaginationUtil {
     private PaginationUtil() {
     }
 
+    /**
+     * Generates pagination headers. Uses X-Total-Count and Link headers.
+     *
+     * @param page    current page of the repository
+     * @param baseUrl base service API URL
+     * @return HttpHeaders with pagination added
+     * @throws URISyntaxException
+     */
     public static HttpHeaders generatePaginationHttpHeaders(Page<?> page, String baseUrl)
             throws URISyntaxException {
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", "" + page.getTotalElements());
+        headers.add("X-Total-Count", String.valueOf(page.getTotalElements()));
         String link = "";
         if ((page.getNumber() + 1) < page.getTotalPages()) {
             link = "<" + generateUri(baseUrl, page.getNumber() + 1, page.getSize()) + ">; rel=\"next\",";

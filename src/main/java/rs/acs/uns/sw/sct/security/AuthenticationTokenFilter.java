@@ -16,6 +16,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+/**
+ * Customised UsernamePasswordAuthenticationFilter to support token authentication.
+ */
 public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
 
     @Value("${sct.token.header}")

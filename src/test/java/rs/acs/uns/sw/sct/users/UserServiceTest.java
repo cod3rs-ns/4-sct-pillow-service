@@ -9,7 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import rs.acs.uns.sw.sct.AwtTestSiitProject2016Application;
+import rs.acs.uns.sw.sct.SctServiceApplication;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 import static rs.acs.uns.sw.sct.constants.UserConstants.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AwtTestSiitProject2016Application.class)
+@SpringBootTest(classes = SctServiceApplication.class)
 public class UserServiceTest {
 
     @Autowired

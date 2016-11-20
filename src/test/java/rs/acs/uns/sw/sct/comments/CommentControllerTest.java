@@ -14,7 +14,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import rs.acs.uns.sw.sct.AwtTestSiitProject2016Application;
+import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.util.DateUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @see CommentController
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AwtTestSiitProject2016Application.class)
+@SpringBootTest(classes = SctServiceApplication.class)
 public class CommentControllerTest {
 
     private static final String DEFAULT_CONTENT = "CONTENT_AAA";

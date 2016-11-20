@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.sct.configuration;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,11 +21,16 @@ import rs.acs.uns.sw.sct.security.AuthenticationTokenFilter;
 import rs.acs.uns.sw.sct.security.EntryPointUnauthorizedHandler;
 import rs.acs.uns.sw.sct.util.Constants;
 
+/**
+ * Web security configuration.
+ */
 @Component
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled=true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    private Logger log = Logger.getLogger(WebSecurityConfiguration.class);
 
     @Autowired
     private EntryPointUnauthorizedHandler unauthorizedHandler;
@@ -32,13 +38,28 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    /**
+     * Configures authentication.
+     *
+     * @param authenticationManagerBuilder authentication manager builder
+     */
     @Autowired
-    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder
-                .userDetailsService(this.userDetailsService)
-                .passwordEncoder(passwordEncoder());
+    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) {
+        try {
+            authenticationManagerBuilder
+                    .userDetailsService(this.userDetailsService)
+                    .passwordEncoder(passwordEncoder());
+        } catch (Exception e) {
+            log.error("Exception in WebSecurityConfiguration.configureAuthentication();", e);
+        }
+
     }
 
+    /**
+     * Creates password encoder.
+     *
+     * @return BCryptPasswordEncoder
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -50,6 +71,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    /**
+     * Creates authentication token filter.
+     *
+     * @return AuthenticationTokenFilter
+     * @throws Exception
+     */
     @Bean
     public AuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
         AuthenticationTokenFilter authenticationTokenFilter = new AuthenticationTokenFilter();
@@ -61,29 +88,29 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf()
-                    .disable()
+                .disable()
                 .exceptionHandling()
-                    .authenticationEntryPoint(this.unauthorizedHandler)
-                    .and()
+                .authenticationEntryPoint(this.unauthorizedHandler)
+                .and()
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    .and()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeRequests()
-                    // Anyone can see API provided by Swagger
-                    .antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
-                    .antMatchers(HttpMethod.GET, "/swagger*").permitAll()
-                    .antMatchers(HttpMethod.GET, "/*/springfox-swagger-ui/**").permitAll()
-                    .antMatchers(HttpMethod.GET, "/v2/api-docs/**").permitAll()
-                    .antMatchers(HttpMethod.GET, "/images/**").permitAll()
-                    .antMatchers(HttpMethod.GET, "/configuration/**").permitAll()
-                    // Anyone can see all options provided by server
-                    .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    // All routes that starts with '/api/users/...' can be accessed by anyone
-                    .antMatchers("/api/users/**").permitAll()
-                    // For every route which starts with '/api/admin/...' you need to have role 'ADMIN'
-                    .antMatchers("/api/admin/**").hasAuthority(Constants.Roles.ADMIN)
-                    // For every other route you must be authenticated
-                    .anyRequest().authenticated();
+                // Anyone can see API provided by Swagger
+                .antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
+                .antMatchers(HttpMethod.GET, "/swagger*").permitAll()
+                .antMatchers(HttpMethod.GET, "/*/springfox-swagger-ui/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/v2/api-docs/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/images/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/configuration/**").permitAll()
+                // Anyone can see all options provided by server
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // All routes that starts with '/api/users/...' can be accessed by anyone
+                .antMatchers("/api/users/**").permitAll()
+                // For every route which starts with '/api/admin/...' you need to have role 'ADMIN'
+                .antMatchers("/api/admin/**").hasAuthority(Constants.Roles.ADMIN)
+                // For every other route you must be authenticated
+                .anyRequest().authenticated();
 
         // Custom JWT based authentication
         httpSecurity
