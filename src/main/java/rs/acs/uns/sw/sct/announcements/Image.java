@@ -2,13 +2,16 @@ package rs.acs.uns.sw.sct.announcements;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * An image - image path
  */
 @Entity
 @Table(name = "images")
-public class Image {
+public class Image implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
