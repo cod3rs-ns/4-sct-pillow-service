@@ -3,7 +3,6 @@ package rs.acs.uns.sw.sct.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -18,8 +17,6 @@ import java.util.Map;
  */
 @Component
 public class TokenUtils {
-
-    private Logger log = Logger.getLogger(TokenUtils.class);
 
     private static final String AUDIENCE_MOBILE = "mobile";
     private static final String AUDIENCE_TABLET = "tablet";
@@ -38,13 +35,10 @@ public class TokenUtils {
      * @return username
      */
     public String getUsernameFromToken(String token) {
-        String username;
-        try {
+        String username = null;
+        if (token != null && !"null".equals(token)) {
             final Claims claims = this.getClaimsFromToken(token);
             username = claims.getSubject();
-        } catch (Exception e) {
-            username = null;
-            log.error("Exception in TokenUtils.getUsernameFromToken();", e);
         }
         return username;
     }
@@ -56,13 +50,10 @@ public class TokenUtils {
      * @return Date of creation
      */
     public Date getCreatedDateFromToken(String token) {
-        Date created;
-        try {
+        Date created = null;
+        if (token != null && !"null".equals(token)) {
             final Claims claims = this.getClaimsFromToken(token);
             created = new Date((Long) claims.get(CREATED));
-        } catch (Exception e) {
-            created = null;
-            log.error("Exception in TokenUtils.getCreatedDateFromToken();", e);
         }
         return created;
     }
@@ -75,13 +66,10 @@ public class TokenUtils {
      * @return Date of expiration
      */
     public Date getExpirationDateFromToken(String token) {
-        Date expirationDate;
-        try {
+        Date expirationDate = null;
+        if (token != null && !"null".equals(token)) {
             final Claims claims = this.getClaimsFromToken(token);
             expirationDate = claims.getExpiration();
-        } catch (Exception e) {
-            expirationDate = null;
-            log.error("Exception in TokenUtils.getExpirationDateFromToken();", e);
         }
         return expirationDate;
     }
@@ -93,32 +81,27 @@ public class TokenUtils {
      * @return Audience - String
      */
     public String getAudienceFromToken(String token) {
-        String audience;
-        try {
+        String audience = null;
+        if (token != null && !"null".equals(token)) {
             final Claims claims = this.getClaimsFromToken(token);
             audience = (String) claims.get("audience");
-        } catch (Exception e) {
-            audience = null;
-            log.error("Exception in TokenUtils.getAudienceFromToken();", e);
         }
         return audience;
     }
 
     /**
      * Extracts Claims from token.
+     *
      * @param token authentication token
      * @return Claims
      */
     private Claims getClaimsFromToken(String token) {
-        Claims claims;
-        try {
+        Claims claims = null;
+        if (token != null && !"null".equals(token)) {
             claims = Jwts.parser()
                     .setSigningKey(this.secret)
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (Exception e) {
-            claims = null;
-            log.error("Exception in TokenUtils.getClaimsFromToken();", e);
         }
         return claims;
     }
@@ -147,6 +130,7 @@ public class TokenUtils {
 
     /**
      * Generates token based on details of the user.
+     *
      * @param userDetails UserDetails
      * @return encrypted string - token
      */
@@ -167,7 +151,8 @@ public class TokenUtils {
 
     /**
      * Checks if token can be refreshed.
-     * @param token authentication token
+     *
+     * @param token             authentication token
      * @param lastPasswordReset Date of last password reset
      * @return true if token can be refreshed, false otherwise
      */
@@ -178,25 +163,24 @@ public class TokenUtils {
 
     /**
      * Creates refreshed token
+     *
      * @param token current authentication token
      * @return new refreshed token
      */
     public String refreshToken(String token) {
-        String refreshedToken;
-        try {
+        String refreshedToken = null;
+        if (token != null && !"null".equals(token)) {
             final Claims claims = this.getClaimsFromToken(token);
             claims.put(CREATED, this.generateCurrentDate());
             refreshedToken = this.generateToken(claims);
-        } catch (Exception e) {
-            refreshedToken = null;
-            log.error("Exception in TokenUtils.refreshToken();", e);
         }
         return refreshedToken;
     }
 
     /**
      * Perform token validation.
-     * @param token authentication token
+     *
+     * @param token       authentication token
      * @param userDetails current user details
      * @return true if token is validate, false otherwise
      */
@@ -208,7 +192,7 @@ public class TokenUtils {
          *  final Date created = this.getCreatedDateFromToken(token);
          *  final Date expiration = this.getExpirationDateFromToken(token);
          *  return (username.equals(user.getUsername()) && !(this.isTokenExpired(token)));
-        */
+         */
         return username.equals(user.getUsername());
 
     }
