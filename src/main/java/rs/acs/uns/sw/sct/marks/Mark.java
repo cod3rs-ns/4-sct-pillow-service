@@ -128,4 +128,15 @@ public class Mark implements Serializable {
         this.announcement = announcement;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Mark{" +
+                "id=" + id +
+                ", value=" + value +
+                ", grader=" + grader +
+                ", gradedAnnouncer=" + gradedAnnouncer +
+                ", announcement=" + announcement +
+                '}';
+    }
 }

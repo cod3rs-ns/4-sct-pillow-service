@@ -105,11 +105,44 @@ public class Comment implements Serializable {
         this.announcement = announcement;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param announcement announcement on which comment is posted
+     * @return Comment (this)
+     */
+    public Comment announcement(Announcement announcement) {
+        this.announcement = announcement;
+        return this;
+    }
+
     public User getAuthor() {
         return author;
     }
 
     public void setAuthor(User author) {
         this.author = author;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param author author of the comment
+     * @return Comment (this)
+     */
+    public Comment author(User author) {
+        this.author = author;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", content='" + content + '\'' +
+                ", date=" + date +
+                ", announcement=" + announcement +
+                ", author=" + author +
+                '}';
     }
 }

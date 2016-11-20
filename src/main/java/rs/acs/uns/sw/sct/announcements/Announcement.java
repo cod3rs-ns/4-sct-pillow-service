@@ -3,7 +3,7 @@ package rs.acs.uns.sw.sct.announcements;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import rs.acs.uns.sw.sct.comments.Comment;
 import rs.acs.uns.sw.sct.marks.Mark;
-import rs.acs.uns.sw.sct.real_estates.RealEstate;
+import rs.acs.uns.sw.sct.realestates.RealEstate;
 import rs.acs.uns.sw.sct.users.User;
 
 import javax.persistence.*;
@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An Announcement. Entity which is center of the whole application.
+ * An announcement. Entity which is center of the whole application.
  */
 @Entity
 @Table(name = "announcements")
@@ -226,7 +226,7 @@ public class Announcement implements Serializable {
         return this;
     }
 
-    public Boolean getDeleted() {
+    public Boolean isDeleted() {
         return deleted;
     }
 
@@ -291,6 +291,17 @@ public class Announcement implements Serializable {
         this.marks = marks;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param marks marks of announcement
+     * @return Announcement (this)
+     */
+    public Announcement marks(Set<Mark> marks) {
+        this.marks = marks;
+        return this;
+    }
+
     public Set<Comment> getComments() {
         return comments;
     }
@@ -299,4 +310,31 @@ public class Announcement implements Serializable {
         this.comments = comments;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param comments comments of announcement
+     * @return Announcement (this)
+     */
+    public Announcement comments(Set<Comment> comments) {
+        this.comments = comments;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Announcement{" +
+                "id=" + id +
+                ", price=" + price +
+                ", dateAnnounced=" + dateAnnounced +
+                ", dateModified=" + dateModified +
+                ", expirationDate=" + expirationDate +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", type='" + type + '\'' +
+                ", verified='" + verified + '\'' +
+                ", deleted=" + deleted +
+                ", realEstate=" + realEstate +
+                ", author=" + author +
+                '}';
+    }
 }

@@ -159,12 +159,23 @@ public class RealEstate implements Serializable {
         this.deleted = deleted;
         return this;
     }
-    
+
     public Set<Announcement> getAnnouncements() {
         return announcements;
     }
 
     public void setAnnouncements(Set<Announcement> announcements) {
         this.announcements = announcements;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param announcements all announcements of real estate
+     * @return RealEstate (this)
+     */
+    public RealEstate announcements(Set<Announcement> announcements) {
+        this.announcements = announcements;
+        return this;
     }
 }

@@ -119,4 +119,26 @@ public class Company implements Serializable {
     public void setUsers(Set<User> users) {
         this.users = users;
     }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param users all employees of company
+     * @return Company (this)
+     */
+    public Company users(Set<User> users) {
+        this.users = users;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Company{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", users=" + users +
+                '}';
+    }
 }

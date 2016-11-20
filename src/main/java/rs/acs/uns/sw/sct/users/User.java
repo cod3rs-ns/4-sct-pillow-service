@@ -218,6 +218,17 @@ public class User implements Serializable {
         this.companyVerified = companyVerified;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param companyVerified verification of user by company
+     * @return User (this)
+     */
+    public User companyVerified(String companyVerified) {
+        this.companyVerified = companyVerified;
+        return this;
+    }
+
     public Company getCompany() {
         return company;
     }
@@ -226,7 +237,18 @@ public class User implements Serializable {
         this.company = company;
     }
 
-    public Boolean getDeleted() {
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param company company which member is user
+     * @return User (this)
+     */
+    public User company(Company company) {
+        this.company = company;
+        return this;
+    }
+
+    public Boolean isDeleted() {
         return deleted;
     }
 
@@ -234,4 +256,30 @@ public class User implements Serializable {
         this.deleted = deleted;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param deleted represents logical deletion status of user
+     * @return User (this)
+     */
+    public User deleted(Boolean deleted) {
+        this.deleted = deleted;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", type='" + type + '\'' +
+                ", company=" + company +
+                ", companyVerified='" + companyVerified + '\'' +
+                ", deleted=" + deleted +
+                '}';
+    }
 }
