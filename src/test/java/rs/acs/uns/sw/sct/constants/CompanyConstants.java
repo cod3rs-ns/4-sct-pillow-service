@@ -25,5 +25,4 @@ public interface CompanyConstants {
     String UPDATED_ADDRESS = "Trg Kralja Petra";
     String UPDATED_PHONE_NUMBER = "1239555";
 
-    Set<User> DEFAULT_USERS = null;
 }

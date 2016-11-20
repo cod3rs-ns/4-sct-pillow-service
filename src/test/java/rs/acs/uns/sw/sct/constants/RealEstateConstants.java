@@ -28,7 +28,6 @@ public interface RealEstateConstants {
     Double UPDATED_AREA = 500D;
     String UPDATED_HEATING_TYPE = "central_heating";
 
-    Set<Announcement> DEFAULT_ANNOUNCEMENTS = null;
     Boolean DEFAULT_DELETED = false;
 
 }

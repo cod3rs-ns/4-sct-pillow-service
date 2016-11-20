@@ -13,9 +13,6 @@ import java.util.Date;
  */
 public class DateUtil {
 
-    private static SimpleDateFormat fmt = new SimpleDateFormat("dd-MM-yyyy");
-
-
     /**
      * Convert a LocalDate to java.util.Date
      *
@@ -44,7 +41,7 @@ public class DateUtil {
      */
     public static Timestamp date(String date) {
         Timestamp retVal = null;
-
+        SimpleDateFormat fmt = new SimpleDateFormat("dd-MM-yyyy");
         try {
             Date d = fmt.parse(date);
             long time = d.getTime();

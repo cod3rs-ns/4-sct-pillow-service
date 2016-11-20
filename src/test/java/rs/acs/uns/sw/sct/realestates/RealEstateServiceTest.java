@@ -49,7 +49,6 @@ public class RealEstateServiceTest {
                 .type(TYPE)
                 .area(AREA)
                 .heatingType(HEATING_TYPE)
-                .announcements(DEFAULT_ANNOUNCEMENTS)
                 .deleted(DEFAULT_DELETED);
         newRealEstate = new RealEstate()
                 .id(null)
@@ -57,7 +56,6 @@ public class RealEstateServiceTest {
                 .type(NEW_TYPE)
                 .area(NEW_AREA)
                 .heatingType(NEW_HEATING_TYPE)
-                .announcements(DEFAULT_ANNOUNCEMENTS)
                 .deleted(DEFAULT_DELETED);
         updatedRealEstate = new RealEstate()
                 .id(null)
@@ -65,7 +63,6 @@ public class RealEstateServiceTest {
                 .type(UPDATED_TYPE)
                 .area(UPDATED_AREA)
                 .heatingType(UPDATED_HEATING_TYPE)
-                .announcements(DEFAULT_ANNOUNCEMENTS)
                 .deleted(DEFAULT_DELETED);
     }
 

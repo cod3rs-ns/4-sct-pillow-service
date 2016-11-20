@@ -45,20 +45,17 @@ public class CompanyServiceTest {
                 .id(ID)
                 .name(NAME)
                 .address(ADDRESS)
-                .phoneNumber(PHONE_NUMBER)
-                .users(DEFAULT_USERS);
+                .phoneNumber(PHONE_NUMBER);
         newCompany = new Company()
                 .id(null)
                 .name(NEW_NAME)
                 .address(NEW_ADDRESS)
-                .phoneNumber(NEW_PHONE_NUMBER)
-                .users(DEFAULT_USERS);
+                .phoneNumber(NEW_PHONE_NUMBER);
         updatedCompany = new Company()
                 .id(null)
                 .name(UPDATED_NAME)
                 .address(UPDATED_ADDRESS)
-                .phoneNumber(UPDATED_PHONE_NUMBER)
-                .users(DEFAULT_USERS);
+                .phoneNumber(UPDATED_PHONE_NUMBER);
     }
 
     @Test

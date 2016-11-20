@@ -44,7 +44,5 @@ public interface AnnouncementConstants {
     Timestamp UPDATED_EXPIRATION_DATE = DateUtil.date("20-01-1996");
 
     String DEFAULT_VERIFIED = "verified";
-    Set<Mark> DEFAULT_MARKS = null;
-    Set<Comment> DEFAULT_COMMENTS = null;
     Boolean DEFAULT_DELETED = false;
 }

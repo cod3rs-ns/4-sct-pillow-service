@@ -61,8 +61,6 @@ public class AnnouncementServiceTest {
                 .verified(DEFAULT_VERIFIED)
                 .realEstate(REAL_ESTATE)
                 .author(AUTHOR)
-                .marks(DEFAULT_MARKS)
-                .comments(DEFAULT_COMMENTS)
                 .deleted(DEFAULT_DELETED);
         newAnnouncement = new Announcement()
                 .id(null)
@@ -75,8 +73,6 @@ public class AnnouncementServiceTest {
                 .verified(DEFAULT_VERIFIED)
                 .realEstate(NEW_REAL_ESTATE)
                 .author(NEW_AUTHOR)
-                .marks(DEFAULT_MARKS)
-                .comments(DEFAULT_COMMENTS)
                 .deleted(DEFAULT_DELETED);
         updatedAnnouncement = new Announcement()
                 .id(null)
@@ -89,8 +85,6 @@ public class AnnouncementServiceTest {
                 .verified(DEFAULT_VERIFIED)
                 .realEstate(UPDATED_REAL_ESTATE)
                 .author(UPDATED_AUTHOR)
-                .marks(DEFAULT_MARKS)
-                .comments(DEFAULT_COMMENTS)
                 .deleted(DEFAULT_DELETED);
     }
 
