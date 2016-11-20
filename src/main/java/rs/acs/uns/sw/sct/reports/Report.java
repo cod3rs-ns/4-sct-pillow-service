@@ -147,12 +147,34 @@ public class Report implements Serializable {
         this.reporter = reporter;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param reporter user that created report
+     * @return Report (this)
+     */
+    public Report reporter(User reporter) {
+        this.reporter = reporter;
+        return this;
+    }
+
     public Announcement getAnnouncement() {
         return announcement;
     }
 
     public void setAnnouncement(Announcement announcement) {
         this.announcement = announcement;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param announcement subject of report
+     * @return Report (this)
+     */
+    public Report announcement(Announcement announcement) {
+        this.announcement = announcement;
+        return this;
     }
 
     @Override

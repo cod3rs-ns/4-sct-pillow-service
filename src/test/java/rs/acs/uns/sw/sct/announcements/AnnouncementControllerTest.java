@@ -49,11 +49,17 @@ public class AnnouncementControllerTest {
     private static final Date DEFAULT_EXPIRATION_DATE = DateUtil.asDate(LocalDate.ofEpochDay(0L));
     private static final Date UPDATED_EXPIRATION_DATE = DateUtil.asDate(LocalDate.ofEpochDay(1L));
 
-    private static final String DEFAULT_TELEPHONE_NO = "0600000000";
-    private static final String UPDATED_TELEPHONE_NO = "0611111111";
+    private static final String DEFAULT_PHONE_NUMBER = "0600000000";
+    private static final String UPDATED_PHONE_NUMBER = "0611111111";
 
     private static final String DEFAULT_TYPE = "TYPE_AAA";
     private static final String UPDATED_TYPE = "TYPE_BBB";
+
+    private static final Boolean DEFAULT_DELETED = false;
+    private static final Boolean UPDATED_DELETD = true;
+
+    private static final String DEFAULT_VERIFIED = "VERIFIED_AAA";
+    private static final String UPDATED_VERIFIED = "VERIFIED_BBB";
 
     @Autowired
     private AnnouncementRepository announcementRepository;
@@ -83,8 +89,10 @@ public class AnnouncementControllerTest {
                 .dateAnnounced(DEFAULT_DATE_ANNOUNCED)
                 .dateModified(DEFAULT_DATE_MODIFIED)
                 .expirationDate(DEFAULT_EXPIRATION_DATE)
-                .telephoneNo(DEFAULT_TELEPHONE_NO)
-                .type(DEFAULT_TYPE);
+                .phoneNumber(DEFAULT_PHONE_NUMBER)
+                .type(DEFAULT_TYPE)
+                .verified(DEFAULT_VERIFIED)
+                .deleted(DEFAULT_DELETED);
     }
 
     @PostConstruct
@@ -122,8 +130,10 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
         assertThat(testAnnouncement.getDateModified()).isEqualTo(DEFAULT_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_EXPIRATION_DATE);
-        assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(DEFAULT_TELEPHONE_NO);
+        assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
         assertThat(testAnnouncement.getType()).isEqualTo(DEFAULT_TYPE);
+        assertThat(testAnnouncement.getVerified()).isEqualTo(DEFAULT_VERIFIED);
+        assertThat(testAnnouncement.isDeleted()).isEqualTo(DEFAULT_DELETED);
     }
 
     @Test
@@ -231,8 +241,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
                 .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
-                .andExpect(jsonPath("$.[*].telephoneNo").value(hasItem(DEFAULT_TELEPHONE_NO)))
-                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)));
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
+                .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)));
     }
 
     @Test
@@ -250,8 +262,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.dateAnnounced").value(String.valueOf(DEFAULT_DATE_ANNOUNCED.getTime())))
                 .andExpect(jsonPath("$.dateModified").value(String.valueOf(DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.expirationDate").value(String.valueOf(DEFAULT_EXPIRATION_DATE.getTime())))
-                .andExpect(jsonPath("$.telephoneNo").value(DEFAULT_TELEPHONE_NO))
-                .andExpect(jsonPath("$.type").value(DEFAULT_TYPE));
+                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER))
+                .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
+                .andExpect(jsonPath("$.verified").value(DEFAULT_VERIFIED))
+                .andExpect(jsonPath("$.deleted").value(DEFAULT_DELETED));
     }
 
     @Test
@@ -277,7 +291,7 @@ public class AnnouncementControllerTest {
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
                 .dateModified(UPDATED_DATE_MODIFIED)
                 .expirationDate(UPDATED_EXPIRATION_DATE)
-                .telephoneNo(UPDATED_TELEPHONE_NO)
+                .phoneNumber(UPDATED_PHONE_NUMBER)
                 .type(UPDATED_TYPE);
 
         restAnnouncementMockMvc.perform(put("/api/announcements")
@@ -293,7 +307,7 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(UPDATED_DATE_ANNOUNCED);
         assertThat(testAnnouncement.getDateModified()).isEqualTo(UPDATED_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(UPDATED_EXPIRATION_DATE);
-        assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(UPDATED_TELEPHONE_NO);
+        assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(UPDATED_PHONE_NUMBER);
         assertThat(testAnnouncement.getType()).isEqualTo(UPDATED_TYPE);
     }
 

@@ -36,13 +36,13 @@ public class MarkServiceTest {
     private Mark existingMark;
 
 
-    private void compareMarks(Mark mark1, Mark mark2){
+    private void compareMarks(Mark mark1, Mark mark2) {
         if (mark1.getId() != null && mark2.getId() != null)
             assertThat(mark1.getId()).isEqualTo(mark2.getId());
         assertThat(mark1.getValue()).isEqualTo(mark2.getValue());
         assertThat(mark1.getGrader().getId()).isEqualTo(mark2.getGrader().getId());
-        if (mark1.getGraded_announcer() != null && mark2.getGraded_announcer() != null)
-            assertThat(mark1.getGraded_announcer().getId()).isEqualTo(mark2.getGraded_announcer().getId());
+        if (mark1.getGradedAnnouncer() != null && mark2.getGradedAnnouncer() != null)
+            assertThat(mark1.getGradedAnnouncer().getId()).isEqualTo(mark2.getGradedAnnouncer().getId());
         if (mark1.getAnnouncement() != null && mark2.getAnnouncement() != null)
             assertThat(mark1.getAnnouncement().getId()).isEqualTo(mark2.getAnnouncement().getId());
     }
@@ -50,13 +50,13 @@ public class MarkServiceTest {
 
     @Before
     public void initTest() {
-        User GRADER = userService.findOne(GRADER_ID);
-        User NEW_GRADER = userService.findOne(NEW_GRADER_ID);
-        User UPDATED_GRADER = userService.findOne(UPDATED_GRADER_ID);
+        User grader = userService.findOne(GRADER_ID);
+        User newGrader = userService.findOne(NEW_GRADER_ID);
+        User updatedGrader = userService.findOne(UPDATED_GRADER_ID);
 
-        existingMark = new Mark(ID, VALUE, GRADER, GRADED_ANNOUNCER, ANNOUNCEMENT);
-        newMark =  new Mark(null, NEW_VALUE, NEW_GRADER, NEW_GRADED_ANNOUNCER, NEW_ANNOUNCEMENT);
-        updatedMark = new Mark(null, UPDATED_VALUE, UPDATED_GRADER, UPDATED_GRADED_ANNOUNCER, UPDATED_ANNOUNCEMENT);
+        existingMark = new Mark().id(ID).value(VALUE).grader(grader).gradedAnnouncer(GRADED_ANNOUNCER).announcement(ANNOUNCEMENT);
+        newMark = new Mark().id(null).value(NEW_VALUE).grader(newGrader).gradedAnnouncer(NEW_GRADED_ANNOUNCER).announcement(NEW_ANNOUNCEMENT);
+        updatedMark = new Mark().id(null).value(UPDATED_VALUE).grader(updatedGrader).gradedAnnouncer(UPDATED_GRADED_ANNOUNCER).announcement(NEW_ANNOUNCEMENT);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class MarkServiceTest {
     }
 
     @Test
-    public void testFindOne(){
+    public void testFindOne() {
         Mark mark = markService.findOne(ID);
         assertThat(mark).isNotNull();
 
@@ -103,7 +103,7 @@ public class MarkServiceTest {
         User UPDATED_GRADER = userService.findOne(UPDATED_GRADER_ID);
 
         dbMark.setGrader(UPDATED_GRADER);
-        dbMark.setGraded_announcer(UPDATED_GRADED_ANNOUNCER);
+        dbMark.setGradedAnnouncer(UPDATED_GRADED_ANNOUNCER);
         dbMark.setAnnouncement(UPDATED_ANNOUNCEMENT);
         dbMark.setValue(UPDATED_VALUE);
 
@@ -127,7 +127,7 @@ public class MarkServiceTest {
     }
 
     /*
-	 * Negative tests
+     * Negative tests
 	 */
 
     @Test(expected = ConstraintViolationException.class)

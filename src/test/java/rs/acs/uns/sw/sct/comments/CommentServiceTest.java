@@ -31,7 +31,7 @@ public class CommentServiceTest {
     private Comment existingComment;
 
 
-    private void compareComments(Comment comm1, Comment comm2){
+    private void compareComments(Comment comm1, Comment comm2) {
         if (comm1.getId() != null && comm2.getId() != null)
             assertThat(comm1.getId()).isEqualTo(comm2.getId());
         assertThat(comm1.getContent()).isEqualTo(comm2.getContent());
@@ -43,9 +43,24 @@ public class CommentServiceTest {
 
     @Before
     public void initTest() {
-        existingComment = new Comment(ID, CONTENT, DATE, ANNOUNCEMENT, AUTHOR);
-        newComment = new Comment(null, NEW_CONTENT, NEW_DATE, NEW_ANNOUNCEMENT, NEW_AUTHOR);
-        updatedComment = new Comment(null, UPDATED_CONTENT, UPDATED_DATE, UPDATED_ANNOUNCEMENT, UPDATED_AUTHOR);
+        existingComment = new Comment()
+                .id(ID)
+                .content(CONTENT)
+                .date(DATE)
+                .announcement(ANNOUNCEMENT)
+                .author(AUTHOR);
+        newComment = new Comment()
+                .id(null)
+                .content(NEW_CONTENT)
+                .date(NEW_DATE)
+                .announcement(NEW_ANNOUNCEMENT)
+                .author(NEW_AUTHOR);
+        updatedComment = new Comment()
+                .id(null)
+                .content(UPDATED_CONTENT)
+                .date(UPDATED_DATE)
+                .announcement(UPDATED_ANNOUNCEMENT)
+                .author(UPDATED_AUTHOR);
     }
 
     @Test
@@ -62,7 +77,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void testFindOne(){
+    public void testFindOne() {
         Comment comment = commentService.findOne(ID);
         assertThat(comment).isNotNull();
 
@@ -115,7 +130,7 @@ public class CommentServiceTest {
 
 
     /*
-	 * Negative tests
+     * Negative tests
 	 */
 
     @Test(expected = ConstraintViolationException.class)

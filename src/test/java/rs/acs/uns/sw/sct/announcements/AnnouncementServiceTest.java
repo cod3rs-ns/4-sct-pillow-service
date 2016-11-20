@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.AwtTestSiitProject2016Application;
 
@@ -32,7 +31,7 @@ public class AnnouncementServiceTest {
     private Announcement updatedAnnouncement;
     private Announcement existingAnnouncement;
 
-    private void compareAnnoncements(Announcement ann1, Announcement ann2){
+    private void compareAnnoncements(Announcement ann1, Announcement ann2) {
         if (ann1.getId() != null && ann2.getId() != null)
             assertThat(ann1.getId()).isEqualTo(ann2.getId());
         assertThat(ann1.getPrice()).isEqualTo(ann2.getPrice());
@@ -51,9 +50,48 @@ public class AnnouncementServiceTest {
 
     @Before
     public void initTest() {
-        existingAnnouncement = new Announcement(ID, PRICE, DATE_ANNOUNCED, DATE_MODIFIED, EXPIRATION_DATE, TELEPHONE_NO, TYPE, DEFAULT_VERIFIED, REAL_ESTATE, AUTHOR, DEFAULT_MARKS, DEFAULT_COMMENTS, DEFAULT_DELETED);
-        newAnnouncement = new Announcement(null, NEW_PRICE, NEW_DATE_ANNOUNCED, NEW_DATE_MODIFIED, NEW_EXPIRATION_DATE, NEW_TELEPHONE_NO, NEW_TYPE, DEFAULT_VERIFIED, NEW_REAL_ESTATE, NEW_AUTHOR, DEFAULT_MARKS, DEFAULT_COMMENTS, DEFAULT_DELETED);
-        updatedAnnouncement = new Announcement(null, UPDATED_PRICE, UPDATED_DATE_ANNOUNCED, UPDATED_DATE_MODIFIED, UPDATED_EXPIRATION_DATE, UPDATED_TELEPHONE_NO, UPDATED_TYPE, DEFAULT_VERIFIED, UPDATED_REAL_ESTATE, UPDATED_AUTHOR, DEFAULT_MARKS, DEFAULT_COMMENTS, DEFAULT_DELETED);
+        existingAnnouncement = new Announcement()
+                .id(ID)
+                .price(PRICE)
+                .dateAnnounced(DATE_ANNOUNCED)
+                .dateModified(DATE_MODIFIED)
+                .expirationDate(EXPIRATION_DATE)
+                .phoneNumber(TELEPHONE_NO)
+                .type(TYPE)
+                .verified(DEFAULT_VERIFIED)
+                .realEstate(REAL_ESTATE)
+                .author(AUTHOR)
+                .marks(DEFAULT_MARKS)
+                .comments(DEFAULT_COMMENTS)
+                .deleted(DEFAULT_DELETED);
+        newAnnouncement = new Announcement()
+                .id(null)
+                .price(NEW_PRICE)
+                .dateAnnounced(NEW_DATE_ANNOUNCED)
+                .dateModified(NEW_DATE_MODIFIED)
+                .expirationDate(NEW_EXPIRATION_DATE)
+                .phoneNumber(NEW_PHONE_NUMBER)
+                .type(NEW_TYPE)
+                .verified(DEFAULT_VERIFIED)
+                .realEstate(NEW_REAL_ESTATE)
+                .author(NEW_AUTHOR)
+                .marks(DEFAULT_MARKS)
+                .comments(DEFAULT_COMMENTS)
+                .deleted(DEFAULT_DELETED);
+        updatedAnnouncement = new Announcement()
+                .id(null)
+                .price(UPDATED_PRICE)
+                .dateAnnounced(UPDATED_DATE_ANNOUNCED)
+                .dateModified(UPDATED_DATE_MODIFIED)
+                .expirationDate(UPDATED_EXPIRATION_DATE)
+                .phoneNumber(UPDATED_PHONE_NUMBER)
+                .type(UPDATED_TYPE)
+                .verified(DEFAULT_VERIFIED)
+                .realEstate(UPDATED_REAL_ESTATE)
+                .author(UPDATED_AUTHOR)
+                .marks(DEFAULT_MARKS)
+                .comments(DEFAULT_COMMENTS)
+                .deleted(DEFAULT_DELETED);
     }
 
     @Test
@@ -70,7 +108,7 @@ public class AnnouncementServiceTest {
     }
 
     @Test
-    public void testFindOne(){
+    public void testFindOne() {
         Announcement ann = announcementService.findOne(ID);
         assertThat(ann).isNotNull();
 
@@ -104,7 +142,7 @@ public class AnnouncementServiceTest {
         dbAnnouncement.setExpirationDate(UPDATED_EXPIRATION_DATE);
         dbAnnouncement.setAuthor(UPDATED_AUTHOR);
         dbAnnouncement.setType(UPDATED_TYPE);
-        dbAnnouncement.setPhoneNumber(UPDATED_TELEPHONE_NO);
+        dbAnnouncement.setPhoneNumber(UPDATED_PHONE_NUMBER);
         dbAnnouncement.setRealEstate(UPDATED_REAL_ESTATE);
 
         Announcement updatedDbAnnouncement = announcementService.save(dbAnnouncement);
@@ -128,7 +166,7 @@ public class AnnouncementServiceTest {
 
 
     /*
-	 * Negative tests
+     * Negative tests
 	 */
 
     @Test(expected = ConstraintViolationException.class)
@@ -164,7 +202,7 @@ public class AnnouncementServiceTest {
         newAnnouncement.setPhoneNumber(null);
         announcementService.save(newAnnouncement);
         // rollback previous telephone no
-        newAnnouncement.setPhoneNumber(NEW_TELEPHONE_NO);
+        newAnnouncement.setPhoneNumber(NEW_PHONE_NUMBER);
     }
 
     @Test(expected = ConstraintViolationException.class)

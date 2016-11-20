@@ -6,7 +6,7 @@ import rs.acs.uns.sw.sct.announcements.AnnouncementServiceTest;
 import rs.acs.uns.sw.sct.comments.CommentServiceTest;
 import rs.acs.uns.sw.sct.companies.CompanyServiceTest;
 import rs.acs.uns.sw.sct.marks.MarkServiceTest;
-import rs.acs.uns.sw.sct.real_estates.RealEstateServiceTest;
+import rs.acs.uns.sw.sct.realestates.RealEstateServiceTest;
 import rs.acs.uns.sw.sct.reports.ReportServiceTest;
 import rs.acs.uns.sw.sct.users.UserServiceTest;
 

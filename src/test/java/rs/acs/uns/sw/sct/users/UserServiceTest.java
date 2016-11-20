@@ -40,7 +40,7 @@ public class UserServiceTest {
         assertThat(user1.getEmail()).isEqualTo(user2.getEmail());
         if (checkPassword)
             assertThat(user1.getPassword()).isEqualTo(user2.getPassword());
-        assertThat(user1.getTelephoneNo()).isEqualTo(user2.getTelephoneNo());
+        assertThat(user1.getPhoneNumber()).isEqualTo(user2.getPhoneNumber());
         assertThat(user1.getType()).isEqualTo(user2.getType());
         assertThat(user1.getUsername()).isEqualTo(user2.getUsername());
     }
@@ -59,7 +59,7 @@ public class UserServiceTest {
                 .lastName(lastName)
                 .username(username)
                 .password(password)
-                .telephoneNo(telephone)
+                .phoneNumber(telephone)
                 .type(type);
     }
 
@@ -122,7 +122,7 @@ public class UserServiceTest {
         dbUser.setLastName(UPDATED_USER_LAST_NAME);
         dbUser.setEmail(UPDATED_USER_EMAIL);
         dbUser.setPassword(UPDATED_USER_PASSWORD);
-        dbUser.setTelephoneNo(UPDATED_USER_TELEPHONE);
+        dbUser.setPhoneNumber(UPDATED_USER_TELEPHONE);
         dbUser.setType(UPDATED_USER_TYPE);
         dbUser.setUsername(UPDATED_USER_USERNAME);
 

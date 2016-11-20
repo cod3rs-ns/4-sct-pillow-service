@@ -3,7 +3,7 @@ package rs.acs.uns.sw.sct.constants;
 
 import rs.acs.uns.sw.sct.comments.Comment;
 import rs.acs.uns.sw.sct.marks.Mark;
-import rs.acs.uns.sw.sct.real_estates.RealEstate;
+import rs.acs.uns.sw.sct.realestates.RealEstate;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.DateUtil;
 
@@ -26,7 +26,7 @@ public interface AnnouncementConstants {
     Timestamp EXPIRATION_DATE = DateUtil.date("20-01-1994");
 
     Double NEW_PRICE = 40D;
-    String NEW_TELEPHONE_NO = "0654887612";
+    String NEW_PHONE_NUMBER = "0654887612";
     String NEW_TYPE = "house";
     RealEstate NEW_REAL_ESTATE = new RealEstate().id(2L);
     User NEW_AUTHOR = new User().id(2L);
@@ -35,7 +35,7 @@ public interface AnnouncementConstants {
     Timestamp NEW_EXPIRATION_DATE = DateUtil.date("20-01-1995");
 
     Double UPDATED_PRICE = 15D;
-    String UPDATED_TELEPHONE_NO = "06548812";
+    String UPDATED_PHONE_NUMBER = "06548812";
     String UPDATED_TYPE = "restaurant";
     RealEstate UPDATED_REAL_ESTATE = new RealEstate().id(1L);
     User UPDATED_AUTHOR = new User().id(3L);
@@ -43,7 +43,7 @@ public interface AnnouncementConstants {
     Timestamp UPDATED_DATE_MODIFIED = DateUtil.date("03-01-1996");
     Timestamp UPDATED_EXPIRATION_DATE = DateUtil.date("20-01-1996");
 
-    String DEFAULT_VERIFIED = null;
+    String DEFAULT_VERIFIED = "verified";
     Set<Mark> DEFAULT_MARKS = null;
     Set<Comment> DEFAULT_COMMENTS = null;
     Boolean DEFAULT_DELETED = false;

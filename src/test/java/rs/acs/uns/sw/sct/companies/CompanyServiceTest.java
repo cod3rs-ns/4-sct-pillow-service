@@ -30,7 +30,7 @@ public class CompanyServiceTest {
     private Company updatedCompany;
     private Company existingCompany;
 
-    private void compareCompanies(Company company1, Company company2){
+    private void compareCompanies(Company company1, Company company2) {
         if (company1.getId() != null && company2.getId() != null)
             assertThat(company1.getId()).isEqualTo(company2.getId());
         assertThat(company1.getName()).isEqualTo(company2.getName());
@@ -41,9 +41,24 @@ public class CompanyServiceTest {
 
     @Before
     public void initTest() {
-        existingCompany = new Company(ID, NAME, ADDRESS, TELEPHONE_NO, DEFAULT_USERS);
-        newCompany = new Company(null, NEW_NAME, NEW_ADDRESS, NEW_TELEPHONE_NO, DEFAULT_USERS);
-        updatedCompany = new Company(null, UPDATED_NAME, UPDATED_ADDRESS, UPDATED_TELEPHONE_NO, DEFAULT_USERS);
+        existingCompany = new Company()
+                .id(ID)
+                .name(NAME)
+                .address(ADDRESS)
+                .phoneNumber(PHONE_NUMBER)
+                .users(DEFAULT_USERS);
+        newCompany = new Company()
+                .id(null)
+                .name(NEW_NAME)
+                .address(NEW_ADDRESS)
+                .phoneNumber(NEW_PHONE_NUMBER)
+                .users(DEFAULT_USERS);
+        updatedCompany = new Company()
+                .id(null)
+                .name(UPDATED_NAME)
+                .address(UPDATED_ADDRESS)
+                .phoneNumber(UPDATED_PHONE_NUMBER)
+                .users(DEFAULT_USERS);
     }
 
     @Test
@@ -60,7 +75,7 @@ public class CompanyServiceTest {
     }
 
     @Test
-    public void testFindOne(){
+    public void testFindOne() {
         Company company = companyService.findOne(ID);
         assertThat(company).isNotNull();
 
@@ -89,7 +104,7 @@ public class CompanyServiceTest {
 
         dbCompany.setName(UPDATED_NAME);
         dbCompany.setAddress(UPDATED_ADDRESS);
-        dbCompany.setPhoneNumber(UPDATED_TELEPHONE_NO);
+        dbCompany.setPhoneNumber(UPDATED_PHONE_NUMBER);
 
         Company updatedDbCompany = companyService.save(dbCompany);
         assertThat(updatedDbCompany).isNotNull();
@@ -112,7 +127,7 @@ public class CompanyServiceTest {
 
 
     /*
-	 * Negative tests
+     * Negative tests
 	 */
 
     @Test(expected = ConstraintViolationException.class)
@@ -140,6 +155,6 @@ public class CompanyServiceTest {
         newCompany.setPhoneNumber(null);
         companyService.save(newCompany);
         // rollback previous telephone no
-        newCompany.setPhoneNumber(NEW_TELEPHONE_NO);
+        newCompany.setPhoneNumber(NEW_PHONE_NUMBER);
     }
 }

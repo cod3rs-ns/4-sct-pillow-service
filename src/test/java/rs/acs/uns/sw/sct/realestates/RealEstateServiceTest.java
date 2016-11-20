@@ -31,7 +31,7 @@ public class RealEstateServiceTest {
     private RealEstate updatedRealEstate;
     private RealEstate existingRealEstate;
 
-    private void compareRealEstate(RealEstate re1, RealEstate re2){
+    private void compareRealEstate(RealEstate re1, RealEstate re2) {
         if (re1.getId() != null && re2.getId() != null)
             assertThat(re1.getId()).isEqualTo(re2.getId());
         assertThat(re1.getArea()).isEqualTo(re2.getArea());
@@ -43,9 +43,30 @@ public class RealEstateServiceTest {
 
     @Before
     public void initTest() {
-        existingRealEstate = new RealEstate(ID, NAME, TYPE, AREA, HEATING_TYPE, DEFAULT_ANNOUNCEMENTS, DEFAULT_DELETED);
-        newRealEstate = new RealEstate(null, NEW_NAME, NEW_TYPE, NEW_AREA, NEW_HEATING_TYPE, DEFAULT_ANNOUNCEMENTS, DEFAULT_DELETED);
-        updatedRealEstate = new RealEstate(null, UPDATED_NAME, UPDATED_TYPE, UPDATED_AREA, UPDATED_HEATING_TYPE, DEFAULT_ANNOUNCEMENTS, DEFAULT_DELETED);
+        existingRealEstate = new RealEstate()
+                .id(ID)
+                .name(NAME)
+                .type(TYPE)
+                .area(AREA)
+                .heatingType(HEATING_TYPE)
+                .announcements(DEFAULT_ANNOUNCEMENTS)
+                .deleted(DEFAULT_DELETED);
+        newRealEstate = new RealEstate()
+                .id(null)
+                .name(NEW_NAME)
+                .type(NEW_TYPE)
+                .area(NEW_AREA)
+                .heatingType(NEW_HEATING_TYPE)
+                .announcements(DEFAULT_ANNOUNCEMENTS)
+                .deleted(DEFAULT_DELETED);
+        updatedRealEstate = new RealEstate()
+                .id(null)
+                .name(UPDATED_NAME)
+                .type(UPDATED_TYPE)
+                .area(UPDATED_AREA)
+                .heatingType(UPDATED_HEATING_TYPE)
+                .announcements(DEFAULT_ANNOUNCEMENTS)
+                .deleted(DEFAULT_DELETED);
     }
 
     @Test
@@ -62,7 +83,7 @@ public class RealEstateServiceTest {
     }
 
     @Test
-    public void testFindOne(){
+    public void testFindOne() {
         RealEstate realEstate = realEstateService.findOne(ID);
         assertThat(realEstate).isNotNull();
 
@@ -115,7 +136,7 @@ public class RealEstateServiceTest {
     }
 
     /*
-	 * Negative tests
+     * Negative tests
 	 */
 
     @Test(expected = ConstraintViolationException.class)

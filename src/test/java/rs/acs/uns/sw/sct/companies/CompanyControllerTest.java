@@ -40,8 +40,8 @@ public class CompanyControllerTest {
     private static final String DEFAULT_ADDRESS = "ADDRESS_AAA";
     private static final String UPDATED_ADDRESS = "ADDRESS_BBB";
 
-    private static final String DEFAULT_TELEPHONE_NO = "0600000000";
-    private static final String UPDATED_TELEPHONE_NO = "0611111111";
+    private static final String DEFAULT_PHONE_NUMBER = "0600000000";
+    private static final String UPDATED_PHONE_NUMBER = "0611111111";
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -69,7 +69,7 @@ public class CompanyControllerTest {
         return new Company()
                 .name(DEFAULT_NAME)
                 .address(DEFAULT_ADDRESS)
-                .telephoneNo(DEFAULT_TELEPHONE_NO);
+                .phoneNumber(DEFAULT_PHONE_NUMBER);
     }
 
     @PostConstruct
@@ -105,7 +105,7 @@ public class CompanyControllerTest {
         Company testCompany = companies.get(companies.size() - 1);
         assertThat(testCompany.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCompany.getAddress()).isEqualTo(DEFAULT_ADDRESS);
-        assertThat(testCompany.getPhoneNumber()).isEqualTo(DEFAULT_TELEPHONE_NO);
+        assertThat(testCompany.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
     }
 
 
@@ -176,7 +176,7 @@ public class CompanyControllerTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(company.getId().intValue())))
                 .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
                 .andExpect(jsonPath("$.[*].address").value(hasItem(DEFAULT_ADDRESS)))
-                .andExpect(jsonPath("$.[*].telephoneNo").value(hasItem(DEFAULT_TELEPHONE_NO)));
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)));
     }
 
     @Test
@@ -192,7 +192,7 @@ public class CompanyControllerTest {
                 .andExpect(jsonPath("$.id").value(company.getId().intValue()))
                 .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
                 .andExpect(jsonPath("$.address").value(DEFAULT_ADDRESS))
-                .andExpect(jsonPath("$.telephoneNo").value(DEFAULT_TELEPHONE_NO));
+                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER));
     }
 
     @Test
@@ -216,7 +216,7 @@ public class CompanyControllerTest {
         updatedCompany
                 .name(UPDATED_NAME)
                 .address(UPDATED_ADDRESS)
-                .telephoneNo(UPDATED_TELEPHONE_NO);
+                .phoneNumber(UPDATED_PHONE_NUMBER);
 
         restCompanyMockMvc.perform(put("/api/companies")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -229,7 +229,7 @@ public class CompanyControllerTest {
         Company testCompany = companies.get(companies.size() - 1);
         assertThat(testCompany.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCompany.getAddress()).isEqualTo(UPDATED_ADDRESS);
-        assertThat(testCompany.getPhoneNumber()).isEqualTo(UPDATED_TELEPHONE_NO);
+        assertThat(testCompany.getPhoneNumber()).isEqualTo(UPDATED_PHONE_NUMBER);
     }
 
     @Test

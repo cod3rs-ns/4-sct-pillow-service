@@ -51,12 +51,10 @@ public class UserControllerTest {
 
     private static final String DEFAULT_LAST_NAME = "Teodosić";
 
-
-    private User advertiser;
-
+    private static final String DEFAULT_PHONE_NUMBER = "0600000000";
     @Autowired
     FilterChainProxy springSecurityFilterChain;
-
+    private User advertiser;
     @Autowired
     private WebApplicationContext context;
 
@@ -84,7 +82,8 @@ public class UserControllerTest {
                 .password(DEFAULT_PASSWORD)
                 .type(USER_TYPE)
                 .firstName(DEFAULT_FIRST_NAME)
-                .lastName(DEFAULT_LAST_NAME);
+                .lastName(DEFAULT_LAST_NAME)
+                .phoneNumber(DEFAULT_PHONE_NUMBER);
     }
 
     @PostConstruct
@@ -110,9 +109,9 @@ public class UserControllerTest {
 
         // Create Advertiser
         mockMvc.perform(post("/api/users/")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(advertiser)))
-        .andExpect(status().isCreated());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(advertiser)))
+                .andExpect(status().isCreated());
 
         final List<User> users = userRepository.findAll();
 
@@ -123,6 +122,7 @@ public class UserControllerTest {
         assertThat(testUser.getEmail()).isEqualTo(DEFAULT_EMAIL);
         assertThat(testUser.getUsername()).isEqualTo(DEFAULT_USERNAME);
         assertThat(testUser.getType()).isEqualTo(Constants.Roles.ADVERTISER);
+        assertThat(testUser.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
         // TODO Check for password encoding
     }
 
@@ -134,9 +134,9 @@ public class UserControllerTest {
         advertiser.setEmail(null);
 
         mockMvc.perform(post("/api/users/")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(advertiser)))
-        .andExpect(status().isBadRequest());
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(advertiser)))
+                .andExpect(status().isBadRequest());
 
         final List<User> users = userRepository.findAll();
 
@@ -181,7 +181,8 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.id").value(advertiser.getId().intValue()))
                 .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME))
                 .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
-                .andExpect(jsonPath("$.type").value(Constants.Roles.ADVERTISER));
+                .andExpect(jsonPath("$.type").value(Constants.Roles.ADVERTISER))
+                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER));
     }
 
     @Test

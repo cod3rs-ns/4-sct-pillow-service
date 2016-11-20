@@ -15,15 +15,15 @@ public interface CompanyConstants {
 
     String NAME = "company";
     String ADDRESS = "Trg Dositeja Obradovića";
-    String TELEPHONE_NO = "5461963";
+    String PHONE_NUMBER = "5461963";
 
     String NEW_NAME = "company_new";
     String NEW_ADDRESS = "Trg Dositeja Obradovića 15";
-    String NEW_TELEPHONE_NO = "5461963456";
+    String NEW_PHONE_NUMBER = "5461963456";
 
     String UPDATED_NAME = "company_updated";
     String UPDATED_ADDRESS = "Trg Kralja Petra";
-    String UPDATED_TELEPHONE_NO = "1239555";
+    String UPDATED_PHONE_NUMBER = "1239555";
 
     Set<User> DEFAULT_USERS = null;
 }

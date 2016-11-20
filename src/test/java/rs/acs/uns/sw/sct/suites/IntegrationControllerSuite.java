@@ -6,7 +6,7 @@ import rs.acs.uns.sw.sct.announcements.AnnouncementControllerTest;
 import rs.acs.uns.sw.sct.comments.CommentControllerTest;
 import rs.acs.uns.sw.sct.companies.CompanyControllerTest;
 import rs.acs.uns.sw.sct.marks.MarkControllerTest;
-import rs.acs.uns.sw.sct.real_estates.RealEstateControllerTest;
+import rs.acs.uns.sw.sct.realestates.RealEstateControllerTest;
 import rs.acs.uns.sw.sct.reports.ReportControllerTest;
 import rs.acs.uns.sw.sct.users.UserControllerTest;
 

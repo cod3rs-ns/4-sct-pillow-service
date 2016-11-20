@@ -20,7 +20,7 @@ import static rs.acs.uns.sw.sct.constants.ReportConstants.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = AwtTestSiitProject2016Application.class)
-@TestPropertySource(locations="classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.properties")
 public class ReportServiceTest {
     @Autowired
     private ReportService reportService;
@@ -33,7 +33,7 @@ public class ReportServiceTest {
     private Report existingReport;
 
 
-    private void compareReports(Report report1, Report report2){
+    private void compareReports(Report report1, Report report2) {
         if (report1.getId() != null && report2.getId() != null)
             assertThat(report1.getId()).isEqualTo(report2.getId());
         assertThat(report1.getType()).isEqualTo(report2.getType());
@@ -41,7 +41,7 @@ public class ReportServiceTest {
         if (report1.getEmail() != null && report2.getEmail() != null)
             System.out.println(report1.getEmail());
         System.out.println(report2.getEmail());
-            assertThat(report1.getEmail()).isEqualTo(report2.getEmail());
+        assertThat(report1.getEmail()).isEqualTo(report2.getEmail());
         if (report1.getReporter() != null && report2.getReporter() != null)
             assertThat(report1.getReporter().getId()).isEqualTo(report2.getReporter().getId());
         assertThat(report1.getContent()).isEqualTo(report2.getContent());
@@ -51,9 +51,30 @@ public class ReportServiceTest {
 
     @Before
     public void initTest() {
-        existingReport = new Report(ID, EMAIL, TYPE, CONTENT, STATUS, REPORTER, DEAFULT_ANNOUNCEMENT);
-        newReport =  new Report(null, NEW_EMAIL, NEW_TYPE, NEW_CONTENT, NEW_STATUS, NEW_REPORTER, DEAFULT_ANNOUNCEMENT);
-        updatedReport = new Report(null, UPDATED_EMAIL, UPDATED_TYPE, UPDATED_CONTENT, UPDATED_STATUS, UPDATED_REPORTER, DEAFULT_ANNOUNCEMENT);
+        existingReport = new Report()
+                .id(ID)
+                .email(EMAIL)
+                .type(TYPE)
+                .content(CONTENT)
+                .status(STATUS)
+                .reporter(REPORTER)
+                .announcement(DEAFULT_ANNOUNCEMENT);
+        newReport = new Report()
+                .id(null)
+                .email(NEW_EMAIL)
+                .type(NEW_TYPE)
+                .content(NEW_CONTENT)
+                .status(NEW_STATUS)
+                .reporter(NEW_REPORTER)
+                .announcement(DEAFULT_ANNOUNCEMENT);
+        updatedReport = new Report()
+                .id(null)
+                .email(UPDATED_EMAIL)
+                .type(UPDATED_TYPE)
+                .content(UPDATED_CONTENT)
+                .status(UPDATED_STATUS)
+                .reporter(UPDATED_REPORTER)
+                .announcement(DEAFULT_ANNOUNCEMENT);
     }
 
     @Test
@@ -73,7 +94,7 @@ public class ReportServiceTest {
 
     @Test
     @Transactional(readOnly = true)
-    public void testFindOne(){
+    public void testFindOne() {
         Report report = reportService.findOne(ID);
         assertThat(report).isNotNull();
         System.out.println(report);
@@ -127,7 +148,7 @@ public class ReportServiceTest {
     }
 
     /*
-	 * Negative tests
+     * Negative tests
 	 */
 
     @Test(expected = ConstraintViolationException.class)
