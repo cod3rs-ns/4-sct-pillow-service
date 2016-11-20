@@ -1,34 +1,38 @@
 package rs.acs.uns.sw.sct.users;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rs.acs.uns.sw.sct.real_estates.RealEstateService;
 
+/**
+ * Service Implementation for managing Report.
+ */
 @Service
+@Transactional
 public class UserService {
-
-    private final Logger log = LoggerFactory.getLogger(RealEstateService.class);
 
     @Autowired
     UserRepository userRepository;
 
+    /**
+     * Get one user by email.
+     *
+     * @param email the id of the user
+     * @return user
+     */
     public User getUserByEmail(String email) {
         return userRepository.findOneByEmail(email);
     }
 
 
     /**
-     * Save a newUser.
+     * Save new user.
      *
-     * @param newUser the entity to save
-     * @return the persisted entity
+     * @param newUser the user to save
+     * @return the persisted user
      */
     public User save(User newUser) {
-        log.debug("Request to save User : {}", newUser);
 
         if (newUser.getPassword() != null) {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -36,21 +40,17 @@ public class UserService {
             newUser.setPassword(hashedPassword);
         }
 
-        User result = userRepository.save(newUser);
-        return result;
+        return userRepository.save(newUser);
     }
 
-
     /**
-     * Get one realEstate by id.
+     * Get one User by id.
      *
-     * @param id the id of the entity
-     * @return the entity
+     * @param id the id of the user
+     * @return user
      */
     @Transactional(readOnly = true)
     public User findOne(Long id) {
-        log.debug("Request to get RealEstate : {}", id);
-        User user = userRepository.findOne(id);
-        return user;
+        return userRepository.findOne(id);
     }
 }

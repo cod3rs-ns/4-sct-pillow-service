@@ -7,68 +7,56 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
+/**
+ * An user.
+ */
 @Entity
 @Table(name = "users")
-@PrimaryKeyJoinColumn(name="u_id")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "u_id")
     private Long id;
 
     @NotNull
-    @Column(name = "u_username", unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String username;
 
     @NotNull
-    @Column(name = "u_email", unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @NotNull
-    @Column(name = "u_password", nullable = false)
+    @Column(nullable = false)
     private String password;
 
     @NotNull
-    @Column(name = "u_fname", nullable = false)
+    @Column(nullable = false)
     private String firstName;
 
     @NotNull
-    @Column(name = "u_lname", nullable = false)
+    @Column(nullable = false)
     private String lastName;
 
-    @Column(name = "u_telephone")
-    private String telephoneNo;
+    @NotNull
+    @Column(nullable = false)
+    private String phoneNumber;
 
     @NotNull
-    @Column(name = "u_type", nullable = false)
+    @Column(nullable = false)
     private String type;
 
     @ManyToOne
-    @JoinColumn(name = "u_company")
+    @JoinColumn()
     private Company company;
 
-    @Column(name = "u_company_verified")
+    @Column()
     private String companyVerified;
 
-    @Column(name = "u_deleted", nullable = false)
+    @Column(nullable = false)
     private Boolean deleted = false;
-
-    public User() {
-        super();
-    }
-
-    public User(String username, String email, String password, String firstName, String lastName, String telephoneNo, String type) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.telephoneNo = telephoneNo;
-        this.type = type;
-    }
 
     public Long getId() {
         return id;
@@ -78,8 +66,33 @@ public class User implements Serializable {
         this.id = id;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param id user identifier
+     * @return User (this)
+     */
     public User id(Long id) {
         this.id = id;
+        return this;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param username user username
+     * @return User (this)
+     */
+    public User username(String username) {
+        this.username = username;
         return this;
     }
 
@@ -91,6 +104,12 @@ public class User implements Serializable {
         this.email = email;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param email user email
+     * @return User (this)
+     */
     public User email(String email) {
         this.email = email;
         return this;
@@ -104,6 +123,12 @@ public class User implements Serializable {
         this.password = password;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param password user password - encrypted
+     * @return User (this)
+     */
     public User password(String password) {
         this.password = password;
         return this;
@@ -117,9 +142,15 @@ public class User implements Serializable {
         this.firstName = firstName;
     }
 
-    public User firstName(String firstName){
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param firstName user first name
+     * @return User (this)
+     */
+    public User firstName(String firstName) {
         this.firstName = firstName;
-        return  this;
+        return this;
     }
 
     public String getLastName() {
@@ -130,22 +161,34 @@ public class User implements Serializable {
         this.lastName = lastName;
     }
 
-    public User lastName(String lastName){
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param lastName user last name
+     * @return User (this)
+     */
+    public User lastName(String lastName) {
         this.lastName = lastName;
-        return  this;
+        return this;
     }
 
-    public String getTelephoneNo() {
-        return telephoneNo;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setTelephoneNo(String telephoneNo) {
-        this.telephoneNo = telephoneNo;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public User telephoneNo(String telephoneNo){
-        this.telephoneNo = telephoneNo;
-        return  this;
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param phoneNumber user phone number
+     * @return User (this)
+     */
+    public User phoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+        return this;
     }
 
     public String getType() {
@@ -156,6 +199,12 @@ public class User implements Serializable {
         this.type = type;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param type user type
+     * @return User (this)
+     */
     public User type(String type) {
         this.type = type;
         return this;
@@ -184,19 +233,5 @@ public class User implements Serializable {
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
     }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public User username(String username) {
-        this.username = username;
-        return this;
-    }
-
 
 }

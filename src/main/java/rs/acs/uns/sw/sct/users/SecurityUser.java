@@ -6,9 +6,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+/**
+ * A specific user for security.
+ */
 public class SecurityUser implements UserDetails {
-
-    // FIXME Remove unwanted code
 
     private Long id;
     private String email;
@@ -21,10 +22,22 @@ public class SecurityUser implements UserDetails {
     private Boolean credentialsNonExpired = true;
     private Boolean enabled = true;
 
+    /**
+     * Empty constructor.
+     */
     public SecurityUser() {
         super();
     }
 
+    /**
+     * Security user constructor.
+     *
+     * @param id          user id
+     * @param email       user email
+     * @param password    user password
+     * @param type        user type
+     * @param authorities all granted user authorities
+     */
     public SecurityUser(Long id, String email, String password, String type, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
@@ -43,9 +56,17 @@ public class SecurityUser implements UserDetails {
         return this.password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities;
+    }
+
+    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
     }
 
     @Override
@@ -80,20 +101,12 @@ public class SecurityUser implements UserDetails {
         this.email = email;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        this.authorities = authorities;
     }
 
     @JsonIgnore

@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.sct.users;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +19,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
+/**
+ * REST controller for managing Report.
+ */
 @RestController
 @RequestMapping("/api")
 public class UserController {
-
-    private final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     UserService userService;
@@ -39,11 +38,19 @@ public class UserController {
     @Autowired
     TokenUtils tokenUtils;
 
+    /**
+     * POST  /users/auth : Authenticate user.
+     *
+     * @param email    the email of user
+     * @param password the password of user
+     * @return the ResponseEntity with status 200 (OK) and with body the user
+     * @throws AuthenticationException if the user cannot be authenticated
+     */
     @RequestMapping(
             value = "/users/auth",
             method = RequestMethod.POST
     )
-    public ResponseEntity<AuthResponse> authenticate(@RequestParam(value="email") String email, @RequestParam(value="password") String password) throws AuthenticationException {
+    public ResponseEntity<AuthResponse> authenticate(@RequestParam(value = "email") String email, @RequestParam(value = "password") String password) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
         );
@@ -55,14 +62,6 @@ public class UserController {
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
-
-    private static class AuthResponse {
-        public String token;
-        public AuthResponse(final String token) {
-            this.token = token;
-        }
-    }
-
     /**
      * POST  /users : Register a new user.
      *
@@ -72,14 +71,13 @@ public class UserController {
      */
     @PostMapping("/users/")
     public ResponseEntity<User> registerUser(@Valid @RequestBody User user) throws URISyntaxException {
-        log.debug("REST request to save User : {}", user);
         if (user.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("user", "idexists", "A new user cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.USER, "id_exists", "A new user cannot already have an ID")).body(null);
         }
 
         User result = userService.save(user);
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("user", result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.USER, result.getId().toString()))
                 .body(result);
     }
 
@@ -91,13 +89,31 @@ public class UserController {
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUser(@PathVariable Long id) {
-        log.debug("REST request to get RealEstate : {}", id);
         User user = userService.findOne(id);
         return Optional.ofNullable(user)
                 .map(result -> new ResponseEntity<>(
                         result,
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * Authentication response
+     */
+    private static class AuthResponse {
+        private String token;
+
+        public AuthResponse(final String token) {
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
     }
 
 }
