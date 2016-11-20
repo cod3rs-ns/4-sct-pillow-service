@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>rs.acs.uns.sw.teamone</groupId>
-    <artifactId>awt-test-siit-project-2016</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <artifactId>sct-project-2016</artifactId>
+    <version>1.2</version>
     <packaging>jar</packaging>
 
-    <name>awt-test-sw-project-2016</name>
-    <description>Project for courses Advanced Web Technologies and Construction and Testing of Software</description>
+    <name>sct-sw-project-2016</name>
+    <description>Project for course Construction and Testing of Software</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -88,19 +88,6 @@
         </dependency>
 
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>2.2.2</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>2.2.2</version>
@@ -117,6 +104,12 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-junit4</artifactId>
+            <version>2.18.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -127,6 +120,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>
