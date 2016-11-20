@@ -42,6 +42,9 @@ public class RealEstate implements Serializable {
     @Column(nullable = false)
     private Boolean deleted;
 
+    @ManyToOne
+    private Location location;
+
     @JsonIgnore
     @OneToMany(mappedBy = "realEstate", fetch = FetchType.LAZY)
     private Set<Announcement> announcements = new HashSet<>(0);
@@ -157,6 +160,25 @@ public class RealEstate implements Serializable {
      */
     public RealEstate deleted(Boolean deleted) {
         this.deleted = deleted;
+        return this;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param location real estate location
+     * @return RealEstate (this)
+     */
+    public RealEstate location(Location location) {
+        this.location = location;
         return this;
     }
 
