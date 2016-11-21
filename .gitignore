@@ -118,3 +118,5 @@ dump.rdb
 transaction-logs
 
 .sonar/
+
+database
