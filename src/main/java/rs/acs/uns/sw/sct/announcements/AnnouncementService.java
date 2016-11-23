@@ -38,6 +38,18 @@ public class AnnouncementService {
     }
 
     /**
+     * Get all the announcements by company id.
+     *
+     * @param pageable the pagination information
+     * @param companyId id of one company
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Announcement> findAllByCompany(Long companyId, Pageable pageable) {
+        return announcementRepository.findByAuthor_Company_Id(companyId, pageable);
+    }
+
+    /**
      * Get one announcement by id.
      *
      * @param id the id of the entity

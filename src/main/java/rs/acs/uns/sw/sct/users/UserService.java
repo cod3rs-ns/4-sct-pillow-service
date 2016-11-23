@@ -1,6 +1,8 @@
 package rs.acs.uns.sw.sct.users;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,19 @@ public class UserService {
      */
     public User getUserByEmail(String email) {
         return userRepository.findOneByEmail(email);
+    }
+
+
+    /**
+     * Get all users by company id.
+     *
+     * @param pageable the pagination information
+     * @param companyId id of one company
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<User> findAllByCompany(Long companyId, Pageable pageable) {
+        return userRepository.findByCompany_Id(companyId, pageable);
     }
 
 

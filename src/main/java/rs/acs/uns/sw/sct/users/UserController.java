@@ -1,6 +1,9 @@
 package rs.acs.uns.sw.sct.users;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,10 +16,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.security.TokenUtils;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
+import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -60,6 +65,22 @@ public class UserController {
         final String token = tokenUtils.generateToken(userDetails);
 
         return ResponseEntity.ok(new AuthResponse(token));
+    }
+
+    /**
+     * GET  /users/company/:companyId : get all users from one company.
+     *
+     * @param companyId the id of the company
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of users in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/users/company/{companyId}")
+    public ResponseEntity<List<User>> getAllUsersByCompanyId(@PathVariable Long companyId, Pageable pageable)
+            throws URISyntaxException {
+        Page<User> page = userService.findAllByCompany(companyId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users/company");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
@@ -115,5 +136,4 @@ public class UserController {
             this.token = token;
         }
     }
-
 }
