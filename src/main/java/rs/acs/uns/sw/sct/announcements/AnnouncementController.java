@@ -96,6 +96,20 @@ public class AnnouncementController {
     }
 
     /**
+     * GET  /announcements/top/company/:companyId : get top three announcements created by users of the same company.
+     *
+     * @param companyId the id of the company
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/announcements/top/company/{companyId}")
+    public ResponseEntity<List<Announcement>> getTopAnnouncementsByCompanyId(@PathVariable Long companyId)
+            throws URISyntaxException {
+        List<Announcement> list = announcementService.findTopByCompany(companyId);
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    /**
      * GET  /announcements/:id : get the "id" announcement.
      *
      * @param id the id of the announcement to retrieve
