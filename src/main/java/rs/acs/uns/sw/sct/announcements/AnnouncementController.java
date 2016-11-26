@@ -80,6 +80,36 @@ public class AnnouncementController {
     }
 
     /**
+     * GET  /announcements/company/:companyId : get all the announcements created by users of the same company.
+     *
+     * @param companyId the id of the company
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/announcements/company/{companyId}")
+    public ResponseEntity<List<Announcement>> getAllAnnouncementsByCompanyId(@PathVariable Long companyId, Pageable pageable)
+            throws URISyntaxException {
+        Page<Announcement> page = announcementService.findAllByCompany(companyId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/company");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET  /announcements/top/company/:companyId : get top three announcements created by users of the same company.
+     *
+     * @param companyId the id of the company
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/announcements/top/company/{companyId}")
+    public ResponseEntity<List<Announcement>> getTopAnnouncementsByCompanyId(@PathVariable Long companyId)
+            throws URISyntaxException {
+        List<Announcement> list = announcementService.findTopByCompany(companyId);
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    /**
      * GET  /announcements/:id : get the "id" announcement.
      *
      * @param id the id of the announcement to retrieve
