@@ -57,7 +57,7 @@ public class Announcement implements Serializable {
     @Column(nullable = false)
     private Boolean deleted;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn()
     private RealEstate realEstate;
 
@@ -73,7 +73,7 @@ public class Announcement implements Serializable {
     @OneToMany(mappedBy = "announcement", fetch = FetchType.LAZY)
     private Set<Comment> comments = new HashSet<>(0);
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     private Set<Image> images = new HashSet<>(0);
 
     public Long getId() {
@@ -356,7 +356,24 @@ public class Announcement implements Serializable {
                 ", verified='" + verified + '\'' +
                 ", deleted=" + deleted +
                 ", realEstate=" + realEstate +
-                ", author=" + author +
-                '}';
+                "}";
+    }
+
+    /**
+     * Converting announcement to DTO object
+     *
+     * @return AnnouncementDTO (dto)
+     */
+    public AnnouncementDTO convertToDTO(){
+        AnnouncementDTO dto = new AnnouncementDTO();
+        dto.setType(this.type);
+        dto.setId(id);
+        dto.setExpirationDate(expirationDate);
+        dto.setImages(images);
+        dto.setPhoneNumber(phoneNumber);
+        dto.setPrice(price);
+        dto.setRealEstate(realEstate);
+
+        return dto;
     }
 }

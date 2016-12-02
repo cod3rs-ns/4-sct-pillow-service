@@ -3,6 +3,7 @@ package rs.acs.uns.sw.sct.constants;
 
 import rs.acs.uns.sw.sct.comments.Comment;
 import rs.acs.uns.sw.sct.marks.Mark;
+import rs.acs.uns.sw.sct.realestates.Location;
 import rs.acs.uns.sw.sct.realestates.RealEstate;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.DateUtil;
@@ -28,11 +29,22 @@ public interface AnnouncementConstants {
     Double NEW_PRICE = 40D;
     String NEW_PHONE_NUMBER = "0654887612";
     String NEW_TYPE = "house";
-    RealEstate NEW_REAL_ESTATE = new RealEstate().id(2L);
     User NEW_AUTHOR = new User().id(2L);
     Timestamp NEW_DATE_ANNOUNCED = DateUtil.date("01-01-1995");
     Timestamp NEW_DATE_MODIFIED = DateUtil.date("03-01-1995");
     Timestamp NEW_EXPIRATION_DATE = DateUtil.date("20-01-1995");
+    Location LOCATION = new Location().city("Novi Sad")
+            .cityRegion("Grbavica")
+            .country("Serbia")
+            .street("Narodnog Fronta")
+            .streetNumber("15");
+    RealEstate NEW_REAL_ESTATE = new RealEstate().equipment("everything")
+            .name("real name")
+            .type("sell")
+            .area(120D)
+            .heatingType("central")
+            .deleted(false)
+            .location(LOCATION);
 
     Double UPDATED_PRICE = 15D;
     String UPDATED_PHONE_NUMBER = "06548812";

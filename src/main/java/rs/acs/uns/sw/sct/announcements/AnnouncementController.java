@@ -6,15 +6,25 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import rs.acs.uns.sw.sct.realestates.RealEstate;
+import rs.acs.uns.sw.sct.realestates.RealEstateService;
+import rs.acs.uns.sw.sct.users.User;
+import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * REST controller for managing Announcement.
@@ -26,18 +36,31 @@ public class AnnouncementController {
     @Autowired
     private AnnouncementService announcementService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RealEstateService realEstateService;
+
+
     /**
      * POST  /announcements : Create a new announcement.
      *
-     * @param announcement the announcement to create
+     * @param annDTO the announcement to create
      * @return the ResponseEntity with status 201 (Created) and with body the new announcement, or with status 400 (Bad Request) if the announcement has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/announcements")
-    public ResponseEntity<Announcement> createAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
-        if (announcement.getId() != null) {
+    public ResponseEntity<Announcement> createAnnouncement(@Valid @RequestBody AnnouncementDTO annDTO) throws URISyntaxException {
+        if (annDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.ANNOUNCEMENT, "id_exists", "A new announcement cannot already have an ID")).body(null);
         }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByEmail(auth.getName());
+
+        Announcement announcement = annDTO.convertToAnnouncement(user);
+        System.out.println(announcement.getImages());
+
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.created(new URI("/api/announcements/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.ANNOUNCEMENT, result.getId().toString()))
@@ -56,7 +79,7 @@ public class AnnouncementController {
     @PutMapping("/announcements")
     public ResponseEntity<Announcement> updateAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
         if (announcement.getId() == null) {
-            return createAnnouncement(announcement);
+            return createAnnouncement(announcement.convertToDTO());
         }
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.ok()
@@ -83,7 +106,7 @@ public class AnnouncementController {
      * GET  /announcements/company/:companyId : get all the announcements created by users of the same company.
      *
      * @param companyId the id of the company
-     * @param pageable the pagination information
+     * @param pageable  the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
@@ -137,4 +160,33 @@ public class AnnouncementController {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.ANNOUNCEMENT, id.toString())).build();
     }
 
+    /**
+     * POST  /announcements/:id : upload file for announcement.
+     *
+     * @param file the file to be upload
+     * @return the ResponseEntity with status 201 (Created) and with body the new file name, or with status 400 (Bad Request) if the upload failed, or with status 204 (No content)
+     */
+    @PostMapping("/announcements/upload")
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        if (!file.isEmpty()) {
+            try {
+                String originalFileName = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf(".") );
+                String originalFileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+                String newFilename = originalFileName + UUID.randomUUID().toString() + originalFileExtension;
+
+                // transfer to upload folder
+                File dir = new File(Constants.FilePaths.BASE + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator);
+                if (!dir.exists())
+                    dir.mkdirs();
+                File newFile = new File(dir + File.separator + newFilename);
+                file.transferTo(newFile);
+
+                return new ResponseEntity<>(newFilename, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+    }
 }

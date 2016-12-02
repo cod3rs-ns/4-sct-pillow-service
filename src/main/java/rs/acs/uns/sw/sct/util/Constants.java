@@ -32,4 +32,17 @@ public final class Constants {
         private CompanyStatus() {
         }
     }
+
+    /**
+     * Constants representing file paths for image upload.
+     */
+    public static final class FilePaths {
+        public static final String BASE = "C:\\uploads";
+        public static final String ANNOUNCEMENTS = "announcements";
+        public static final String COMPANIES = "companies";
+        public static final String USERS = "users";
+
+        private FilePaths() {
+        }
+    }
 }
