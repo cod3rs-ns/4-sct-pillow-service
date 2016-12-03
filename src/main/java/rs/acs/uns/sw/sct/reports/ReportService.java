@@ -49,6 +49,31 @@ public class ReportService {
     }
 
     /**
+     * Get all reports by status.
+     *
+     * @param status the id of the entity
+     * @param pageable the pagination information
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Report> findByStatus(String status, Pageable pageable) {
+        return reportRepository.findByStatus(status, pageable);
+    }
+
+    /**
+     * Get all reports by author email.
+     *
+     * @param email the id of the entity
+     * @param pageable the pagination information
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Report> findByAuthorEmail(String email, Pageable pageable) {
+        return reportRepository.findByEmail(email, pageable);
+    }
+
+
+    /**
      * Delete the  report by id.
      *
      * @param id the id of the entity

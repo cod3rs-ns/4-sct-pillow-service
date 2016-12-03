@@ -3,12 +3,16 @@ package rs.acs.uns.sw.sct.reports;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -16,6 +20,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.announcements.AnnouncementService;
+import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
+import rs.acs.uns.sw.sct.constants.UserConstants;
+import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
@@ -48,11 +57,19 @@ public class ReportControllerTest {
     private static final String DEFAULT_CONTENT = "CONTENT_A";
     private static final String UPDATED_CONTENT = "CONTENT_B";
 
+    private static final String EXISTING_USERNAME = "isco";
+
     @Autowired
     private ReportRepository reportRepository;
 
     @Autowired
     private ReportService reportService;
+
+    @Autowired
+    private AnnouncementService announcementService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -71,12 +88,15 @@ public class ReportControllerTest {
      * if they test an entity which requires the current entity.
      */
     public static Report createEntity() {
+        Announcement announcement = new Announcement()
+                .id(AnnouncementConstants.ID);
+
         return new Report()
                 .email(DEFAULT_EMAIL)
                 .type(DEFAULT_TYPE)
                 .status(DEFAULT_STATUS)
-                .content(DEFAULT_CONTENT);
-
+                .content(DEFAULT_CONTENT)
+                .announcement(announcement);
     }
 
     @PostConstruct
@@ -84,6 +104,8 @@ public class ReportControllerTest {
         MockitoAnnotations.initMocks(this);
         ReportController reportCtrl = new ReportController();
         ReflectionTestUtils.setField(reportCtrl, "reportService", reportService);
+        ReflectionTestUtils.setField(reportCtrl, "userService", userService);
+        ReflectionTestUtils.setField(reportCtrl, "announcementService", announcementService);
         this.restReportMockMvc = MockMvcBuilders.standaloneSetup(reportCtrl)
                 .setCustomArgumentResolvers(pageableArgumentResolver)
                 .setMessageConverters(jacksonMessageConverter).build();
@@ -92,6 +114,13 @@ public class ReportControllerTest {
     @Before
     public void initTest() {
         report = createEntity();
+
+        // Set authentication
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn(EXISTING_USERNAME);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
