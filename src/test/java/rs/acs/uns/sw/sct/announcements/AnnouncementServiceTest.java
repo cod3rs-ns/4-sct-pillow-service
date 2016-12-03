@@ -1,15 +1,22 @@
 package rs.acs.uns.sw.sct.announcements;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.parsing.SourceExtractor;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.SerializationUtils;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
+import rs.acs.uns.sw.sct.realestates.Location;
+import rs.acs.uns.sw.sct.realestates.RealEstate;
+import rs.acs.uns.sw.sct.util.Constants;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -50,6 +57,7 @@ public class AnnouncementServiceTest {
 
     @Before
     public void initTest() {
+        newAnnouncement = createNewEntity();
         existingAnnouncement = new Announcement()
                 .id(ID)
                 .price(PRICE)
@@ -62,18 +70,6 @@ public class AnnouncementServiceTest {
                 .realEstate(REAL_ESTATE)
                 .author(AUTHOR)
                 .deleted(DEFAULT_DELETED);
-        newAnnouncement = new Announcement()
-                .id(null)
-                .price(NEW_PRICE)
-                .dateAnnounced(NEW_DATE_ANNOUNCED)
-                .dateModified(NEW_DATE_MODIFIED)
-                .expirationDate(NEW_EXPIRATION_DATE)
-                .phoneNumber(NEW_PHONE_NUMBER)
-                .type(NEW_TYPE)
-                .verified(DEFAULT_VERIFIED)
-                .realEstate(NEW_REAL_ESTATE)
-                .author(NEW_AUTHOR)
-                .deleted(DEFAULT_DELETED);
         updatedAnnouncement = new Announcement()
                 .id(null)
                 .price(UPDATED_PRICE)
@@ -85,6 +81,35 @@ public class AnnouncementServiceTest {
                 .verified(DEFAULT_VERIFIED)
                 .realEstate(UPDATED_REAL_ESTATE)
                 .author(UPDATED_AUTHOR)
+                .deleted(DEFAULT_DELETED);
+    }
+
+    private Announcement createNewEntity() {
+        Location LOCATION = new Location().id(null)
+                .city(CITY)
+                .cityRegion(CITY_REGION)
+                .country(COUNTRY)
+                .street(STREET)
+                .streetNumber(STREET_NUMBER);
+        RealEstate NEW_REAL_ESTATE = new RealEstate().id(null)
+                .equipment(RE_EQUIPMENT)
+                .name(RE_NAME)
+                .type(RE_TYPE)
+                .area(RE_AREA)
+                .heatingType(RE_HEATING_TYPE)
+                .deleted(RE_DELETED)
+                .location(LOCATION);
+        return new Announcement()
+                .id(null)
+                .price(NEW_PRICE)
+                .dateAnnounced(NEW_DATE_ANNOUNCED)
+                .dateModified(NEW_DATE_MODIFIED)
+                .expirationDate(NEW_EXPIRATION_DATE)
+                .phoneNumber(NEW_PHONE_NUMBER)
+                .type(NEW_TYPE)
+                .verified(DEFAULT_VERIFIED)
+                .realEstate(NEW_REAL_ESTATE)
+                .author(NEW_AUTHOR)
                 .deleted(DEFAULT_DELETED);
     }
 
@@ -158,27 +183,45 @@ public class AnnouncementServiceTest {
         assertThat(dbAnnouncement).isNull();
     }
 
+    @Test
+    public void testAnnouncementsByAuthorId() {
+        Page<Announcement> dbAnnouncements = announcementService.findAllByCompany(COMPANY_ID, PAGEABLE);
+        List<Announcement> content = dbAnnouncements.getContent();
+
+        for (Announcement ann : content) {
+            assertThat(ann.getAuthor().getCompany().getId()).isEqualTo(COMPANY_ID);
+        }
+
+        assertThat(content.size()).isEqualTo(COUNT_OF_COMPANY_ANN);
+    }
+
+
+    @Test
+    public void testTopThreeAnnouncements() {
+        List<Announcement> dbAnnouncements = announcementService.findTopByCompany(COMPANY_ID);
+
+        assertThat(dbAnnouncements.size()).isLessThanOrEqualTo(TOP);
+
+        // test sorting ascending by price
+        for (int i = 0; i < dbAnnouncements.size() - 1; i++) {
+            assertThat(dbAnnouncements.get(i).getPrice()).isLessThanOrEqualTo(dbAnnouncements.get(i+1).getPrice());
+        }
+    }
 
     /*
      * Negative tests
-	 */
-
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullPrice() {
-        newAnnouncement.setPrice(null);
+        newAnnouncement.price(null);
         announcementService.save(newAnnouncement);
-        // rollback previous price
-        newAnnouncement.setPrice(NEW_PRICE);
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test()
     @Transactional
     public void testAddNullDateAnnounced() {
-        newAnnouncement.setDateAnnounced(null);
         announcementService.save(newAnnouncement);
-        // rollback previous date announced
-        newAnnouncement.setDateAnnounced(NEW_DATE_ANNOUNCED);
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -186,17 +229,13 @@ public class AnnouncementServiceTest {
     public void testAddNullExpirationDate() {
         newAnnouncement.setExpirationDate(null);
         announcementService.save(newAnnouncement);
-        // rollback previous expiration date
-        newAnnouncement.setExpirationDate(NEW_EXPIRATION_DATE);
     }
 
     @Test(expected = ConstraintViolationException.class)
     @Transactional
-    public void testAddNullDateTelephoneNo() {
+    public void testAddNullTelephoneNo() {
         newAnnouncement.setPhoneNumber(null);
         announcementService.save(newAnnouncement);
-        // rollback previous telephone no
-        newAnnouncement.setPhoneNumber(NEW_PHONE_NUMBER);
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -204,7 +243,5 @@ public class AnnouncementServiceTest {
     public void testAddNullType() {
         newAnnouncement.setType(null);
         announcementService.save(newAnnouncement);
-        // rollback previous type
-        newAnnouncement.setType(NEW_TYPE);
     }
 }
