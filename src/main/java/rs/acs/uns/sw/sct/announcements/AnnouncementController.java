@@ -10,8 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import rs.acs.uns.sw.sct.realestates.RealEstate;
-import rs.acs.uns.sw.sct.realestates.RealEstateService;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
@@ -39,9 +37,6 @@ public class AnnouncementController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private RealEstateService realEstateService;
-
 
     /**
      * POST  /announcements : Create a new announcement.
@@ -56,8 +51,10 @@ public class AnnouncementController {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.ANNOUNCEMENT, "id_exists", "A new announcement cannot already have an ID")).body(null);
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         User user = userService.getUserByEmail(auth.getName());
-
         Announcement announcement = annDTO.convertToAnnouncement(user);
         System.out.println(announcement.getImages());
 
@@ -170,7 +167,7 @@ public class AnnouncementController {
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
         if (!file.isEmpty()) {
             try {
-                String originalFileName = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf(".") );
+                String originalFileName = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf("."));
                 String originalFileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
                 String newFilename = originalFileName + UUID.randomUUID().toString() + originalFileExtension;
 

@@ -97,7 +97,6 @@ public class ReportServiceTest {
     public void testFindOne() {
         Report report = reportService.findOne(ID);
         assertThat(report).isNotNull();
-        System.out.println(report);
 
         compareReports(report, existingReport);
     }

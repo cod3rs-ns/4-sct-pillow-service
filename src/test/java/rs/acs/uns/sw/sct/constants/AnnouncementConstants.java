@@ -1,6 +1,10 @@
 package rs.acs.uns.sw.sct.constants;
 
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.util.SerializationUtils;
 import rs.acs.uns.sw.sct.comments.Comment;
 import rs.acs.uns.sw.sct.marks.Mark;
 import rs.acs.uns.sw.sct.realestates.Location;
@@ -33,18 +37,6 @@ public interface AnnouncementConstants {
     Timestamp NEW_DATE_ANNOUNCED = DateUtil.date("01-01-1995");
     Timestamp NEW_DATE_MODIFIED = DateUtil.date("03-01-1995");
     Timestamp NEW_EXPIRATION_DATE = DateUtil.date("20-01-1995");
-    Location LOCATION = new Location().city("Novi Sad")
-            .cityRegion("Grbavica")
-            .country("Serbia")
-            .street("Narodnog Fronta")
-            .streetNumber("15");
-    RealEstate NEW_REAL_ESTATE = new RealEstate().equipment("everything")
-            .name("real name")
-            .type("sell")
-            .area(120D)
-            .heatingType("central")
-            .deleted(false)
-            .location(LOCATION);
 
     Double UPDATED_PRICE = 15D;
     String UPDATED_PHONE_NUMBER = "06548812";
@@ -57,4 +49,29 @@ public interface AnnouncementConstants {
 
     String DEFAULT_VERIFIED = "verified";
     Boolean DEFAULT_DELETED = false;
+
+    // Location parameter
+    String CITY = "Novi Sad";
+    String CITY_REGION = "Grbavica";
+    String COUNTRY = "Serbia";
+    String STREET = "Narodnog Fronta";
+    String STREET_NUMBER = "15";
+
+    // Real estate
+    String RE_EQUIPMENT = "everything";
+    String RE_NAME = "real name";
+    String RE_TYPE = "sell";
+    Double RE_AREA = 120D;
+    String RE_HEATING_TYPE = "central";
+    Boolean RE_DELETED = false;
+
+    // Companies
+    Long COMPANY_ID = 1L;
+    Integer COUNT_OF_COMPANY_ANN = 2;
+
+    // 1st page with 10 elements
+    Pageable PAGEABLE = new PageRequest(0, 10, Sort.Direction.ASC, "dateAnnounced", "price");
+
+    // number of top elements
+    Integer TOP = 3;
 }

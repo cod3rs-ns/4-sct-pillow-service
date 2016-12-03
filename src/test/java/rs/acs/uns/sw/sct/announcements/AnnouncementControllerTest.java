@@ -3,28 +3,40 @@ package rs.acs.uns.sw.sct.announcements;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.matchers.GreaterOrEqual;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
+import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.DateUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -58,14 +70,19 @@ public class AnnouncementControllerTest {
     private static final Boolean DEFAULT_DELETED = false;
     private static final Boolean UPDATED_DELETED = true;
 
-    private static final String DEFAULT_VERIFIED = "VERIFIED_AAA";
+    private static final String DEFAULT_VERIFIED = "not-verified";
     private static final String UPDATED_VERIFIED = "VERIFIED_BBB";
+
+    private static final String EXISTING_USERNAME = "isco";
 
     @Autowired
     private AnnouncementRepository announcementRepository;
 
     @Autowired
     private AnnouncementService announcementService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -76,6 +93,8 @@ public class AnnouncementControllerTest {
     private MockMvc restAnnouncementMockMvc;
 
     private Announcement announcement;
+
+    private AnnouncementDTO announcementDTO;
 
     /**
      * Create an entity for this test.
@@ -95,11 +114,23 @@ public class AnnouncementControllerTest {
                 .deleted(DEFAULT_DELETED);
     }
 
+
+    /**
+     * Create an announcement DTO for this test.
+     * <p>
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static AnnouncementDTO createDTO(){
+        return createEntity().convertToDTO();
+    }
+
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
         AnnouncementController announcementCtrl = new AnnouncementController();
         ReflectionTestUtils.setField(announcementCtrl, "announcementService", announcementService);
+        ReflectionTestUtils.setField(announcementCtrl, "userService", userService);
         this.restAnnouncementMockMvc = MockMvcBuilders.standaloneSetup(announcementCtrl)
                 .setCustomArgumentResolvers(pageableArgumentResolver)
                 .setMessageConverters(jacksonMessageConverter).build();
@@ -108,6 +139,14 @@ public class AnnouncementControllerTest {
     @Before
     public void initTest() {
         announcement = createEntity();
+        announcementDTO = createDTO();
+
+        // Set authentication
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn(EXISTING_USERNAME);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
@@ -115,11 +154,9 @@ public class AnnouncementControllerTest {
     public void createAnnouncement() throws Exception {
         int databaseSizeBeforeCreate = announcementRepository.findAll().size();
 
-        // Create the Announcement
-
         restAnnouncementMockMvc.perform(post("/api/announcements")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(announcement)))
+                .content(TestUtil.convertObjectToJsonBytes(announcementDTO)))
                 .andExpect(status().isCreated());
 
         // Validate the Announcement in the database
@@ -127,8 +164,6 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeCreate + 1);
         Announcement testAnnouncement = announcements.get(announcements.size() - 1);
         assertThat(testAnnouncement.getPrice()).isEqualTo(DEFAULT_PRICE);
-        assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
-        assertThat(testAnnouncement.getDateModified()).isEqualTo(DEFAULT_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_EXPIRATION_DATE);
         assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
         assertThat(testAnnouncement.getType()).isEqualTo(DEFAULT_TYPE);
@@ -156,24 +191,6 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
-    public void checkDateAnnouncedIsRequired() throws Exception {
-        int databaseSizeBeforeTest = announcementRepository.findAll().size();
-        // set the field null
-        announcement.setDateAnnounced(null);
-
-        // Create the Announcement, which fails.
-
-        restAnnouncementMockMvc.perform(post("/api/announcements")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(announcement)))
-                .andExpect(status().isBadRequest());
-
-        List<Announcement> announcements = announcementRepository.findAll();
-        assertThat(announcements).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     public void checkExpirationDateIsRequired() throws Exception {
         int databaseSizeBeforeTest = announcementRepository.findAll().size();
         // set the field null
@@ -183,7 +200,7 @@ public class AnnouncementControllerTest {
 
         restAnnouncementMockMvc.perform(post("/api/announcements")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(announcement)))
+                .content(TestUtil.convertObjectToJsonBytes(announcement.convertToDTO())))
                 .andExpect(status().isBadRequest());
 
         List<Announcement> announcements = announcementRepository.findAll();

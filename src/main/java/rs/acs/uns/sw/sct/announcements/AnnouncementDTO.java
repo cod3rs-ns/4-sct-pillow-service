@@ -3,6 +3,7 @@ package rs.acs.uns.sw.sct.announcements;
 import rs.acs.uns.sw.sct.realestates.RealEstate;
 import rs.acs.uns.sw.sct.users.User;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
@@ -11,11 +12,21 @@ import java.util.Set;
 public class AnnouncementDTO implements Serializable{
 
     private Long id;
+
+    @NotNull
     private Double price;
+
+    @NotNull
     private Date expirationDate;
+
+    @NotNull
     private String phoneNumber;
+
+    @NotNull
     private String type;
+
     private RealEstate realEstate;
+
     private Set<Image> images = new HashSet<>(0);
 
     public AnnouncementDTO(){
