@@ -37,12 +37,13 @@ public final class Constants {
      * Constants representing file paths for image upload.
      */
     public static final class FilePaths {
-        public static final String BASE = "C:\\uploads";
+        // need not to be final because of reflection
+        public static String BASE = new String("C:\\uploads");
         public static final String ANNOUNCEMENTS = "announcements";
         public static final String COMPANIES = "companies";
         public static final String USERS = "users";
 
-        private FilePaths() {
+        public FilePaths() {
         }
     }
 }

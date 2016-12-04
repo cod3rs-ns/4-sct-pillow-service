@@ -12,6 +12,7 @@ import rs.acs.uns.sw.sct.realestates.RealEstate;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.DateUtil;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Set;
 
@@ -75,4 +76,9 @@ public interface AnnouncementConstants {
 
     // number of top elements
     Integer TOP = 3;
+
+    // file to be upload
+    String FILE_TO_BE_UPLOAD = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "test_upload.jpg";
+
+    String NEW_BASE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "uploads";
 }
