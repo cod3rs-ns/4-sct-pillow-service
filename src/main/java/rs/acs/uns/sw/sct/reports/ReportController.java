@@ -158,7 +158,7 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
-    @GetMapping("/reports/author/{email}")
+    @GetMapping("/reports/author/{email:.+}")
     public ResponseEntity<List<Report>> getAllReportsByAuthorEmail(Pageable pageable, @PathVariable String email)
             throws URISyntaxException {
         Page<Report> page = reportService.findByAuthorEmail(email, pageable);

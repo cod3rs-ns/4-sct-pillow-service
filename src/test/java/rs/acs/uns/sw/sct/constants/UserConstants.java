@@ -1,5 +1,8 @@
 package rs.acs.uns.sw.sct.constants;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 public interface UserConstants {
     int DB_COUNT = 7;
 
@@ -27,4 +30,9 @@ public interface UserConstants {
     String UPDATED_USER_TELEPHONE = "064163665";
     String UPDATED_USER_TYPE = "oglašavač";
     String UPDATED_USER_USERNAME = "steve";
+
+    // 1st page with 10 elements
+    Pageable PAGEABLE = new PageRequest(0, 10);
+
+    int USERS_IN_COMPANY = 3;
 }

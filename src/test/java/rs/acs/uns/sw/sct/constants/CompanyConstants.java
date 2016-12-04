@@ -24,5 +24,4 @@ public interface CompanyConstants {
     String UPDATED_NAME = "company_updated";
     String UPDATED_ADDRESS = "Trg Kralja Petra";
     String UPDATED_PHONE_NUMBER = "1239555";
-
 }

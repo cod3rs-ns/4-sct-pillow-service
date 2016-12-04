@@ -6,10 +6,13 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.constants.CompanyConstants;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -111,6 +114,12 @@ public class UserServiceTest {
         assertThat(dbUser).isNotNull();
 
         compareUsers(dbUser, existingUser, true);
+    }
+
+    @Test
+    public void testFindAllUsersByCompany() {
+        Page<User> users = userService.findAllByCompany(CompanyConstants.ID, PAGEABLE);
+        assertThat(users.getContent()).hasSize(USERS_IN_COMPANY);
     }
 
     @Test
