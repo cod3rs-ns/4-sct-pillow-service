@@ -155,7 +155,7 @@ public class UserControllerTest {
 
         // Authorize with that credentials
         mockMvc.perform(post("/api/users/auth")
-                .param("email", DEFAULT_EMAIL)
+                .param("username", DEFAULT_USERNAME)
                 .param("password", DEFAULT_PASSWORD))
                 .andExpect(status().isOk());
     }
@@ -165,7 +165,7 @@ public class UserControllerTest {
     public void authUserFailed() throws Exception {
         // We don't have users in database
         when(mockMvc.perform(post("/api/users/auth")
-                .param("email", DEFAULT_EMAIL)
+                .param("username", DEFAULT_USERNAME)
                 .param("password", DEFAULT_PASSWORD))
                 .andExpect(status().isUnauthorized())
                 .andDo(print())
