@@ -12,6 +12,15 @@ import java.util.List;
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
 
     /**
+     * Get all announcements where 'delete' status is 'true' or 'false'.
+     *
+     * @param deleted status we've search for
+     * @param pageable the pagination information
+     * @return list of announcements
+     */
+    Page<Announcement> findAllByDeleted(Boolean deleted, Pageable pageable);
+
+    /**
      * Get all announcements created by one company.
      *
      * @param companyId the id of the company

@@ -80,6 +80,22 @@ public class RealEstateController {
     }
 
     /**
+     * GET  /real-estates/deleted/:status : get all the realEstates.
+     *
+     * @param status deleted or not deleted
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of realEstates in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/real-estates/deleted/{status}")
+    public ResponseEntity<List<RealEstate>> getAllRealEstatesByStatus(@PathVariable Boolean status, Pageable pageable)
+            throws URISyntaxException {
+        Page<RealEstate> page = realEstateService.findAllByStatus(status, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/real-estates/deleted");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
      * GET  /real-estates/:id : get the "id" realEstate.
      *
      * @param id the id of the realEstate to retrieve

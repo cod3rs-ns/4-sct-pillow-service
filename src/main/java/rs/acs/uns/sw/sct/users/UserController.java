@@ -103,6 +103,21 @@ public class UserController {
     }
 
     /**
+     * GET  /users/deleted/:status : Get all users by status (deleted or not)
+     *
+     * @param status deleted or not
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and with body the user, or with status 404 (Not Found)
+     */
+    @GetMapping("/users/deleted/{status}")
+    public ResponseEntity<List<User>> getUsersByStatus(@PathVariable Boolean status, Pageable pageable)
+            throws URISyntaxException {
+        Page<User> page = userService.findAllByStatus(status, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users/deleted");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
      * GET  /users/:id : get the "id" user.
      *
      * @param id the id of the user to retrieve

@@ -21,6 +21,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findOneByEmail(String email);
 
     /**
+     * Get all users by 'deleted' status
+     *
+     * @param deleted status of user - deleted or not
+     * @param pageable the pagination information
+     * @return list of users
+     */
+    Page<User> findAllByDeleted(Boolean deleted, Pageable pageable);
+
+    /**
      * Get all users from one company.
      *
      * @param companyId the id of the user

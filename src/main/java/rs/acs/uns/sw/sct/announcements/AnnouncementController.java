@@ -100,6 +100,22 @@ public class AnnouncementController {
     }
 
     /**
+     * GET  /announcements/deleted/:status : get all the announcements by status - deleted or not.
+     *
+     * @param status deleted or not deleted
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/announcements/deleted/{status}")
+    public ResponseEntity<List<Announcement>> getAllAnnouncementsByStatus(Pageable pageable, @PathVariable Boolean status)
+            throws URISyntaxException {
+        Page<Announcement> page = announcementService.findAllByStatus(status, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/deleted");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
      * GET  /announcements/company/:companyId : get all the announcements created by users of the same company.
      *
      * @param companyId the id of the company
