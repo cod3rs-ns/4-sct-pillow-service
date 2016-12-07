@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,7 @@ public class AnnouncementController {
      * @return the ResponseEntity with status 201 (Created) and with body the new announcement, or with status 400 (Bad Request) if the announcement has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PostMapping("/announcements")
     public ResponseEntity<Announcement> createAnnouncement(@Valid @RequestBody AnnouncementDTO annDTO) throws URISyntaxException {
         if (annDTO.getId() != null) {
@@ -73,6 +75,7 @@ public class AnnouncementController {
      * or with status 500 (Internal Server Error) if the announcement couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements")
     public ResponseEntity<Announcement> updateAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
         if (announcement.getId() == null) {
@@ -91,6 +94,7 @@ public class AnnouncementController {
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/announcements")
     public ResponseEntity<List<Announcement>> getAllAnnouncements(Pageable pageable)
             throws URISyntaxException {
@@ -107,6 +111,7 @@ public class AnnouncementController {
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/announcements/deleted/{status}")
     public ResponseEntity<List<Announcement>> getAllAnnouncementsByStatus(Pageable pageable, @PathVariable Boolean status)
             throws URISyntaxException {
@@ -123,6 +128,7 @@ public class AnnouncementController {
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/announcements/company/{companyId}")
     public ResponseEntity<List<Announcement>> getAllAnnouncementsByCompanyId(@PathVariable Long companyId, Pageable pageable)
             throws URISyntaxException {
@@ -138,6 +144,7 @@ public class AnnouncementController {
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/announcements/top/company/{companyId}")
     public ResponseEntity<List<Announcement>> getTopAnnouncementsByCompanyId(@PathVariable Long companyId)
             throws URISyntaxException {
@@ -151,6 +158,7 @@ public class AnnouncementController {
      * @param id the id of the announcement to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the announcement, or with status 404 (Not Found)
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/announcements/{id}")
     public ResponseEntity<Announcement> getAnnouncement(@PathVariable Long id) {
         Announcement announcement = announcementService.findOne(id);
@@ -167,6 +175,7 @@ public class AnnouncementController {
      * @param id the id of the announcement to delete
      * @return the ResponseEntity with status 200 (OK)
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @DeleteMapping("/announcements/{id}")
     public ResponseEntity<Void> deleteAnnouncement(@PathVariable Long id) {
         announcementService.delete(id);
@@ -179,6 +188,7 @@ public class AnnouncementController {
      * @param file the file to be upload
      * @return the ResponseEntity with status 201 (Created) and with body the new file name, or with status 400 (Bad Request) if the upload failed, or with status 204 (No content)
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PostMapping("/announcements/upload")
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
         if (!file.isEmpty()) {

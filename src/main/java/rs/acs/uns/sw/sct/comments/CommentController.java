@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
@@ -33,6 +34,7 @@ public class CommentController {
      * @return the ResponseEntity with status 201 (Created) and with body the new comment, or with status 400 (Bad Request) if the comment has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PostMapping("/comments")
     public ResponseEntity<Comment> createComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
         if (comment.getId() != null) {
@@ -53,6 +55,7 @@ public class CommentController {
      * or with status 500 (Internal Server Error) if the comment couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/comments")
     public ResponseEntity<Comment> updateComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
         if (comment.getId() == null) {
@@ -71,6 +74,7 @@ public class CommentController {
      * @return the ResponseEntity with status 200 (OK) and the list of comments in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/comments")
     public ResponseEntity<List<Comment>> getAllComments(Pageable pageable)
             throws URISyntaxException {
@@ -85,6 +89,7 @@ public class CommentController {
      * @param id the id of the comment to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the comment, or with status 404 (Not Found)
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/comments/{id}")
     public ResponseEntity<Comment> getComment(@PathVariable Long id) {
         Comment comment = commentService.findOne(id);
@@ -101,6 +106,7 @@ public class CommentController {
      * @param id the id of the comment to delete
      * @return the ResponseEntity with status 200 (OK)
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
         commentService.delete(id);
