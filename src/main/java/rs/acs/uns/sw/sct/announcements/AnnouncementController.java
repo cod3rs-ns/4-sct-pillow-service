@@ -59,9 +59,8 @@ public class AnnouncementController {
         if (auth == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        User user = userService.getUserByEmail(auth.getName());
+        User user = userService.getUserByUsername(auth.getName());
         Announcement announcement = annDTO.convertToAnnouncement(user);
-        System.out.println(announcement.getImages());
 
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.created(new URI("/api/announcements/" + result.getId()))

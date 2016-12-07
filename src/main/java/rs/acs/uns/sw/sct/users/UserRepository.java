@@ -36,4 +36,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return list of users
      */
     Page<User> findByCompany_Id(Long companyId, Pageable pageable);
+
+
+    /**
+     * Get all users from one company.
+     *
+     * @param companyId the id of the user
+     * @param companyVerified the status of user request for membership
+     * @param pageable the pagination information
+     * @return list of users
+     */
+    Page<User> findByCompany_IdAndCompanyVerified(Long companyId, String companyVerified, Pageable pageable);
 }

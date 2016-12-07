@@ -6,11 +6,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.users.User;
+import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -25,6 +32,10 @@ public class CompanyController {
 
     @Autowired
     private CompanyService companyService;
+
+    @Autowired
+    private UserService userService;
+
 
     /**
      * POST  /companies : Create a new company.
@@ -105,6 +116,109 @@ public class CompanyController {
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         companyService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.COMPANY, id.toString())).build();
+    }
+
+
+    /**
+     * PUT  /companies/:companyId/user-request : Request membership for company with id companyId.
+     *
+     * @param companyId request to be member of the company with companyId
+     * @return the ResponseEntity with status 200 (OK) and with body the updated company,
+     * or with status 400 (Bad Request) if the company is not valid,
+     * or with status 500 (Internal Server Error) if the company couldn't be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping("/companies/{companyId}/user-request/")
+    public ResponseEntity<?> requestCompanyMembership(@PathVariable Long companyId, @RequestParam(value = "confirmed", required = false) Boolean confirmed) throws URISyntaxException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        User user = userService.getUserByUsername(auth.getName());
+        Company company = companyService.findOne(companyId);
+
+        if (company == null)
+            return new ResponseEntity<>("Wrong id of company", HttpStatus.BAD_REQUEST);
+        if (user.getCompany() != null && (confirmed == null || !confirmed)) {
+            return new ResponseEntity<>("Already requested company membership. Set request param confirmed=True to overwrite previous request", HttpStatus.CONFLICT);
+        }
+
+        user.setCompany(company);
+        user.setCompanyVerified(Constants.CompanyStatus.PENDING);
+        User updatedUser = userService.save(user);
+
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.USER, user.getId().toString()))
+                .body(updatedUser);
+    }
+
+
+    /**
+     * GET  /companies/:companyId/users-requests : get all the companies.
+     *
+     * @param pageable the pagination information
+     * @param status   status of membership request
+     * @return the ResponseEntity with status 200 (OK) and the list of companies in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/companies/users-requests")
+    public ResponseEntity<?> getAllUsersRequestsByStatus(@RequestParam(value = "status") String status, Pageable pageable)
+            throws URISyntaxException {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        User user = userService.getUserByUsername(auth.getName());
+        if (user.getCompany() == null || !user.getCompanyVerified().equals(Constants.CompanyStatus.ACCEPTED)) {
+            return new ResponseEntity<>("Can't see memberships that are not from your company.", HttpStatus.UNAUTHORIZED);
+        }
+
+        Page<User> page = userService.findAllByCompanyMembershipStatus(user.getCompany().getId(), status, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/companies/user-requests");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * PUT  /companies/resolve-request/user/:userId : Resolve membership for one user.
+     *
+     * @param userId   request to be member of the company with userId
+     * @param accepted if True membership request is accepted, otherwise is rejected
+     * @return the ResponseEntity with status 200 (OK) and with body the updated user,
+     * or with status 400 (Bad Request) if the company is not valid,
+     * or with status 500 (Internal Server Error) if the company couldn't be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping("/companies/resolve-request/user/{userId}")
+    public ResponseEntity<?> resolveMembershipRequest(@PathVariable Long userId, @RequestParam(value = "accepted") Boolean accepted) throws URISyntaxException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        User companyMember = userService.getUserByUsername(auth.getName());
+        User user = userService.getUserById(userId);
+
+        if (user == null)
+            return new ResponseEntity<>("There is no user with id " + userId, HttpStatus.NOT_FOUND);
+        if (user.getCompany() == null || user.getCompanyVerified() == null || !user.getCompanyVerified().equals(Constants.CompanyStatus.PENDING))
+            return new ResponseEntity<>("User with this id doesn't request membership", HttpStatus.NOT_ACCEPTABLE);
+        if (companyMember.getCompany() == null || !companyMember.getCompanyVerified().equals(Constants.CompanyStatus.ACCEPTED)
+                || companyMember.getCompany().getId() != user.getCompany().getId())
+            return new ResponseEntity<>("You don't have permission for resolving membership status", HttpStatus.METHOD_NOT_ALLOWED);
+
+        if (accepted)
+            user.setCompanyVerified(Constants.CompanyStatus.ACCEPTED);
+        else
+            user.setCompanyVerified(Constants.CompanyStatus.REJECTED);
+
+        User updatedUser = userService.save(user);
+
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.USER, user.getId().toString()))
+                .body(updatedUser);
     }
 
 }

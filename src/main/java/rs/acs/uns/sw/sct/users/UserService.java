@@ -20,11 +20,31 @@ public class UserService {
     /**
      * Get one user by email.
      *
-     * @param email the id of the user
+     * @param email the email of the user
      * @return user
      */
     public User getUserByEmail(String email) {
         return userRepository.findOneByEmail(email);
+    }
+
+    /**
+     * Get one user by id.
+     *
+     * @param id the id of the user
+     * @return user
+     */
+    public User getUserById(Long id) {
+        return userRepository.findOne(id);
+    }
+
+    /**
+     * Get one user by username.
+     *
+     * @param username the id of the user
+     * @return user
+     */
+    public User getUserByUsername(String username) {
+        return userRepository.findOneByUsername(username);
     }
 
 
@@ -38,6 +58,20 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<User> findAllByCompany(Long companyId, Pageable pageable) {
         return userRepository.findByCompany_Id(companyId, pageable);
+    }
+
+
+    /**
+     * Get all users by company membership request status.
+     *
+     * @param pageable the pagination information
+     * @param companyId id of one company
+     * @param companyVerified status of membership for company
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<User> findAllByCompanyMembershipStatus(Long companyId, String companyVerified, Pageable pageable) {
+        return userRepository.findByCompany_IdAndCompanyVerified(companyId, companyVerified, pageable);
     }
 
 
