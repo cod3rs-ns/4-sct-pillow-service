@@ -6,15 +6,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.matchers.GreaterOrEqual;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +23,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
-import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.DateUtil;
@@ -34,18 +31,13 @@ import rs.acs.uns.sw.sct.util.TestUtil;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.lang.reflect.Field;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -383,7 +375,8 @@ public class AnnouncementControllerTest {
     @Transactional
     public void uploadFile() throws Exception {
         MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
-                .file(fileToBeUpload))
+                .file(fileToBeUpload)
+                .contentType(MediaType.IMAGE_PNG))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -409,7 +402,7 @@ public class AnnouncementControllerTest {
         // Assert that folder does not exist anymore
         assertThat(f.exists()).isFalse();
 
-        MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
+        restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
                 .file(fileToBeUpload))
                 .andExpect(status().isOk())
                 .andReturn();
