@@ -46,7 +46,7 @@ public class UserController {
     /**
      * POST  /users/auth : Authenticate user.
      *
-     * @param email    the email of user
+     * @param username the username of user
      * @param password the password of user
      * @return the ResponseEntity with status 200 (OK) and with body the user
      * @throws AuthenticationException if the user cannot be authenticated
@@ -55,13 +55,13 @@ public class UserController {
             value = "/users/auth",
             method = RequestMethod.POST
     )
-    public ResponseEntity<AuthResponse> authenticate(@RequestParam(value = "email") String email, @RequestParam(value = "password") String password) {
+    public ResponseEntity<AuthResponse> authenticate(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
+                new UsernamePasswordAuthenticationToken(username, password)
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         final String token = tokenUtils.generateToken(userDetails);
 
         return ResponseEntity.ok(new AuthResponse(token));

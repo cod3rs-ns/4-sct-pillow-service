@@ -12,7 +12,7 @@ import java.util.Collection;
 public class SecurityUser implements UserDetails {
 
     private Long id;
-    private String email;
+    private String username;
     private String password;
     private String type;
 
@@ -33,14 +33,14 @@ public class SecurityUser implements UserDetails {
      * Security user constructor.
      *
      * @param id          user id
-     * @param email       user email
+     * @param username    user username
      * @param password    user password
      * @param type        user type
      * @param authorities all granted user authorities
      */
-    public SecurityUser(Long id, String email, String password, String type, Collection<? extends GrantedAuthority> authorities) {
+    public SecurityUser(Long id, String username, String password, String type, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
-        this.email = email;
+        this.username = username;
         this.password = password;
         this.type = type;
         this.setAuthorities(authorities);
@@ -48,7 +48,7 @@ public class SecurityUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.username;
     }
 
     @Override
@@ -97,8 +97,8 @@ public class SecurityUser implements UserDetails {
         this.id = id;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getType() {
