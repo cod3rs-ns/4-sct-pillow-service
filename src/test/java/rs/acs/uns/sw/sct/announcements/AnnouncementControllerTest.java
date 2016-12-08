@@ -15,14 +15,18 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.constants.UserConstants;
 import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.DateUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
@@ -37,6 +41,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.FILE_TO_BE_UPLOAD;
@@ -75,8 +80,6 @@ public class AnnouncementControllerTest {
     private static final String DEFAULT_VERIFIED = "not-verified";
     private static final String UPDATED_VERIFIED = "VERIFIED_BBB";
 
-    private static final String EXISTING_USERNAME = "isco";
-
     @Autowired
     private AnnouncementRepository announcementRepository;
 
@@ -87,10 +90,7 @@ public class AnnouncementControllerTest {
     private UserService userService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+    private WebApplicationContext context;
 
     private MockMvc restAnnouncementMockMvc;
 
@@ -138,9 +138,9 @@ public class AnnouncementControllerTest {
         // change base dir for file upload
         ReflectionTestUtils.setField(Constants.FilePaths.class, "BASE", NEW_BASE_DIR);
 
-        this.restAnnouncementMockMvc = MockMvcBuilders.standaloneSetup(announcementCtrl)
-                .setCustomArgumentResolvers(pageableArgumentResolver)
-                .setMessageConverters(jacksonMessageConverter)
+        this.restAnnouncementMockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
                 .build();
     }
 
@@ -164,17 +164,11 @@ public class AnnouncementControllerTest {
         announcement = createEntity();
         announcementDTO = createDTO();
         fileToBeUpload = createFile();
-
-        // Set authentication
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(authentication.getName()).thenReturn(EXISTING_USERNAME);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.USER_USERNAME)
     public void createAnnouncement() throws Exception {
         int databaseSizeBeforeCreate = announcementRepository.findAll().size();
 
@@ -193,6 +187,16 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testAnnouncement.getVerified()).isEqualTo(DEFAULT_VERIFIED);
         assertThat(testAnnouncement.isDeleted()).isEqualTo(DEFAULT_DELETED);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void createAnnouncementWithVerifierAuthority() throws Exception {
+        restAnnouncementMockMvc.perform(post("/api/announcements")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(announcementDTO)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -269,6 +273,7 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void getAllAnnouncements() throws Exception {
         // Initialize the database
         announcementRepository.saveAndFlush(announcement);
@@ -319,6 +324,7 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void updateAnnouncement() throws Exception {
         // Initialize the database
         announcementService.save(announcement);
@@ -354,6 +360,7 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void deleteAnnouncement() throws Exception {
         // Initialize the database
         announcementService.save(announcement);
@@ -372,6 +379,7 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void uploadFile() throws Exception {
         MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
                 .file(fileToBeUpload)
@@ -380,7 +388,7 @@ public class AnnouncementControllerTest {
                 .andReturn();
 
         String newFileName = result.getResponse().getContentAsString();
-        String filePath = Constants.FilePaths.BASE + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + newFileName.substring(1, newFileName.length() - 1);
+        String filePath = Constants.FilePaths.BASE + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + newFileName;
         File newFile = new File(filePath);
 
         assertThat(newFile.exists()).isTrue();
@@ -389,9 +397,9 @@ public class AnnouncementControllerTest {
         FileUtils.deleteDirectory(new File(Constants.FilePaths.BASE));
     }
 
-
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void UploadFolderDoesNotExist() throws Exception {
         File f = new File(Constants.FilePaths.BASE);
         if (f.exists()){

@@ -6,15 +6,16 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -44,10 +46,7 @@ public class MarkControllerTest {
     private MarkService markService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+    private WebApplicationContext context;
 
     private MockMvc restMarkMockMvc;
 
@@ -69,9 +68,10 @@ public class MarkControllerTest {
         MockitoAnnotations.initMocks(this);
         MarkController markCtrl = new MarkController();
         ReflectionTestUtils.setField(markCtrl, "markService", markService);
-        this.restMarkMockMvc = MockMvcBuilders.standaloneSetup(markCtrl)
-                .setCustomArgumentResolvers(pageableArgumentResolver)
-                .setMessageConverters(jacksonMessageConverter).build();
+        this.restMarkMockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
     }
 
     @Before
@@ -81,6 +81,7 @@ public class MarkControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void createMark() throws Exception {
         int databaseSizeBeforeCreate = markRepository.findAll().size();
 
@@ -96,6 +97,16 @@ public class MarkControllerTest {
         assertThat(marks).hasSize(databaseSizeBeforeCreate + 1);
         Mark testMark = marks.get(marks.size() - 1);
         assertThat(testMark.getValue()).isEqualTo(DEFAULT_VALUE);
+    }
+
+
+    @Test
+    @Transactional
+    public void createMarkUnauthorized() throws Exception {
+        restMarkMockMvc.perform(post("/api/marks")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(mark)))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -118,6 +129,7 @@ public class MarkControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void getAllMarks() throws Exception {
         // Initialize the database
         markRepository.saveAndFlush(mark);
@@ -132,6 +144,7 @@ public class MarkControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void getMark() throws Exception {
         // Initialize the database
         markRepository.saveAndFlush(mark);
@@ -146,6 +159,7 @@ public class MarkControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void getNonExistingMark() throws Exception {
         // Get the mark
         restMarkMockMvc.perform(get("/api/marks/{id}", Long.MAX_VALUE))
@@ -154,6 +168,7 @@ public class MarkControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void updateMark() throws Exception {
         // Initialize the database
         markService.save(mark);
@@ -179,6 +194,7 @@ public class MarkControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
     public void deleteMark() throws Exception {
         // Initialize the database
         markService.save(mark);

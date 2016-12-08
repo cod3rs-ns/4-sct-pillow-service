@@ -6,9 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
@@ -28,6 +28,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api")
+@SuppressWarnings("unused")
 public class ReportController {
 
     @Autowired
@@ -58,7 +59,7 @@ public class ReportController {
             if (auth == null) {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
-            report.setReporter(userService.getUserByEmail(auth.getName()));
+            report.setReporter(userService.getUserByUsername(auth.getName()));
         }
 
         Announcement announcement = announcementService.findOne(report.getAnnouncement().getId());
@@ -66,7 +67,6 @@ public class ReportController {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "There is no announcement with id you specified")).body(null);
         }
 
-        System.out.println(announcement.getVerified());
         if (announcement.getVerified().equals(Constants.VerifiedStatuses.VERIFIED))
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "You can't report verified announcement")).body(null);
 

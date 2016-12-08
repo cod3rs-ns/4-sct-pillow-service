@@ -30,6 +30,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api")
+@SuppressWarnings("unused")
 public class AnnouncementController {
 
     @Autowired
@@ -240,8 +241,9 @@ public class AnnouncementController {
 
                 // transfer to upload folder
                 File dir = new File(Constants.FilePaths.BASE + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator);
-                if (!dir.exists())
+                if (!dir.exists()) {
                     dir.mkdirs();
+                }
                 File newFile = new File(dir + File.separator + newFilename);
                 file.transferTo(newFile);
 

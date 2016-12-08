@@ -6,15 +6,16 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -50,10 +52,7 @@ public class CompanyControllerTest {
     private CompanyService companyService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+    private WebApplicationContext context;
 
     private MockMvc restCompanyMockMvc;
 
@@ -77,9 +76,11 @@ public class CompanyControllerTest {
         MockitoAnnotations.initMocks(this);
         CompanyController companyCtrl = new CompanyController();
         ReflectionTestUtils.setField(companyCtrl, "companyService", companyService);
-        this.restCompanyMockMvc = MockMvcBuilders.standaloneSetup(companyCtrl)
-                .setCustomArgumentResolvers(pageableArgumentResolver)
-                .setMessageConverters(jacksonMessageConverter).build();
+
+        this.restCompanyMockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
     }
 
     @Before
@@ -89,6 +90,7 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void createCompany() throws Exception {
         int databaseSizeBeforeCreate = companyRepository.findAll().size();
 
@@ -108,6 +110,16 @@ public class CompanyControllerTest {
         assertThat(testCompany.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
     }
 
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void verifierCreateCompany() throws Exception {
+        restCompanyMockMvc.perform(post("/api/companies")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(company)))
+                .andExpect(status().isForbidden());
+    }
 
     @Test
     @Transactional
@@ -205,6 +217,7 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void updateCompany() throws Exception {
         // Initialize the database
         companyService.save(company);
@@ -234,6 +247,7 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void deleteCompany() throws Exception {
         // Initialize the database
         companyService.save(company);
@@ -248,5 +262,18 @@ public class CompanyControllerTest {
         // Validate the database is empty
         List<Company> companies = companyRepository.findAll();
         assertThat(companies).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void advertiserDeleteCompany() throws Exception {
+        // Initialize the database
+        companyService.save(company);
+
+        // Only admin can delete company
+        restCompanyMockMvc.perform(delete("/api/companies/{id}", company.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
     }
 }
