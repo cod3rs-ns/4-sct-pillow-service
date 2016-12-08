@@ -24,6 +24,7 @@ import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
 import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
@@ -149,7 +150,6 @@ public class ReportControllerTest {
         int databaseSizeBeforeCreate = reportRepository.findAll().size();
 
         // Create the Report
-
         restReportMockMvc.perform(post("/api/reports")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(report)))

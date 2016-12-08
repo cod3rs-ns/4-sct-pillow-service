@@ -49,7 +49,7 @@ public interface AnnouncementConstants {
     Timestamp UPDATED_DATE_MODIFIED = DateUtil.date("03-01-1996");
     Timestamp UPDATED_EXPIRATION_DATE = DateUtil.date("20-01-1996");
 
-    String DEFAULT_VERIFIED = "verified";
+    String DEFAULT_VERIFIED = "not-verified";
     Boolean DEFAULT_DELETED = false;
 
     // Location parameter

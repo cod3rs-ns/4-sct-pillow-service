@@ -253,8 +253,7 @@ public class AnnouncementController {
         if (!user.getType().equals(Constants.Roles.VERIFIER))
             return new ResponseEntity<>("You don't have verifier role.", HttpStatus.METHOD_NOT_ALLOWED);
 
-        // TODO: Create constants for verification status or change variable type to boolean
-        announcement.setVerified("verified");
+        announcement.setVerified(Constants.VerifiedStatuses.VERIFIED);
 
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.ok()

@@ -13,10 +13,12 @@ import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
+import javax.xml.transform.sax.SAXSource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -63,8 +65,9 @@ public class ReportController {
         if (announcement == null){
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "There is no announcement with id you specified")).body(null);
         }
-        // TODO: chaange to constant
-        if (announcement.getVerified().equals("verified"))
+
+        System.out.println(announcement.getVerified());
+        if (announcement.getVerified().equals(Constants.VerifiedStatuses.VERIFIED))
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "You can't report verified announcement")).body(null);
 
         report.setAnnouncement(announcement);

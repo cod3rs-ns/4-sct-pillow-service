@@ -34,6 +34,17 @@ public final class Constants {
     }
 
     /**
+     * Constants representing Verified statuses.
+     */
+    public static final class  VerifiedStatuses{
+        public static final String VERIFIED = "verified";
+        public static final String NOT_VERIFIED = "not-verified";
+
+        private VerifiedStatuses() {
+        }
+    }
+
+    /**
      * Constants representing file paths for image upload.
      */
     public static final class FilePaths {
