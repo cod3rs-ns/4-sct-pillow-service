@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.companies.CompanyService;
 import rs.acs.uns.sw.sct.security.TokenUtils;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
@@ -35,6 +36,9 @@ public class UserController {
     UserService userService;
 
     @Autowired
+    CompanyService companyService;
+
+    @Autowired
     UserDetailsService userDetailsService;
 
     @Autowired
@@ -46,7 +50,7 @@ public class UserController {
     /**
      * POST  /users/auth : Authenticate user.
      *
-     * @param email    the email of user
+     * @param username the email of user
      * @param password the password of user
      * @return the ResponseEntity with status 200 (OK) and with body the user
      * @throws AuthenticationException if the user cannot be authenticated
@@ -55,17 +59,39 @@ public class UserController {
             value = "/users/auth",
             method = RequestMethod.POST
     )
-    public ResponseEntity<AuthResponse> authenticate(@RequestParam(value = "email") String email, @RequestParam(value = "password") String password) {
+    public ResponseEntity<AuthResponse> authenticate(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
+                new UsernamePasswordAuthenticationToken(username, password)
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         final String token = tokenUtils.generateToken(userDetails);
 
         return ResponseEntity.ok(new AuthResponse(token));
     }
+
+    /**
+     * PUT  /users : Updates an existing user.
+     *
+     * @param user the user to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated company,
+     * or with status 400 (Bad Request) if the company is not valid,
+     * or with status 500 (Internal Server Error) if the company couldnt be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping("/users")
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) throws URISyntaxException {
+        if (user.getId() == null) {
+            return registerUser(user);
+        }
+
+        User result = userService.save(user);
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.USER, user.getId().toString()))
+                .body(result);
+    }
+
 
     /**
      * GET  /users/company/:companyId : get all users from one company.

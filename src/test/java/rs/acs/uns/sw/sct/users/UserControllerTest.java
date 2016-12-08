@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.companies.Company;
+import rs.acs.uns.sw.sct.constants.CompanyConstants;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
@@ -83,7 +85,8 @@ public class UserControllerTest {
                 .type(USER_TYPE)
                 .firstName(DEFAULT_FIRST_NAME)
                 .lastName(DEFAULT_LAST_NAME)
-                .phoneNumber(DEFAULT_PHONE_NUMBER);
+                .phoneNumber(DEFAULT_PHONE_NUMBER)
+                .company(new Company().id(CompanyConstants.ID));
     }
 
     @PostConstruct
@@ -152,7 +155,7 @@ public class UserControllerTest {
 
         // Authorize with that credentials
         mockMvc.perform(post("/api/users/auth")
-                .param("email", DEFAULT_EMAIL)
+                .param("username", DEFAULT_USERNAME)
                 .param("password", DEFAULT_PASSWORD))
                 .andExpect(status().isOk());
     }
@@ -162,7 +165,7 @@ public class UserControllerTest {
     public void authUserFailed() throws Exception {
         // We don't have users in database
         when(mockMvc.perform(post("/api/users/auth")
-                .param("email", DEFAULT_EMAIL)
+                .param("username", DEFAULT_USERNAME)
                 .param("password", DEFAULT_PASSWORD))
                 .andExpect(status().isUnauthorized())
                 .andDo(print())
@@ -183,6 +186,18 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
                 .andExpect(jsonPath("$.type").value(Constants.Roles.ADVERTISER))
                 .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER));
+    }
+
+    @Test
+    @Transactional
+    public void getUsersByCompanyId() throws Exception {
+        // Add user to database first
+        userService.save(advertiser);
+
+        mockMvc.perform(get("/api/users/company/{companyId}", advertiser.getCompany().getId()))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[?(@.id == " + advertiser.getId() + ")]").exists());
     }
 
     @Test

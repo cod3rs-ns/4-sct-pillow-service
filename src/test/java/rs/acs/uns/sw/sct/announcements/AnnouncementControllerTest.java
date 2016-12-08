@@ -1,44 +1,48 @@
 package rs.acs.uns.sw.sct.announcements;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.matchers.GreaterOrEqual;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
-import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
 import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.DateUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileInputStream;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.stringContainsInOrder;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.FILE_TO_BE_UPLOAD;
+import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.NEW_BASE_DIR;
 
 /**
  * Test class for the AnnouncementResource REST controller.
@@ -96,6 +100,8 @@ public class AnnouncementControllerTest {
 
     private AnnouncementDTO announcementDTO;
 
+    private MockMultipartFile fileToBeUpload;
+
     /**
      * Create an entity for this test.
      * <p>
@@ -121,7 +127,7 @@ public class AnnouncementControllerTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static AnnouncementDTO createDTO(){
+    public static AnnouncementDTO createDTO() {
         return createEntity().convertToDTO();
     }
 
@@ -131,21 +137,40 @@ public class AnnouncementControllerTest {
         AnnouncementController announcementCtrl = new AnnouncementController();
         ReflectionTestUtils.setField(announcementCtrl, "announcementService", announcementService);
         ReflectionTestUtils.setField(announcementCtrl, "userService", userService);
+        // change base dir for file upload
+        ReflectionTestUtils.setField(Constants.FilePaths.class, "BASE", NEW_BASE_DIR);
+
         this.restAnnouncementMockMvc = MockMvcBuilders.standaloneSetup(announcementCtrl)
                 .setCustomArgumentResolvers(pageableArgumentResolver)
                 .setMessageConverters(jacksonMessageConverter).build();
     }
 
+    public MockMultipartFile createFile() {
+        File f = new File(FILE_TO_BE_UPLOAD);
+        MockMultipartFile file = null;
+
+        try {
+            FileInputStream fi = new FileInputStream(f);
+            file = new MockMultipartFile("file", f.getName(), "multipart/form-data", fi);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return file;
+    }
+
+
     @Before
     public void initTest() {
         announcement = createEntity();
         announcementDTO = createDTO();
+        fileToBeUpload = createFile();
 
         // Set authentication
         Authentication authentication = Mockito.mock(Authentication.class);
-        Mockito.when(authentication.getName()).thenReturn(EXISTING_USERNAME);
+        when(authentication.getName()).thenReturn(EXISTING_USERNAME);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
     }
 
@@ -344,5 +369,47 @@ public class AnnouncementControllerTest {
         // Validate the database is empty
         List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void uploadFile() throws Exception {
+        MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
+                .file(fileToBeUpload)
+                .contentType(MediaType.IMAGE_PNG))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String newFileName = result.getResponse().getContentAsString();
+        String filePath = Constants.FilePaths.BASE + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + newFileName.substring(1, newFileName.length() - 1);
+        File newFile = new File(filePath);
+
+        assertThat(newFile.exists()).isTrue();
+
+        // Delete created folder
+        FileUtils.deleteDirectory(new File(Constants.FilePaths.BASE));
+    }
+
+
+    @Test
+    @Transactional
+    public void UploadFolderDoesNotExist() throws Exception {
+        File f = new File(Constants.FilePaths.BASE);
+        if (f.exists()){
+            FileUtils.deleteDirectory(f);
+        }
+
+        // Assert that folder does not exist anymore
+        assertThat(f.exists()).isFalse();
+
+        restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
+                .file(fileToBeUpload))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        assertThat(f.exists()).isTrue();
+
+        // Delete testing file upload folder
+        FileUtils.deleteDirectory(f);
     }
 }

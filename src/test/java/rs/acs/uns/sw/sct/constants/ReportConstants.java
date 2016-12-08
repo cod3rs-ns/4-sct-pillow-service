@@ -1,5 +1,8 @@
 package rs.acs.uns.sw.sct.constants;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.users.User;
 
@@ -27,5 +30,14 @@ public interface ReportConstants {
     User UPDATED_REPORTER = new User().id(4L);
     String UPDATED_EMAIL = "user4@mail.com";
 
-    Announcement DEAFULT_ANNOUNCEMENT = new Announcement().id(2L);
+    Announcement DEFAULT_ANNOUNCEMENT = new Announcement().id(2L);
+
+    // 1st page with 10 elements
+    Pageable PAGEABLE = new PageRequest(0, 10);
+
+    // Status of
+    String FIND_STATUS = "pending";
+
+    // Status of
+    String FIND_AUTHOR_EMAIL = "user6@mail.com";
 }

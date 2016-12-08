@@ -3,12 +3,16 @@ package rs.acs.uns.sw.sct.reports;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -16,13 +20,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.announcements.AnnouncementService;
+import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
+import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -48,11 +57,19 @@ public class ReportControllerTest {
     private static final String DEFAULT_CONTENT = "CONTENT_A";
     private static final String UPDATED_CONTENT = "CONTENT_B";
 
+    private static final String EXISTING_USERNAME = "isco";
+
     @Autowired
     private ReportRepository reportRepository;
 
     @Autowired
     private ReportService reportService;
+
+    @Autowired
+    private AnnouncementService announcementService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -64,6 +81,8 @@ public class ReportControllerTest {
 
     private Report report;
 
+    private Report anotherReport;
+
     /**
      * Create an entity for this test.
      * <p>
@@ -71,12 +90,33 @@ public class ReportControllerTest {
      * if they test an entity which requires the current entity.
      */
     public static Report createEntity() {
+        Announcement announcement = new Announcement()
+                .id(AnnouncementConstants.ID);
+
         return new Report()
                 .email(DEFAULT_EMAIL)
                 .type(DEFAULT_TYPE)
                 .status(DEFAULT_STATUS)
-                .content(DEFAULT_CONTENT);
+                .content(DEFAULT_CONTENT)
+                .announcement(announcement);
+    }
 
+    /**
+     * Create another entity for this test. Another entity is needed because of testing changing status
+     * <p>
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static Report createAnotherEntity() {
+        Announcement announcement = new Announcement()
+                .id(AnnouncementConstants.UPDATED_ID);
+
+        return new Report()
+                .email(UPDATED_EMAIL)
+                .type(UPDATED_TYPE)
+                .status(UPDATED_STATUS)
+                .content(UPDATED_CONTENT)
+                .announcement(announcement);
     }
 
     @PostConstruct
@@ -84,6 +124,8 @@ public class ReportControllerTest {
         MockitoAnnotations.initMocks(this);
         ReportController reportCtrl = new ReportController();
         ReflectionTestUtils.setField(reportCtrl, "reportService", reportService);
+        ReflectionTestUtils.setField(reportCtrl, "userService", userService);
+        ReflectionTestUtils.setField(reportCtrl, "announcementService", announcementService);
         this.restReportMockMvc = MockMvcBuilders.standaloneSetup(reportCtrl)
                 .setCustomArgumentResolvers(pageableArgumentResolver)
                 .setMessageConverters(jacksonMessageConverter).build();
@@ -92,6 +134,14 @@ public class ReportControllerTest {
     @Before
     public void initTest() {
         report = createEntity();
+        anotherReport = createAnotherEntity();
+
+        // Set authentication
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn(EXISTING_USERNAME);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
@@ -100,7 +150,6 @@ public class ReportControllerTest {
         int databaseSizeBeforeCreate = reportRepository.findAll().size();
 
         // Create the Report
-
         restReportMockMvc.perform(post("/api/reports")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(report)))
@@ -277,5 +326,55 @@ public class ReportControllerTest {
         // Validate the database is empty
         List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void changeReportStatus() throws Exception {
+        // Initialize the database
+        Report persistReport = reportRepository.saveAndFlush(report);
+
+        // When new report is added with one status, then it is available for validators that expects reports with that status
+        // Get the reports by status
+        restReportMockMvc.perform(get("/api/reports/status/{status}", DEFAULT_STATUS))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].status").value(DEFAULT_STATUS))
+                .andExpect(jsonPath("$.[?(@.id == " + report.getId() + ")]").exists());
+
+
+        persistReport.setStatus(UPDATED_STATUS);
+        reportRepository.saveAndFlush(persistReport);
+
+        // Create another report to have reports of two different statuses
+        reportRepository.saveAndFlush(anotherReport.status(DEFAULT_STATUS));
+
+
+        // When report is solved (change its status), then it is not in the previous list
+        restReportMockMvc.perform(get("/api/reports/status/{status}", DEFAULT_STATUS))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].status").value(DEFAULT_STATUS))
+                .andExpect(jsonPath("$.[?(@.id == " + persistReport.getId() + ")]").doesNotExist());
+
+        // But it is in the another list of all solved reports
+        restReportMockMvc.perform(get("/api/reports/status/{status}", UPDATED_STATUS))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].status").value(UPDATED_STATUS))
+                .andExpect(jsonPath("$.[?(@.id == " + persistReport.getId() + ")]").exists());
+    }
+
+    @Test
+    @Transactional
+    public void getReportsByAuthor() throws Exception {
+        // Initialize the database
+        Report persistReport = reportRepository.saveAndFlush(report);
+
+        // Get the report
+        restReportMockMvc.perform(get("/api/reports/author/{email}", report.getEmail()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[?(@.id == " + persistReport.getId() + ")]").exists());
     }
 }

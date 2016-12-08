@@ -20,9 +20,9 @@ import javax.validation.Valid;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * REST controller for managing Announcement.
@@ -37,6 +37,8 @@ public class AnnouncementController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private SimpleDateFormat dateFormatter;
 
     /**
      * POST  /announcements : Create a new announcement.
@@ -54,9 +56,8 @@ public class AnnouncementController {
         if (auth == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        User user = userService.getUserByEmail(auth.getName());
+        User user = userService.getUserByUsername(auth.getName());
         Announcement announcement = annDTO.convertToAnnouncement(user);
-        System.out.println(announcement.getImages());
 
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.created(new URI("/api/announcements/" + result.getId()))
@@ -81,6 +82,46 @@ public class AnnouncementController {
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.ANNOUNCEMENT, announcement.getId().toString()))
+                .body(result);
+    }
+
+    /**
+     * PUT  /announcements/{id} : Extend the expiration date.
+     *
+     * @param id   the announcement to update
+     * @param data the data send in RequestBody
+     * @return the ResponseEntity with status 200 (OK) and with body the updated announcement,
+     * or with status 400 (Bad Request) if the announcement doesn't contain expirationDate attribute or date have wrong format or date is before today
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping("/announcements/{id}")
+    public ResponseEntity<?> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException {
+        if (id == null || !data.containsKey("expirationDate"))
+            return new ResponseEntity<>("Object must contain expirationDate attribute", HttpStatus.BAD_REQUEST);
+
+        Announcement persistedAnnouncement = announcementService.findOne(id);
+        if (persistedAnnouncement == null)
+            return new ResponseEntity<>("Announcement not found", HttpStatus.NOT_FOUND);
+
+        String strDate = data.get("expirationDate");
+        Date extendedDate;
+        try {
+            extendedDate = dateFormatter.parse(strDate);
+        } catch (ParseException e) {
+            return new ResponseEntity<>("Date must be in format dd/MM/yyyy", HttpStatus.BAD_REQUEST);
+        }
+
+        Date modified = new Date();
+        if (extendedDate.before(modified))
+            return new ResponseEntity<>("Modified date must be after today", HttpStatus.BAD_REQUEST);
+
+        persistedAnnouncement.expirationDate(extendedDate)
+                .dateModified(modified);
+
+        Announcement result = announcementService.save(persistedAnnouncement);
+
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.ANNOUNCEMENT, persistedAnnouncement.getId().toString()))
                 .body(result);
     }
 
@@ -185,5 +226,38 @@ public class AnnouncementController {
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+    }
+
+    /**
+     * PUT  /announcements/:announcementId/verify : Updates an existing announcement.
+     *
+     * @param announcementId the announcement to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated announcement,
+     * or with status 400 (Bad Request) if the announcement is not valid,
+     * or with status 500 (Internal Server Error) if the announcement couldn't be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping("/announcements/{announcementId}/verify")
+    public ResponseEntity<?> verifyAnnouncement(@PathVariable Long announcementId) throws URISyntaxException {
+        Announcement announcement = announcementService.findOne(announcementId);
+        if (announcement == null) {
+            return new ResponseEntity<>("There is no announcement with specified id", HttpStatus.NOT_FOUND);
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        User user = userService.getUserByUsername(auth.getName());
+
+        if (!user.getType().equals(Constants.Roles.VERIFIER))
+            return new ResponseEntity<>("You don't have verifier role.", HttpStatus.METHOD_NOT_ALLOWED);
+
+        announcement.setVerified(Constants.VerifiedStatuses.VERIFIED);
+
+        Announcement result = announcementService.save(announcement);
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.ANNOUNCEMENT, announcement.getId().toString()))
+                .body(result);
     }
 }

@@ -34,15 +34,27 @@ public final class Constants {
     }
 
     /**
+     * Constants representing Verified statuses.
+     */
+    public static final class  VerifiedStatuses{
+        public static final String VERIFIED = "verified";
+        public static final String NOT_VERIFIED = "not-verified";
+
+        private VerifiedStatuses() {
+        }
+    }
+
+    /**
      * Constants representing file paths for image upload.
      */
     public static final class FilePaths {
-        public static final String BASE = "C:\\uploads";
+        // need not to be final because of reflection
+        public static String BASE = new String("C:\\uploads");
         public static final String ANNOUNCEMENTS = "announcements";
         public static final String COMPANIES = "companies";
         public static final String USERS = "users";
 
-        private FilePaths() {
+        public FilePaths() {
         }
     }
 }

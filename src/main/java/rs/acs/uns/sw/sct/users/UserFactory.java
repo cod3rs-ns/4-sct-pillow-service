@@ -19,7 +19,7 @@ public class UserFactory {
     public static SecurityUser create(User user) {
         return new SecurityUser(
                 user.getId(),
-                user.getEmail(),
+                user.getUsername(),
                 user.getPassword(),
                 user.getType(),
                 AuthorityUtils.commaSeparatedStringToAuthorityList(user.getType())

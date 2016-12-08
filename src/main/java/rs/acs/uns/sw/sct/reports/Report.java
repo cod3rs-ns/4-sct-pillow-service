@@ -40,6 +40,7 @@ public class Report implements Serializable {
     @JoinColumn()
     private User reporter;
 
+    @NotNull
     @ManyToOne
     @JoinColumn()
     private Announcement announcement;

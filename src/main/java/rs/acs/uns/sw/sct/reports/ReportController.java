@@ -6,11 +6,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.announcements.AnnouncementService;
+import rs.acs.uns.sw.sct.users.User;
+import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
+import javax.xml.transform.sax.SAXSource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -26,6 +34,12 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private AnnouncementService announcementService;
+
     /**
      * POST  /reports : Create a new report.
      *
@@ -38,6 +52,26 @@ public class ReportController {
         if (report.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "id_exists", "A new report cannot already have an ID")).body(null);
         }
+
+        if (report.getReporter() == null){
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            report.setReporter(userService.getUserByEmail(auth.getName()));
+        }
+
+        Announcement announcement = announcementService.findOne(report.getAnnouncement().getId());
+        if (announcement == null){
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "There is no announcement with id you specified")).body(null);
+        }
+
+        System.out.println(announcement.getVerified());
+        if (announcement.getVerified().equals(Constants.VerifiedStatuses.VERIFIED))
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "You can't report verified announcement")).body(null);
+
+        report.setAnnouncement(announcement);
+
         Report result = reportService.save(report);
         return ResponseEntity.created(new URI("/api/reports/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.REPORT, result.getId().toString()))
@@ -107,4 +141,35 @@ public class ReportController {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.REPORT, id.toString())).build();
     }
 
+    /**
+     * GET  /reports/status/:status : get all the reports by status.
+     *
+     * @param pageable the pagination information
+     * @param status the status of report
+     * @return the ResponseEntity with status 200 (OK) and the list of reports in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/reports/status/{status}")
+    public ResponseEntity<List<Report>> getAllReportsByStatus(Pageable pageable, @PathVariable String status)
+            throws URISyntaxException {
+        Page<Report> page = reportService.findByStatus(status, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports/status");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET  /reports/author/:email : get all the reports by author email.
+     *
+     * @param pageable the pagination information
+     * @param email the author email
+     * @return the ResponseEntity with status 200 (OK) and the list of reports in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/reports/author/{email:.+}")
+    public ResponseEntity<List<Report>> getAllReportsByAuthorEmail(Pageable pageable, @PathVariable String email)
+            throws URISyntaxException {
+        Page<Report> page = reportService.findByAuthorEmail(email, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports/author");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
 }

@@ -12,6 +12,7 @@ import rs.acs.uns.sw.sct.realestates.RealEstate;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.DateUtil;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Set;
 
@@ -38,6 +39,7 @@ public interface AnnouncementConstants {
     Timestamp NEW_DATE_MODIFIED = DateUtil.date("03-01-1995");
     Timestamp NEW_EXPIRATION_DATE = DateUtil.date("20-01-1995");
 
+    Long UPDATED_ID = 1L;
     Double UPDATED_PRICE = 15D;
     String UPDATED_PHONE_NUMBER = "06548812";
     String UPDATED_TYPE = "restaurant";
@@ -47,7 +49,7 @@ public interface AnnouncementConstants {
     Timestamp UPDATED_DATE_MODIFIED = DateUtil.date("03-01-1996");
     Timestamp UPDATED_EXPIRATION_DATE = DateUtil.date("20-01-1996");
 
-    String DEFAULT_VERIFIED = "verified";
+    String DEFAULT_VERIFIED = "not-verified";
     Boolean DEFAULT_DELETED = false;
 
     // Location parameter
@@ -74,4 +76,9 @@ public interface AnnouncementConstants {
 
     // number of top elements
     Integer TOP = 3;
+
+    // file to be upload
+    String FILE_TO_BE_UPLOAD = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "test_upload.jpg";
+
+    String NEW_BASE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "uploads";
 }
