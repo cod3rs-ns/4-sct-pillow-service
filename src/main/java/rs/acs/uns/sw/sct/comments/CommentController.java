@@ -22,6 +22,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api")
+@SuppressWarnings("unused")
 public class CommentController {
 
     @Autowired

@@ -6,9 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
@@ -27,6 +27,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api")
+@SuppressWarnings("unused")
 public class CompanyController {
 
     @Autowired
@@ -121,7 +122,6 @@ public class CompanyController {
         companyService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.COMPANY, id.toString())).build();
     }
-
 
     /**
      * PUT  /companies/:companyId/user-request : Request membership for company with id companyId.
