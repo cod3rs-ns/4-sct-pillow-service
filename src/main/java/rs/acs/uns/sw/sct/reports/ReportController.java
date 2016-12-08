@@ -58,7 +58,7 @@ public class ReportController {
             if (auth == null) {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
-            report.setReporter(userService.getUserByEmail(auth.getName()));
+            report.setReporter(userService.getUserByUsername(auth.getName()));
         }
 
         Announcement announcement = announcementService.findOne(report.getAnnouncement().getId());
@@ -66,7 +66,6 @@ public class ReportController {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "There is no announcement with id you specified")).body(null);
         }
 
-        System.out.println(announcement.getVerified());
         if (announcement.getVerified().equals(Constants.VerifiedStatuses.VERIFIED))
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "You can't report verified announcement")).body(null);
 

@@ -3,35 +3,33 @@ package rs.acs.uns.sw.sct.reports;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
+import rs.acs.uns.sw.sct.constants.UserConstants;
 import rs.acs.uns.sw.sct.users.UserService;
-import rs.acs.uns.sw.sct.util.Constants;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -57,8 +55,6 @@ public class ReportControllerTest {
     private static final String DEFAULT_CONTENT = "CONTENT_A";
     private static final String UPDATED_CONTENT = "CONTENT_B";
 
-    private static final String EXISTING_USERNAME = "isco";
-
     @Autowired
     private ReportRepository reportRepository;
 
@@ -72,10 +68,7 @@ public class ReportControllerTest {
     private UserService userService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+    private WebApplicationContext context;
 
     private MockMvc restReportMockMvc;
 
@@ -126,26 +119,22 @@ public class ReportControllerTest {
         ReflectionTestUtils.setField(reportCtrl, "reportService", reportService);
         ReflectionTestUtils.setField(reportCtrl, "userService", userService);
         ReflectionTestUtils.setField(reportCtrl, "announcementService", announcementService);
-        this.restReportMockMvc = MockMvcBuilders.standaloneSetup(reportCtrl)
-                .setCustomArgumentResolvers(pageableArgumentResolver)
-                .setMessageConverters(jacksonMessageConverter).build();
+
+        this.restReportMockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
     }
 
     @Before
     public void initTest() {
         report = createEntity();
         anotherReport = createAnotherEntity();
-
-        // Set authentication
-        Authentication authentication = Mockito.mock(Authentication.class);
-        Mockito.when(authentication.getName()).thenReturn(EXISTING_USERNAME);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
     @Transactional
+    @WithMockUser(username = UserConstants.USER_USERNAME)
     public void createReport() throws Exception {
         int databaseSizeBeforeCreate = reportRepository.findAll().size();
 
@@ -191,7 +180,6 @@ public class ReportControllerTest {
         report.setType(null);
 
         // Create the Report, which fails.
-
         restReportMockMvc.perform(post("/api/reports")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(report)))
@@ -239,6 +227,7 @@ public class ReportControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void getAllReports() throws Exception {
         // Initialize the database
         reportRepository.saveAndFlush(report);
@@ -256,6 +245,18 @@ public class ReportControllerTest {
 
     @Test
     @Transactional
+    public void getAllReportsWithoutAdminAuthoority() throws Exception {
+        // Initialize the database
+        reportRepository.saveAndFlush(report);
+
+        // Get all the reports
+        restReportMockMvc.perform(get("/api/reports?sort=id,desc"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void getReport() throws Exception {
         // Initialize the database
         reportRepository.saveAndFlush(report);
@@ -273,10 +274,19 @@ public class ReportControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void getNonExistingReport() throws Exception {
         // Get the report
         restReportMockMvc.perform(get("/api/reports/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Transactional
+    public void getOneReportWithoutAuthority() throws Exception {
+        // Get the report
+        restReportMockMvc.perform(get("/api/reports/{id}", Long.MAX_VALUE))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

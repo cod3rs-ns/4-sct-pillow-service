@@ -6,15 +6,16 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.DateUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
@@ -26,6 +27,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -51,11 +53,7 @@ public class CommentControllerTest {
     private CommentService commentService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
+    private WebApplicationContext context;
 
     private MockMvc restCommentMockMvc;
 
@@ -78,9 +76,10 @@ public class CommentControllerTest {
         MockitoAnnotations.initMocks(this);
         CommentController commentCtrl = new CommentController();
         ReflectionTestUtils.setField(commentCtrl, "commentService", commentService);
-        this.restCommentMockMvc = MockMvcBuilders.standaloneSetup(commentCtrl)
-                .setCustomArgumentResolvers(pageableArgumentResolver)
-                .setMessageConverters(jacksonMessageConverter).build();
+        this.restCommentMockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
     }
 
     @Before
@@ -90,6 +89,7 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void createComment() throws Exception {
         int databaseSizeBeforeCreate = commentRepository.findAll().size();
 
@@ -146,6 +146,7 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void getAllComments() throws Exception {
         // Initialize the database
         commentRepository.saveAndFlush(comment);
@@ -161,6 +162,7 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
     public void getComment() throws Exception {
         // Initialize the database
         commentRepository.saveAndFlush(comment);
@@ -176,6 +178,7 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
     public void getNonExistingComment() throws Exception {
         // Get the comment
         restCommentMockMvc.perform(get("/api/comments/{id}", Long.MAX_VALUE))
@@ -184,6 +187,7 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
     public void updateComment() throws Exception {
         // Initialize the database
         commentService.save(comment);
@@ -211,6 +215,7 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
     public void deleteComment() throws Exception {
         // Initialize the database
         commentService.save(comment);
