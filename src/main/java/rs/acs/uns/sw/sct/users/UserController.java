@@ -93,7 +93,7 @@ public class UserController {
      * @return the ResponseEntity with status 201 (Created) and with body the new user, or with status 400 (Bad Request) if the user has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
+    @PreAuthorize("permitAll()")
     @PostMapping("/users/")
     public ResponseEntity<User> registerUser(@Valid @RequestBody User user) throws URISyntaxException {
         if (user.getId() != null) {

@@ -101,6 +101,23 @@ public class CommentController {
     }
 
     /**
+     * GET  /comments/announcement/:announcementId : get all comments for one announcement.
+     *
+     * @param announcementId the id of the announcement
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of comments in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/comments/announcement/{announcementId}")
+    public ResponseEntity<List<Comment>> getAllCommentsByAnnouncementId(@PathVariable Long announcementId, Pageable pageable)
+            throws URISyntaxException {
+        Page<Comment> page = commentService.findAllByAnnouncement(announcementId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/comments/announcement");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
      * DELETE  /comments/:id : delete the "id" comment.
      *
      * @param id the id of the comment to delete

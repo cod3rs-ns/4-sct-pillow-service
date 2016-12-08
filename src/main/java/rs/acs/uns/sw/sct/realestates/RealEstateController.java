@@ -92,7 +92,7 @@ public class RealEstateController {
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
     @GetMapping("/real-estates/deleted/{status}")
-    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER), T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     public ResponseEntity<List<RealEstate>> getAllRealEstatesByStatus(@PathVariable Boolean status, Pageable pageable)
             throws URISyntaxException {
         Page<RealEstate> page = realEstateService.findAllByStatus(status, pageable);

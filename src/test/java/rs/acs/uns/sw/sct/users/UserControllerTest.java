@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.util.NestedServletException;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.TestUtil;
@@ -25,7 +24,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -52,9 +51,12 @@ public class UserControllerTest {
     private static final String DEFAULT_LAST_NAME = "Teodosić";
 
     private static final String DEFAULT_PHONE_NUMBER = "0600000000";
+
     @Autowired
     FilterChainProxy springSecurityFilterChain;
+
     private User advertiser;
+
     @Autowired
     private WebApplicationContext context;
 
@@ -94,6 +96,7 @@ public class UserControllerTest {
 
         this.mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
+                .apply(springSecurity())
                 .build();
     }
 
@@ -111,6 +114,7 @@ public class UserControllerTest {
         mockMvc.perform(post("/api/users/")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(advertiser)))
+                .andDo(print())
                 .andExpect(status().isCreated());
 
         final List<User> users = userRepository.findAll();
@@ -157,16 +161,15 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @Transactional
     public void authUserFailed() throws Exception {
         // We don't have users in database
-        when(mockMvc.perform(post("/api/users/auth")
+        mockMvc.perform(post("/api/users/auth")
                 .param("email", DEFAULT_EMAIL)
                 .param("password", DEFAULT_PASSWORD))
                 .andExpect(status().isUnauthorized())
-                .andDo(print())
-        ).thenThrow(new NestedServletException("Bad credentials"));
+                .andDo(print());
     }
 
     @Test

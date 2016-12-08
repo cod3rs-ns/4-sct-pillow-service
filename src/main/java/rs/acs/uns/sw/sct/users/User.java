@@ -299,7 +299,6 @@ public class User implements Serializable {
                 ", lastName='" + lastName + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", type='" + type + '\'' +
-                ", company=" + company +
                 ", companyVerified='" + companyVerified + '\'' +
                 ", imagePath='" + imagePath + '\'' +
                 ", deleted=" + deleted +

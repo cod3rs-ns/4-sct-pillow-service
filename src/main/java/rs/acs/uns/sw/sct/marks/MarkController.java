@@ -101,6 +101,23 @@ public class MarkController {
     }
 
     /**
+     * GET  /marks/announcement/:announcementId : get all marks for one announcement.
+     *
+     * @param announcementId the id of the announcement
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of marks in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/marks/announcement/{announcementId}")
+    public ResponseEntity<List<Mark>> getAllCommentsByAnnouncementId(@PathVariable Long announcementId, Pageable pageable)
+            throws URISyntaxException {
+        Page<Mark> page = markService.findAllByAnnouncement(announcementId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/marks/announcement");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
      * DELETE  /marks/:id : delete the "id" mark.
      *
      * @param id the id of the mark to delete
