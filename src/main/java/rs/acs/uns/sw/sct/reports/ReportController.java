@@ -63,6 +63,10 @@ public class ReportController {
         if (announcement == null){
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "There is no announcement with id you specified")).body(null);
         }
+        // TODO: chaange to constant
+        if (announcement.getVerified().equals("verified"))
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "You can't report verified announcement")).body(null);
+
         report.setAnnouncement(announcement);
 
         Report result = reportService.save(report);

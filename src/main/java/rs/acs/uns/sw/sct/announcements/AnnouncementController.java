@@ -1,8 +1,6 @@
 package rs.acs.uns.sw.sct.announcements;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +22,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -91,7 +88,7 @@ public class AnnouncementController {
     /**
      * PUT  /announcements/{id} : Extend the expiration date.
      *
-     * @param id the announcement to update
+     * @param id   the announcement to update
      * @param data the data send in RequestBody
      * @return the ResponseEntity with status 200 (OK) and with body the updated announcement,
      * or with status 400 (Bad Request) if the announcement doesn't contain expirationDate attribute or date have wrong format or date is before today
@@ -229,5 +226,39 @@ public class AnnouncementController {
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+    }
+
+    /**
+     * PUT  /announcements/:announcementId/verify : Updates an existing announcement.
+     *
+     * @param announcementId the announcement to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated announcement,
+     * or with status 400 (Bad Request) if the announcement is not valid,
+     * or with status 500 (Internal Server Error) if the announcement couldn't be updated
+     * @throws URISyntaxException if the Location URI syntax is incorrect
+     */
+    @PutMapping("/announcements/{announcementId}/verify")
+    public ResponseEntity<?> verifyAnnouncement(@PathVariable Long announcementId) throws URISyntaxException {
+        Announcement announcement = announcementService.findOne(announcementId);
+        if (announcement == null) {
+            return new ResponseEntity<>("There is no announcement with specified id", HttpStatus.NOT_FOUND);
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        User user = userService.getUserByUsername(auth.getName());
+
+        if (!user.getType().equals(Constants.Roles.VERIFIER))
+            return new ResponseEntity<>("You don't have verifier role.", HttpStatus.METHOD_NOT_ALLOWED);
+
+        // TODO: Create constants for verification status or change variable type to boolean
+        announcement.setVerified("verified");
+
+        Announcement result = announcementService.save(announcement);
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.ANNOUNCEMENT, announcement.getId().toString()))
+                .body(result);
     }
 }

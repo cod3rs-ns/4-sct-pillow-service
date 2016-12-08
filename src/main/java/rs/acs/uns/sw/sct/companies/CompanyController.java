@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
@@ -17,7 +16,6 @@ import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
