@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -55,6 +56,7 @@ public class UserController {
      * @return the ResponseEntity with status 200 (OK) and with body the user
      * @throws AuthenticationException if the user cannot be authenticated
      */
+    @PreAuthorize("permitAll()")
     @RequestMapping(
             value = "/users/auth",
             method = RequestMethod.POST
@@ -101,6 +103,7 @@ public class UserController {
      * @return the ResponseEntity with status 200 (OK) and the list of users in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/users/company/{companyId}")
     public ResponseEntity<List<User>> getAllUsersByCompanyId(@PathVariable Long companyId, Pageable pageable)
             throws URISyntaxException {
@@ -116,6 +119,7 @@ public class UserController {
      * @return the ResponseEntity with status 201 (Created) and with body the new user, or with status 400 (Bad Request) if the user has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("permitAll()")
     @PostMapping("/users/")
     public ResponseEntity<User> registerUser(@Valid @RequestBody User user) throws URISyntaxException {
         if (user.getId() != null) {
@@ -129,11 +133,28 @@ public class UserController {
     }
 
     /**
+     * GET  /users/deleted/:status : Get all users by status (deleted or not)
+     *
+     * @param status deleted or not
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and with body the user, or with status 404 (Not Found)
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/users/deleted/{status}")
+    public ResponseEntity<List<User>> getUsersByStatus(@PathVariable Boolean status, Pageable pageable)
+            throws URISyntaxException {
+        Page<User> page = userService.findAllByStatus(status, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users/deleted");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
      * GET  /users/:id : get the "id" user.
      *
      * @param id the id of the user to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the user, or with status 404 (Not Found)
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUser(@PathVariable Long id) {
         User user = userService.findOne(id);

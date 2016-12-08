@@ -8,17 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
-import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
-import javax.xml.transform.sax.SAXSource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -47,6 +46,7 @@ public class ReportController {
      * @return the ResponseEntity with status 201 (Created) and with body the new report, or with status 400 (Bad Request) if the report has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("permitAll()")
     @PostMapping("/reports")
     public ResponseEntity<Report> createReport(@Valid @RequestBody Report report) throws URISyntaxException {
         if (report.getId() != null) {
@@ -87,6 +87,7 @@ public class ReportController {
      * or with status 500 (Internal Server Error) if the report couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("permitAll()")
     @PutMapping("/reports")
     public ResponseEntity<Report> updateReport(@Valid @RequestBody Report report) throws URISyntaxException {
         if (report.getId() == null) {
@@ -105,6 +106,7 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/reports")
     public ResponseEntity<List<Report>> getAllReports(Pageable pageable)
             throws URISyntaxException {
@@ -119,6 +121,7 @@ public class ReportController {
      * @param id the id of the report to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the report, or with status 404 (Not Found)
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/reports/{id}")
     public ResponseEntity<Report> getReport(@PathVariable Long id) {
         Report report = reportService.findOne(id);
@@ -135,6 +138,7 @@ public class ReportController {
      * @param id the id of the report to delete
      * @return the ResponseEntity with status 200 (OK)
      */
+    @PreAuthorize("permitAll()")
     @DeleteMapping("/reports/{id}")
     public ResponseEntity<Void> deleteReport(@PathVariable Long id) {
         reportService.delete(id);

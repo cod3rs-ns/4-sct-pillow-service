@@ -19,7 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.stereotype.Component;
 import rs.acs.uns.sw.sct.security.AuthenticationTokenFilter;
 import rs.acs.uns.sw.sct.security.EntryPointUnauthorizedHandler;
-import rs.acs.uns.sw.sct.util.Constants;
 
 /**
  * Web security configuration.
@@ -102,15 +101,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/*/springfox-swagger-ui/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/v2/api-docs/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/images/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/configuration/**").permitAll()
-                // Anyone can see all options provided by server
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // All routes that starts with '/api/users/...' can be accessed by anyone
-                .antMatchers("/api/users/**").permitAll()
-                // For every route which starts with '/api/admin/...' you need to have role 'ADMIN'
-                .antMatchers("/api/admin/**").hasAuthority(Constants.Roles.ADMIN)
-                // For every other route you must be authenticated
-                .anyRequest().authenticated();
+                .antMatchers(HttpMethod.GET, "/configuration/**").permitAll();
 
         // Custom JWT based authentication
         httpSecurity

@@ -40,6 +40,18 @@ public class AnnouncementService {
     }
 
     /**
+     * Get all the announcements.
+     *
+     * @param status deleted or not deleted
+     * @param pageable the pagination information
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Announcement> findAllByStatus(Boolean status, Pageable pageable) {
+        return announcementRepository.findAllByDeleted(status, pageable);
+    }
+
+    /**
      * Get all the announcements by company id.
      *
      * @param pageable the pagination information

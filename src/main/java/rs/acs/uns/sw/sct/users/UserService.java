@@ -60,6 +60,17 @@ public class UserService {
         return userRepository.findByCompany_Id(companyId, pageable);
     }
 
+    /**
+     * Get all the realEstates.
+     *
+     * @param status deleted or not deleted
+     * @param pageable the pagination information
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<User> findAllByStatus(Boolean status, Pageable pageable) {
+        return userRepository.findAllByDeleted(status, pageable);
+    }
 
     /**
      * Get all users by company membership request status.

@@ -39,6 +39,18 @@ public class CommentService {
     }
 
     /**
+     * Get all the comments by announcement id.
+     *
+     * @param pageable the pagination information
+     * @param announcementId id of one announcement
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Comment> findAllByAnnouncement(Long announcementId, Pageable pageable) {
+        return commentRepository.findByAnnouncement_Id(announcementId, pageable);
+    }
+
+    /**
      * Get one comment by id.
      *
      * @param id the id of the entity

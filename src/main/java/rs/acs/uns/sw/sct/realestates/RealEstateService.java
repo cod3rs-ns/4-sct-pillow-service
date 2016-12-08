@@ -29,6 +29,18 @@ public class RealEstateService {
     /**
      * Get all the realEstates.
      *
+     * @param status deleted or not deleted
+     * @param pageable the pagination information
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<RealEstate> findAllByStatus(Boolean status, Pageable pageable) {
+        return realEstateRepository.findAllByDeleted(status, pageable);
+    }
+
+    /**
+     * Get all the realEstates.
+     *
      * @param pageable the pagination information
      * @return the list of entities
      */

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
@@ -42,6 +43,7 @@ public class CompanyController {
      * @return the ResponseEntity with status 201 (Created) and with body the new company, or with status 400 (Bad Request) if the company has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @PostMapping("/companies")
     public ResponseEntity<Company> createCompany(@Valid @RequestBody Company company) throws URISyntaxException {
         if (company.getId() != null) {
@@ -62,6 +64,7 @@ public class CompanyController {
      * or with status 500 (Internal Server Error) if the company couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/companies")
     public ResponseEntity<Company> updateCompany(@Valid @RequestBody Company company) throws URISyntaxException {
         if (company.getId() == null) {
@@ -80,6 +83,7 @@ public class CompanyController {
      * @return the ResponseEntity with status 200 (OK) and the list of companies in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/companies")
     public ResponseEntity<List<Company>> getAllCompanies(Pageable pageable)
             throws URISyntaxException {
@@ -94,6 +98,7 @@ public class CompanyController {
      * @param id the id of the company to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the company, or with status 404 (Not Found)
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/companies/{id}")
     public ResponseEntity<Company> getCompany(@PathVariable Long id) {
         Company company = companyService.findOne(id);
@@ -110,6 +115,7 @@ public class CompanyController {
      * @param id the id of the company to delete
      * @return the ResponseEntity with status 200 (OK)
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @DeleteMapping("/companies/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         companyService.delete(id);
