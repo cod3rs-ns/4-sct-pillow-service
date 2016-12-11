@@ -11,10 +11,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.constants.CompanyConstants;
+import rs.acs.uns.sw.sct.constants.UserConstants;
+import rs.acs.uns.sw.sct.users.UserRepository;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
@@ -23,6 +27,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,6 +52,9 @@ public class CompanyControllerTest {
 
     @Autowired
     private CompanyRepository companyRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private CompanyService companyService;
@@ -91,7 +99,7 @@ public class CompanyControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
-    public void createCompany() throws Exception {
+    public void createCompanyAsAdmin() throws Exception {
         int databaseSizeBeforeCreate = companyRepository.findAll().size();
 
         // Create the Company
@@ -110,15 +118,39 @@ public class CompanyControllerTest {
         assertThat(testCompany.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
     }
 
-
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
-    public void verifierCreateCompany() throws Exception {
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void createCompanyAsAdvertiser() throws Exception {
+        final int databaseSizeBeforeCreate = companyRepository.findAll().size();
+
+        // Create the Company
+
         restCompanyMockMvc.perform(post("/api/companies")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(company)))
                 .andExpect(status().isForbidden());
+
+        // Validate the Company in the database
+        final List<Company> companies = companyRepository.findAll();
+        assertThat(companies).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    public void createCompanyAsGuest() throws Exception {
+        final int databaseSizeBeforeCreate = companyRepository.findAll().size();
+
+        // Create the Company
+
+        restCompanyMockMvc.perform(post("/api/companies")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(company)))
+                .andExpect(status().isUnauthorized());
+
+        // Validate the Company in the database
+        final List<Company> companies = companyRepository.findAll();
+        assertThat(companies).hasSize(databaseSizeBeforeCreate);
     }
 
     @Test
@@ -218,7 +250,7 @@ public class CompanyControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
-    public void updateCompany() throws Exception {
+    public void updateCompanyAsAdvertiser() throws Exception {
         // Initialize the database
         companyService.save(company);
 
@@ -247,8 +279,34 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
+    public void updateCompanyAsGuest() throws Exception {
+        // Initialize the database
+        companyService.save(company);
+
+        final int databaseSizeBeforeUpdate = companyRepository.findAll().size();
+
+        // Update the company
+        Company updatedCompany = companyRepository.findOne(company.getId());
+
+        updatedCompany
+                .name(UPDATED_NAME)
+                .address(UPDATED_ADDRESS)
+                .phoneNumber(UPDATED_PHONE_NUMBER);
+
+        restCompanyMockMvc.perform(put("/api/companies")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(updatedCompany)))
+                .andExpect(status().isUnauthorized());
+
+        // Validate the Company in the database
+        final List<Company> companies = companyRepository.findAll();
+        assertThat(companies).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
-    public void deleteCompany() throws Exception {
+    public void deleteCompanyAsAdmin() throws Exception {
         // Initialize the database
         companyService.save(company);
 
@@ -266,14 +324,193 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADMIN)
-    public void advertiserDeleteCompany() throws Exception {
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void deleteCompanyAsAdvertiser() throws Exception {
         // Initialize the database
         companyService.save(company);
 
-        // Only admin can delete company
+        final int databaseSizeBeforeDelete = companyRepository.findAll().size();
+
+        // Get the company
         restCompanyMockMvc.perform(delete("/api/companies/{id}", company.getId())
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isForbidden());
+
+        // Validate the database is empty
+        List<Company> companies = companyRepository.findAll();
+        assertThat(companies).hasSize(databaseSizeBeforeDelete);
+    }
+
+    @Test
+    @Transactional
+    public void deleteCompanyAsGuest() throws Exception {
+        // Initialize the database
+        companyService.save(company);
+
+        final int databaseSizeBeforeDelete = companyRepository.findAll().size();
+
+        // Get the company
+        restCompanyMockMvc.perform(delete("/api/companies/{id}", company.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+
+        // Validate the database is empty
+        List<Company> companies = companyRepository.findAll();
+        assertThat(companies).hasSize(databaseSizeBeforeDelete);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_USERNAME)
+    public void sendRequestForCompanyAsAdvertiser() throws Exception {
+        // Initialize the database
+        companyService.save(company);
+
+        restCompanyMockMvc.perform(put("/api/companies/{companyId}/user-request/", company.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.company.id").value(company.getId()))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN, username = UserConstants.ADVERTISER_USERNAME)
+    public void sendRequestForCompanyAsAdmin() throws Exception {
+        // Initialize the database
+        companyService.save(company);
+
+        restCompanyMockMvc.perform(put("/api/companies/{companyId}/user-request/", company.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    public void sendRequestForCompanyAsGuest() throws Exception {
+        // Initialize the database
+        companyService.save(company);
+
+        restCompanyMockMvc.perform(put("/api/companies/{companyId}/user-request/", company.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_USERNAME)
+    public void sendRequestForWrongCompanyAsAdvertiser() throws Exception {
+        // Initialize the database
+        final Long companyId = Long.MAX_VALUE;
+
+        final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/{companyId}/user-request/", companyId)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        final String message = result.getResponse().getContentAsString();
+        assertThat(message).isEqualTo("Wrong id of company");
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_COMPANY_USERNAME)
+    public void sendRequestForCompanyAsAlreadyCompanyVerifiedAdvertiser() throws Exception {
+        // Initialize the database
+        companyService.save(company);
+
+        final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/{companyId}/user-request/", company.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        final String message = result.getResponse().getContentAsString();
+        assertThat(message).isEqualTo("Already requested company membership. Set request param confirmed=True to overwrite previous request");
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_COMPANY_USERNAME)
+    public void sendRequestForCompanyAsAlreadyCompanyVerifiedAdvertiserAndOverrideCompany() throws Exception {
+        // Initialize the database
+        companyService.save(company);
+
+        restCompanyMockMvc.perform(put("/api/companies/{companyId}/user-request/", company.getId())
+                .param("confirmed", "true")
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.company.id").value(company.getId()));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_COMPANY_USERNAME)
+    public void getCompanyRequestsByStatusAsRightCompanyVerifiedAdvertiser() throws Exception {
+
+        final String status = "accepted";
+
+        // Already Existed Company
+        final Long companyId = 1L;
+
+        final Long count = userRepository.findByCompany_IdAndCompanyVerified(companyId, status, CompanyConstants.PAGEABLE).getTotalElements();
+
+        restCompanyMockMvc.perform(get("/api/companies/users-requests", companyId)
+                .param("status", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = "sr4")
+    public void getCompanyRequestsByStatusAsCompanyNotVerifiedVerifier() throws Exception {
+
+        final String status = "accepted";
+
+        // Already Existed Company
+        final Long companyId = 3L;
+
+        final MvcResult result = restCompanyMockMvc.perform(get("/api/companies/users-requests", companyId)
+                .param("status", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+
+        final String message = result.getResponse().getContentAsString();
+        assertThat(message).isEqualTo("Can't see memberships that are not from your company.");
+    }
+
+    @Test
+    @Transactional
+    public void getCompanyRequestsByStatusAsGuest() throws Exception {
+
+        final String status = "accepted";
+
+        // Already Existed Company
+        final Long companyId = 1L;
+
+        restCompanyMockMvc.perform(get("/api/companies/users-requests", companyId)
+                .param("status", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void getCompanyRequestsByStatusAsAdmin() throws Exception {
+
+        final String status = "accepted";
+
+        // Already Existed Company
+        final Long companyId = 1L;
+
+        restCompanyMockMvc.perform(get("/api/companies/users-requests", companyId)
+                .param("status", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isForbidden());
+    }
+
+    // TODO Tests for ResolveMembershipRequest
+
 }

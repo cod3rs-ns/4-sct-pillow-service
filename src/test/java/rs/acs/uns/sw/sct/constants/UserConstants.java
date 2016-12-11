@@ -32,6 +32,7 @@ public interface UserConstants {
     String UPDATED_USER_USERNAME = "steve";
 
     String ADVERTISER_USERNAME = "james";
+    String ADVERTISER_COMPANY_USERNAME = "damian";
 
     // 1st page with 10 elements
     Pageable PAGEABLE = new PageRequest(0, 10);
