@@ -245,7 +245,7 @@ public class ReportControllerTest {
 
     @Test
     @Transactional
-    public void getAllReportsWithoutAdminAuthoority() throws Exception {
+    public void getAllReportsWithoutAdminAuthority() throws Exception {
         // Initialize the database
         reportRepository.saveAndFlush(report);
 
@@ -257,7 +257,7 @@ public class ReportControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
-    public void getReport() throws Exception {
+    public void getReportAsAdmin() throws Exception {
         // Initialize the database
         reportRepository.saveAndFlush(report);
 
@@ -274,19 +274,34 @@ public class ReportControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getReportAsAdvertiser() throws Exception {
+        // Initialize the database
+        reportRepository.saveAndFlush(report);
+
+        // Get the report
+        restReportMockMvc.perform(get("/api/reports/{id}", report.getId()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    public void getReportAsGuest() throws Exception {
+        // Initialize the database
+        reportRepository.saveAndFlush(report);
+
+        // Get the report
+        restReportMockMvc.perform(get("/api/reports/{id}", report.getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void getNonExistingReport() throws Exception {
         // Get the report
         restReportMockMvc.perform(get("/api/reports/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Transactional
-    public void getOneReportWithoutAuthority() throws Exception {
-        // Get the report
-        restReportMockMvc.perform(get("/api/reports/{id}", Long.MAX_VALUE))
-                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -336,6 +351,22 @@ public class ReportControllerTest {
         // Validate the database is empty
         List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void deleteNonExistingReport() throws Exception {
+
+        final Long reportId = Long.MAX_VALUE;
+
+        final int databaseSizeBeforeDelete = reportRepository.findAll().size();
+
+        restReportMockMvc.perform(delete("/api/reports/{id}", reportId)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
+
+        final List<Report> reports = reportRepository.findAll();
+        assertThat(reports).hasSize(databaseSizeBeforeDelete);
     }
 
     @Test
