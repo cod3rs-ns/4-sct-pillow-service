@@ -371,6 +371,7 @@ public class ReportControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void changeReportStatus() throws Exception {
         // Initialize the database
         Report persistReport = reportRepository.saveAndFlush(report);
