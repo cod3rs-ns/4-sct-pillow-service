@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.constants.MarkConstants;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
@@ -23,6 +25,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -82,7 +85,7 @@ public class MarkControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
-    public void createMark() throws Exception {
+    public void createMarkAsAdvertiser() throws Exception {
         int databaseSizeBeforeCreate = markRepository.findAll().size();
 
         // Create the Mark
@@ -99,14 +102,21 @@ public class MarkControllerTest {
         assertThat(testMark.getValue()).isEqualTo(DEFAULT_VALUE);
     }
 
-
     @Test
     @Transactional
-    public void createMarkUnauthorized() throws Exception {
+    public void createMarkAsGuest() throws Exception {
+        final int databaseSizeBeforeCreate = markRepository.findAll().size();
+
+        // Create the Mark
+
         restMarkMockMvc.perform(post("/api/marks")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(mark)))
                 .andExpect(status().isUnauthorized());
+
+        // Validate the Mark in the database
+        final List<Mark> marks = markRepository.findAll();
+        assertThat(marks).hasSize(databaseSizeBeforeCreate);
     }
 
     @Test
@@ -130,7 +140,7 @@ public class MarkControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
-    public void getAllMarks() throws Exception {
+    public void getAllMarksAsAdmin() throws Exception {
         // Initialize the database
         markRepository.saveAndFlush(mark);
 
@@ -145,7 +155,30 @@ public class MarkControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
-    public void getMark() throws Exception {
+    public void getAllMarksAsAdvertiser() throws Exception {
+        // Initialize the database
+        markRepository.saveAndFlush(mark);
+
+        // Get all the marks
+        restMarkMockMvc.perform(get("/api/marks?sort=id,desc"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    public void getAllMarksAsGuest() throws Exception {
+        // Initialize the database
+        markRepository.saveAndFlush(mark);
+
+        // Get all the marks
+        restMarkMockMvc.perform(get("/api/marks?sort=id,desc"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getMarkAsAdvertiser() throws Exception {
         // Initialize the database
         markRepository.saveAndFlush(mark);
 
@@ -155,6 +188,17 @@ public class MarkControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(mark.getId().intValue()))
                 .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));
+    }
+
+    @Test
+    @Transactional
+    public void getMarkAsGuest() throws Exception {
+        // Initialize the database
+        markRepository.saveAndFlush(mark);
+
+        // Get the mark
+        restMarkMockMvc.perform(get("/api/marks/{id}", mark.getId()))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -195,7 +239,7 @@ public class MarkControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
-    public void deleteMark() throws Exception {
+    public void deleteMarkAsVerifier() throws Exception {
         // Initialize the database
         markService.save(mark);
 
@@ -209,5 +253,44 @@ public class MarkControllerTest {
         // Validate the database is empty
         List<Mark> marks = markRepository.findAll();
         assertThat(marks).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void deleteMarkAsGuest() throws Exception {
+        // Initialize the database
+        markService.save(mark);
+
+        int databaseSizeBeforeDelete = markRepository.findAll().size();
+
+        // Delete the mark
+        restMarkMockMvc.perform(delete("/api/marks/{id}", mark.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+
+        List<Mark> marks = markRepository.findAll();
+        assertThat(marks).hasSize(databaseSizeBeforeDelete);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllMarksForAnnouncementAsAdvertiser() throws Exception {
+
+        final Long announcementId = 1L;
+
+        // Initialize the database
+        mark.setAnnouncement(new Announcement().id(announcementId));
+        markRepository.saveAndFlush(mark);
+
+        final Long count = markRepository.findByAnnouncement_Id(announcementId, MarkConstants.PAGEABLE).getTotalElements();
+
+        // Get the mark
+        restMarkMockMvc.perform(get("/api/marks/announcement/{announcementId}",announcementId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(mark.getId().intValue()))
+                .andExpect(jsonPath("$.[*].value").value(DEFAULT_VALUE));
     }
 }
