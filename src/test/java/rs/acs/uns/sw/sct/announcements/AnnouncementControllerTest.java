@@ -702,8 +702,7 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
-                .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)))
-                .andReturn();
+                .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
     }
 
     // TODO Get announcements by company
