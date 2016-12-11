@@ -57,4 +57,14 @@ public final class Constants {
         public FilePaths() {
         }
     }
+
+
+    public static final class MailParameters {
+        public static final long   TOKEN_EXPIRE_TIME = 1800000;
+        public static final String TOKEN_CONFIRM_LINK = "http://localhost:8091/api/registration-confirm?token=";
+        public static final String HOST_NAME = "smtp.gmail.com";
+        public static final int    HOST_PORT = 587;
+        public static final String AUTH_USER = "bacovakuhinja@gmail.com";
+        public static final String AUTH_PASS = "jedanjebaco";
+    }
 }
