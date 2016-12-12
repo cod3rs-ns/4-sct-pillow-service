@@ -1,9 +1,13 @@
 package rs.acs.uns.sw.sct.util;
 
 import de.neuland.jade4j.Jade4J;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.verification.VerificationToken;
+import rs.acs.uns.sw.sct.verification.VerificationTokenService;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -12,12 +16,15 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 @Component
 public class MailSender {
+    @Autowired
+    VerificationTokenService verificationTokenService;
+
+    @Autowired
+    UserService userService;
 
     @Async
     public void sendRegistrationMail(String name, String address){
@@ -25,6 +32,9 @@ public class MailSender {
         model.put("name", name);
 
         try {
+            String tokenValue = generateToken(address);
+            model.put("link", Constants.MailParameters.TOKEN_CONFIRM_LINK + tokenValue);
+
             // Rendering html page for email
             String html = Jade4J.render("./src/main/resources/templates/mail-template.jade", model);
             sendMail(address, "Potvrda registracije", html);
@@ -34,7 +44,6 @@ public class MailSender {
             e.printStackTrace();
         }
     }
-
 
     private void sendMail(String address, String subject, String message) throws MessagingException {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
@@ -60,5 +69,17 @@ public class MailSender {
         transport.connect(Constants.MailParameters.HOST_NAME, Constants.MailParameters.AUTH_USER, Constants.MailParameters.AUTH_PASS);
         transport.sendMessage(mailMessage, mailMessage.getAllRecipients());
         transport.close();
+    }
+
+    private String generateToken(String userMail){
+        // Generate VerificationToken
+        Date date = new Date();
+        date.setTime(date.getTime() + Constants.MailParameters.TOKEN_EXPIRE_TIME);
+        final String tokenValue = UUID.randomUUID().toString();
+
+        VerificationToken token = new VerificationToken(tokenValue, date, userService.getUserByEmail(userMail));
+        verificationTokenService.save(token);
+
+        return tokenValue;
     }
 }

@@ -133,7 +133,6 @@ public class UserController {
 
         User result = userService.save(user);
 
-        // Async sending mail
         mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
 
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
