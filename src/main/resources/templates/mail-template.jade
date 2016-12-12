@@ -1,0 +1,60 @@
+html
+
+head
+  meta(http-equiv="Content-Type", content="text/html; charset=utf-8")
+  style(media='screen', type='text/css').
+      body {margin: 0; padding: 0; min-width: 100%!important;}
+      #details {margin-left: 15px;}
+      img {height: auto;}
+      .content {width: 100%; max-width: 600px;}
+      .header {padding: 40px 30px 20px 30px;}
+      .innerpadding {padding: 30px 30px 30px 30px;}
+      .borderbottom {border-bottom: 1px solid #f2eeed;}
+      .subhead {font-size: 15px; color: #ffffff; font-family: sans-serif; letter-spacing: 10px;}
+      .h1, .h2, .bodycopy {color: #153643; font-family: sans-serif;}
+      .h1 {font-size: 33px; line-height: 38px; font-weight: bold;}
+      .h2 {padding: 0 0 15px 0; font-size: 24px; line-height: 28px; font-weight: bold;}
+      .bodycopy {font-size: 16px; line-height: 22px;}
+      .button {text-align: center; font-size: 18px; font-family: sans-serif; font-weight: bold; padding: 0 30px 0 30px;}
+      .button a {color: #ffffff; text-decoration: none;}
+      .footer {padding: 20px 30px 15px 30px;}
+      .footercopy {font-family: sans-serif; font-size: 14px; color: #ffffff;}
+      .footercopy a {color: #ffffff; text-decoration: underline;}
+
+body(bgcolor="#f6f8f1")
+  table(width="100%", bgcolor="#f6f8f1", border="0", cellpadding="0", cellspacing="0")
+    tr
+      td
+        table(bgcolor="#ffffff", class="content", align="center", cellpadding="0", cellspacing="0", border="0")
+          tr
+            td(bgcolor="#c7d8a7", class="header")
+              table(width="70", align="left", border="0", cellpadding="0", cellspacing="0")
+                tr
+                  td(height="70", style="padding: 0 20px 20px 0;")
+                    img(class="fix", src="https://s28.postimg.org/pieu5xyal/skyscraper.png", width="70", height="70", border="0", alt="")
+              table(class="col425", align="left", border="0", cellpadding="0", cellspacing="0", style="width: 100%; max-width: 425px;")
+                tr
+                  td(height="70")
+                    table(width="100%", border="0", cellspacing="0", cellpadding="0")
+                      tr
+                        td(class="subhead", style="padding: 0 0 0 3px;") POTVRDA REGISTRACIJE
+                      tr
+                        td(class="h1", style="padding: 5px 0 0 0;") KTS Nekretnine
+          tr
+            td(class="innerpadding borderbottom")
+              table(width="100%", border="0", cellspacing="0", cellpadding="0")
+                tr
+                  td(class="h2") Dobrodo&#353;li na sajt KTS Nekretnine, #{name}!
+                tr
+                  td(class="bodycopy") Ovo je automatski izgenerisana poruka od strane KTS Nekretnine sistema za registraciju.
+                    | Hvala Vam &#353;to koristite na&#353; sajt.
+                    br
+                    br
+                    | Molimo Vas da potvrdite Va&#353;u email adresu kako biste mogli da dobijete sve benefite na&#353;e aplikacije.
+                    br
+          tr(align="center", valign="middle")
+            td(style="align: center;", align="center", valign="middle" )
+              table(class="buttonwrapper", bgcolor="#e05443", border="0", cellspacing="0", cellpadding="0")
+                tr(style="align: center")
+                  td(class="button", height="45")
+                    a(href="#{link}") Potvrdi registraciju!

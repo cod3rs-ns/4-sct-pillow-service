@@ -22,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findOneByUsername(username);
 
-        if (user == null) {
+        if (user == null || !user.isVerified()) {
             throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
         } else {
             return UserFactory.create(user);

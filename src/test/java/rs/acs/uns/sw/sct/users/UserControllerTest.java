@@ -88,6 +88,7 @@ public class UserControllerTest {
                 .firstName(DEFAULT_FIRST_NAME)
                 .lastName(DEFAULT_LAST_NAME)
                 .phoneNumber(DEFAULT_PHONE_NUMBER)
+                .verified(true)
                 .company(new Company().id(CompanyConstants.ID));
     }
 
