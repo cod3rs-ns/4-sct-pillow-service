@@ -511,6 +511,144 @@ public class CompanyControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    // TODO Tests for ResolveMembershipRequest
+    @Test
+    @Transactional
+    public void resolveCompanyMembershipAsGuest() throws Exception {
+
+        final String accepted = "true";
+
+        // Already Existed Company
+        final Long userId = 1L;
+
+        restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
+                .param("accepted", accepted)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_USERNAME)
+    public void resolveCompanyMembershipAsAdvertiserForWrongUser() throws Exception {
+
+        final String accepted = "true";
+
+        // Already Existed Company
+        final Long userId = Long.MAX_VALUE;
+
+        final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
+                .param("accepted", accepted)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        final String message = result.getResponse().getContentAsString();
+
+        assertThat(message).isEqualTo("There is no user with id " + userId);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_USERNAME)
+    public void resolveCompanyMembershipAsAdvertiserForUserWithoutRequest() throws Exception {
+
+        final String accepted = "true";
+
+        // Already Existed Company
+        final Long userId = 2L;
+
+        final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
+                .param("accepted", accepted)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotAcceptable())
+                .andReturn();
+
+        final String message = result.getResponse().getContentAsString();
+
+        assertThat(message).isEqualTo("User with this id doesn't request membership");
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
+    public void resolveCompanyMembershipAsVerifierWithAlreadyAcceptedUser() throws Exception {
+
+        final String accepted = "true";
+
+        // User that's already in the same company
+        final Long userId = 8L;
+
+        final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
+                .param("accepted", accepted)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotAcceptable())
+                .andReturn();
+
+        final String message = result.getResponse().getContentAsString();
+
+        assertThat(message).isEqualTo("User with this id doesn't request membership");
+    }
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.VERIFIER_ISCO_USERNAME)
+    public void resolveCompanyMembershipAsVerifierForUserWithDifferentCompany() throws Exception {
+
+        // Our user belongs to company with ID = 1
+
+        final String accepted = "true";
+
+        // User which pending for company with ID = 3
+        final Long userId = 3L;
+
+        final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
+                .param("accepted", accepted)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isMethodNotAllowed())
+                .andReturn();
+
+        final String message = result.getResponse().getContentAsString();
+
+        assertThat(message).isEqualTo("You don't have permission for resolving membership status");
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
+    public void resolveCompanyMembershipAsVerifierAndSetToAccepted() throws Exception {
+
+        // Our user belongs to company with ID = 3
+
+        final String accepted = "true";
+
+        // User which pending for company with ID = 3
+        final Long userId = 3L;
+
+        restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
+                .param("accepted", accepted)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
+
+        // TODO Check for updated user
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
+    public void resolveCompanyMembershipAsVerifierAndSetToFalse() throws Exception {
+
+        // Our user belongs to company with ID = 3
+
+        final String accepted = "false";
+
+        // User which pending for company with ID = 3
+        final Long userId = 3L;
+
+        restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
+                .param("accepted", accepted)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
+
+        // TODO Check for updated user
+    }
 
 }

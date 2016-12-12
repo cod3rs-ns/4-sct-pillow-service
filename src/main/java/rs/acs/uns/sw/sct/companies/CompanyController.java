@@ -197,6 +197,7 @@ public class CompanyController {
      * or with status 500 (Internal Server Error) if the company couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/companies/resolve-request/user/{userId}")
     public ResponseEntity<?> resolveMembershipRequest(@PathVariable Long userId, @RequestParam(value = "accepted") Boolean accepted) throws URISyntaxException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

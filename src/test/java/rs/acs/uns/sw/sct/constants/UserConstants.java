@@ -33,6 +33,7 @@ public interface UserConstants {
 
     String ADVERTISER_USERNAME = "james";
     String ADVERTISER_COMPANY_USERNAME = "damian";
+    String VERIFIER_ISCO_USERNAME = "isco";
 
     // 1st page with 10 elements
     Pageable PAGEABLE = new PageRequest(0, 10);
