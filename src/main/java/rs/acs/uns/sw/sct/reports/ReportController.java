@@ -84,7 +84,7 @@ public class ReportController {
      * @param report the report to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated report,
      * or with status 400 (Bad Request) if the report is not valid,
-     * or with status 500 (Internal Server Error) if the report couldnt be updated
+     * or with status 500 (Internal Server Error) if the report couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PreAuthorize("permitAll()")
@@ -178,6 +178,7 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/reports/author/{email:.+}")
     public ResponseEntity<List<Report>> getAllReportsByAuthorEmail(Pageable pageable, @PathVariable String email)
             throws URISyntaxException {

@@ -4,7 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public interface UserConstants {
-    int DB_COUNT = 7;
+    int DB_COUNT = 8;
 
     Long USER_ID = 7L;
     String USER_FIRST_NAME = "Andrew";
