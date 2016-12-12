@@ -51,7 +51,7 @@ public class UserService {
     /**
      * Get all users by company id.
      *
-     * @param pageable the pagination information
+     * @param pageable  the pagination information
      * @param companyId id of one company
      * @return the list of entities
      */
@@ -63,7 +63,7 @@ public class UserService {
     /**
      * Get all the realEstates.
      *
-     * @param status deleted or not deleted
+     * @param status   deleted or not deleted
      * @param pageable the pagination information
      * @return the list of entities
      */
@@ -75,8 +75,8 @@ public class UserService {
     /**
      * Get all users by company membership request status.
      *
-     * @param pageable the pagination information
-     * @param companyId id of one company
+     * @param pageable        the pagination information
+     * @param companyId       id of one company
      * @param companyVerified status of membership for company
      * @return the list of entities
      */
@@ -93,11 +93,13 @@ public class UserService {
      * @return the persisted user
      */
     public User save(User newUser) {
-
-        if (newUser.getPassword() != null) {
-            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            String hashedPassword = passwordEncoder.encode(newUser.getPassword());
-            newUser.setPassword(hashedPassword);
+        User user = userRepository.findOneByUsername(newUser.getUsername());
+        if (user == null || !newUser.getPassword().equals(user.getPassword())) {
+            if (newUser != null && newUser.getPassword() != null) {
+                BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String hashedPassword = passwordEncoder.encode(newUser.getPassword());
+                newUser.setPassword(hashedPassword);
+            }
         }
 
         return userRepository.save(newUser);

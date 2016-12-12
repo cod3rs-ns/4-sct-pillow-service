@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.companies.CompanyService;
 import rs.acs.uns.sw.sct.security.TokenUtils;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
+import rs.acs.uns.sw.sct.util.MailSender;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
@@ -48,6 +49,9 @@ public class UserController {
 
     @Autowired
     TokenUtils tokenUtils;
+
+    @Autowired
+    MailSender mailSender;
 
     /**
      * POST  /users/auth : Authenticate user.
@@ -128,6 +132,9 @@ public class UserController {
         }
 
         User result = userService.save(user);
+
+        mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
+
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.USER, result.getId().toString()))
                 .body(result);

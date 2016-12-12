@@ -1,6 +1,7 @@
 package rs.acs.uns.sw.sct.users;
 
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import rs.acs.uns.sw.sct.companies.Company;
 
 import javax.persistence.*;
@@ -57,6 +58,9 @@ public class User implements Serializable {
 
     @Column
     private String imagePath;
+
+    @Column(nullable = false)
+    private Boolean verified = false;
 
     @Column(nullable = false)
     private Boolean deleted = false;
@@ -286,6 +290,25 @@ public class User implements Serializable {
      */
     public User deleted(Boolean deleted) {
         this.deleted = deleted;
+        return this;
+    }
+
+    public Boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param verified represents user email verification
+     * @return User (this)
+     */
+    public User verified(Boolean verified) {
+        this.verified = verified;
         return this;
     }
 
