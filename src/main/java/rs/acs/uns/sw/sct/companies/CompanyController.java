@@ -132,6 +132,7 @@ public class CompanyController {
      * or with status 500 (Internal Server Error) if the company couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/companies/{companyId}/user-request/")
     public ResponseEntity<?> requestCompanyMembership(@PathVariable Long companyId, @RequestParam(value = "confirmed", required = false) Boolean confirmed) throws URISyntaxException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -166,6 +167,7 @@ public class CompanyController {
      * @return the ResponseEntity with status 200 (OK) and the list of companies in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/companies/users-requests")
     public ResponseEntity<?> getAllUsersRequestsByStatus(@RequestParam(value = "status") String status, Pageable pageable)
             throws URISyntaxException {
@@ -176,7 +178,7 @@ public class CompanyController {
         }
 
         User user = userService.getUserByUsername(auth.getName());
-        if (user.getCompany() == null || !user.getCompanyVerified().equals(Constants.CompanyStatus.ACCEPTED)) {
+        if (user.getCompany() == null || !Constants.CompanyStatus.ACCEPTED.equals(user.getCompanyVerified())) {
             return new ResponseEntity<>("Can't see memberships that are not from your company.", HttpStatus.UNAUTHORIZED);
         }
 

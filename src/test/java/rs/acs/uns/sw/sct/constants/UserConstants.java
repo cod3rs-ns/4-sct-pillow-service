@@ -12,7 +12,7 @@ public interface UserConstants {
     String USER_EMAIL = "wiggins@gmail.com";
     String USER_PASSWORD = "$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq";
     String USER_TELEPHONE = "065161665";
-    String USER_TYPE = "verifikator";
+    String USER_TYPE = "verifier";
     String USER_USERNAME = "wiggins";
 
     String NEW_USER_FIRST_NAME = "Michael";
@@ -30,6 +30,9 @@ public interface UserConstants {
     String UPDATED_USER_TELEPHONE = "064163665";
     String UPDATED_USER_TYPE = "oglašavač";
     String UPDATED_USER_USERNAME = "steve";
+
+    String ADVERTISER_USERNAME = "james";
+    String ADVERTISER_COMPANY_USERNAME = "damian";
 
     // 1st page with 10 elements
     Pageable PAGEABLE = new PageRequest(0, 10);

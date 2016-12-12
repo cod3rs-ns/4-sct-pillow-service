@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.constants.RealEstateConstants;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -98,7 +100,7 @@ public class RealEstateControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
-    public void createRealEstate() throws Exception {
+    public void createRealEstateAsAdvertiser() throws Exception {
         int databaseSizeBeforeCreate = realEstateRepository.findAll().size();
 
         // Create the RealEstate
@@ -117,6 +119,37 @@ public class RealEstateControllerTest {
         assertThat(testRealEstate.getArea()).isEqualTo(DEFAULT_AREA);
         assertThat(testRealEstate.getHeatingType()).isEqualTo(DEFAULT_HEATING_TYPE);
         assertThat(testRealEstate.isDeleted()).isEqualTo(DEFAULT_DELETED);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void createRealEstateAsAdmin() throws Exception {
+        int databaseSizeBeforeCreate = realEstateRepository.findAll().size();
+
+        restRealEstateMockMvc.perform(post("/api/real-estates")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(realEstate)))
+                .andExpect(status().isForbidden());
+
+        // Validate the RealEstate in the database
+        List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    public void createRealEstateAsGuest() throws Exception {
+        int databaseSizeBeforeCreate = realEstateRepository.findAll().size();
+
+        restRealEstateMockMvc.perform(post("/api/real-estates")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(realEstate)))
+                .andExpect(status().isUnauthorized());
+
+        // Validate the RealEstate in the database
+        List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeCreate);
     }
 
     @Test
@@ -212,7 +245,7 @@ public class RealEstateControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
-    public void getAllRealEstates() throws Exception {
+    public void getAllRealEstatesAsAdmin() throws Exception {
         // Initialize the database
         realEstateRepository.saveAndFlush(realEstate);
 
@@ -226,6 +259,29 @@ public class RealEstateControllerTest {
                 .andExpect(jsonPath("$.[*].area").value(hasItem(DEFAULT_AREA)))
                 .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE)))
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllRealEstatesAsAdvertiser() throws Exception {
+        // Initialize the database
+        realEstateRepository.saveAndFlush(realEstate);
+
+        // Get all the realEstates
+        restRealEstateMockMvc.perform(get("/api/real-estates?sort=id,desc"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    public void getAllRealEstatesAsGuest() throws Exception {
+        // Initialize the database
+        realEstateRepository.saveAndFlush(realEstate);
+
+        // Get all the realEstates
+        restRealEstateMockMvc.perform(get("/api/real-estates?sort=id,desc"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -292,8 +348,35 @@ public class RealEstateControllerTest {
 
     @Test
     @Transactional
+    public void updateRealEstateAsGuest() throws Exception {
+        // Initialize the database
+        realEstateService.save(realEstate);
+
+        final int databaseSizeBeforeUpdate = realEstateRepository.findAll().size();
+
+        // Update the realEstate
+        RealEstate updatedRealEstate = realEstateRepository.findOne(realEstate.getId());
+        updatedRealEstate
+                .name(UPDATED_NAME)
+                .type(UPDATED_TYPE)
+                .area(UPDATED_AREA)
+                .heatingType(UPDATED_HEATING_TYPE)
+                .deleted(UPDATED_DELETED);
+
+        restRealEstateMockMvc.perform(put("/api/real-estates")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(updatedRealEstate)))
+                .andExpect(status().isUnauthorized());
+
+        // Validate the RealEstate in the database
+        final List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
-    public void deleteRealEstate() throws Exception {
+    public void deleteRealEstateAsAdmin() throws Exception {
         // Initialize the database
         realEstateService.save(realEstate);
 
@@ -307,5 +390,95 @@ public class RealEstateControllerTest {
         // Validate the database is empty
         List<RealEstate> realEstates = realEstateRepository.findAll();
         assertThat(realEstates).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void deleteRealEstateAsVerifier() throws Exception {
+        // Initialize the database
+        realEstateService.save(realEstate);
+
+        int databaseSizeBeforeDelete = realEstateRepository.findAll().size();
+
+        // Get the realEstate
+        restRealEstateMockMvc.perform(delete("/api/real-estates/{id}", realEstate.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isForbidden());
+
+        // Validate the database is empty
+        List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeDelete);
+    }
+
+
+    @Test
+    @Transactional
+    public void deleteRealEstateAsGuest() throws Exception {
+        // Initialize the database
+        realEstateService.save(realEstate);
+
+        int databaseSizeBeforeDelete = realEstateRepository.findAll().size();
+
+        // Get the realEstate
+        restRealEstateMockMvc.perform(delete("/api/real-estates/{id}", realEstate.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+
+        // Validate the database is empty
+        List<RealEstate> realEstates = realEstateRepository.findAll();
+        assertThat(realEstates).hasSize(databaseSizeBeforeDelete);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void getAllDeletedRealEstatesAsAdmin() throws Exception {
+
+        final boolean REAL_ESTATE_DELETED = true;
+
+        realEstate.deleted(REAL_ESTATE_DELETED);
+
+        // Add Deleted Announcement
+        realEstateRepository.saveAndFlush(realEstate);
+
+        final Long count = realEstateRepository.findAllByDeleted(REAL_ESTATE_DELETED, RealEstateConstants.PAGEABLE).getTotalElements();
+
+        // Get all non deleted announcements
+        restRealEstateMockMvc.perform(get("/api/real-estates/deleted/{status}", REAL_ESTATE_DELETED))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(realEstate.getId().intValue())))
+                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+                .andExpect(jsonPath("$.[*].area").value(hasItem(DEFAULT_AREA)))
+                .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE)))
+                .andExpect(jsonPath("$.[*].deleted").value(hasItem(REAL_ESTATE_DELETED)));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllNonDeletedRealEstatesAsAdvertiser() throws Exception {
+
+        final boolean REAL_ESTATE_DELETED = false;
+
+        // Add Deleted Announcement
+        realEstateRepository.saveAndFlush(realEstate);
+
+        final Long count = realEstateRepository.findAllByDeleted(REAL_ESTATE_DELETED, RealEstateConstants.PAGEABLE).getTotalElements();
+
+        // Get all non deleted announcements
+        restRealEstateMockMvc.perform(get("/api/real-estates/deleted/{status}", REAL_ESTATE_DELETED))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(realEstate.getId().intValue())))
+                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+                .andExpect(jsonPath("$.[*].area").value(hasItem(DEFAULT_AREA)))
+                .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE)))
+                .andExpect(jsonPath("$.[*].deleted").value(hasItem(REAL_ESTATE_DELETED)));
     }
 }

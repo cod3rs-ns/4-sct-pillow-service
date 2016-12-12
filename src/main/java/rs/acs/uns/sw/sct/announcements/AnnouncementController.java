@@ -46,7 +46,8 @@ public class AnnouncementController {
      * POST  /announcements : Create a new announcement.
      *
      * @param annDTO the announcement to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new announcement, or with status 400 (Bad Request) if the announcement has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new announcement,
+     * or with status 400 (Bad Request) if the announcement has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
@@ -74,7 +75,7 @@ public class AnnouncementController {
      * @param announcement the announcement to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated announcement,
      * or with status 400 (Bad Request) if the announcement is not valid,
-     * or with status 500 (Internal Server Error) if the announcement couldnt be updated
+     * or with status 500 (Internal Server Error) if the announcement couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
@@ -98,6 +99,7 @@ public class AnnouncementController {
      * or with status 400 (Bad Request) if the announcement doesn't contain expirationDate attribute or date have wrong format or date is before today
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements/{id}")
     public ResponseEntity<?> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException {
         if (id == null || !data.containsKey("expirationDate"))
@@ -203,7 +205,7 @@ public class AnnouncementController {
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/{id}")
     public ResponseEntity<Announcement> getAnnouncement(@PathVariable Long id) {
-        Announcement announcement = announcementService.findOne(id);
+        final Announcement announcement = announcementService.findOne(id);
         return Optional.ofNullable(announcement)
                 .map(result -> new ResponseEntity<>(
                         result,
@@ -220,8 +222,23 @@ public class AnnouncementController {
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @DeleteMapping("/announcements/{id}")
     public ResponseEntity<Void> deleteAnnouncement(@PathVariable Long id) {
-        announcementService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.ANNOUNCEMENT, id.toString())).build();
+
+        System.out.println(announcementService.findOne(id));
+
+        if (announcementService.findOne(id) != null) {
+
+            announcementService.delete(id);
+
+            return ResponseEntity
+                    .ok()
+                    .headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.ANNOUNCEMENT, id.toString()))
+                    .build();
+        }
+        else {
+            return ResponseEntity
+                    .notFound()
+                    .build();
+        }
     }
 
     /**
@@ -265,12 +282,15 @@ public class AnnouncementController {
      * or with status 500 (Internal Server Error) if the announcement couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/announcements/{announcementId}/verify")
     public ResponseEntity<?> verifyAnnouncement(@PathVariable Long announcementId) throws URISyntaxException {
         Announcement announcement = announcementService.findOne(announcementId);
         if (announcement == null) {
             return new ResponseEntity<>("There is no announcement with specified id", HttpStatus.NOT_FOUND);
         }
+
+        // TODO @bblagojevic94 Already Verified
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {

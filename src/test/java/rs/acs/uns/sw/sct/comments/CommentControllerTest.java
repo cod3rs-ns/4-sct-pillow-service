@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.constants.CommentConstants;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.DateUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
@@ -27,6 +29,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -94,7 +97,6 @@ public class CommentControllerTest {
         int databaseSizeBeforeCreate = commentRepository.findAll().size();
 
         // Create the Comment
-
         restCommentMockMvc.perform(post("/api/comments")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(comment)))
@@ -147,7 +149,7 @@ public class CommentControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
-    public void getAllComments() throws Exception {
+    public void getAllCommentsAsAdmin() throws Exception {
         // Initialize the database
         commentRepository.saveAndFlush(comment);
 
@@ -162,8 +164,25 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllCommentsAsAdvertiser() throws Exception {
+        // Get all the comments
+        restCommentMockMvc.perform(get("/api/comments?sort=id,desc"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    public void getAllCommentsAsGuest() throws Exception {
+        // Get all the comments
+        restCommentMockMvc.perform(get("/api/comments?sort=id,desc"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
-    public void getComment() throws Exception {
+    public void getCommentAsVerifier() throws Exception {
         // Initialize the database
         commentRepository.saveAndFlush(comment);
 
@@ -174,6 +193,17 @@ public class CommentControllerTest {
                 .andExpect(jsonPath("$.id").value(comment.getId().intValue()))
                 .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT))
                 .andExpect(jsonPath("$.date").value((int) DEFAULT_DATE.getTime()));
+    }
+
+    @Test
+    @Transactional
+    public void getCommentAsGuest() throws Exception {
+        // Initialize the database
+        commentRepository.saveAndFlush(comment);
+
+        // Get the comment
+        restCommentMockMvc.perform(get("/api/comments/{id}", comment.getId()))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -216,7 +246,7 @@ public class CommentControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
-    public void deleteComment() throws Exception {
+    public void deleteCommentAsVerifier() throws Exception {
         // Initialize the database
         commentService.save(comment);
 
@@ -230,5 +260,44 @@ public class CommentControllerTest {
         // Validate the database is empty
         List<Comment> comments = commentRepository.findAll();
         assertThat(comments).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void deleteCommentAsGuest() throws Exception {
+        // Initialize the database
+        commentService.save(comment);
+
+        final int databaseSizeBeforeDelete = commentRepository.findAll().size();
+
+        // Get the comment
+        restCommentMockMvc.perform(delete("/api/comments/{id}", comment.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+
+        // Validate the database is empty
+        final List<Comment> comments = commentRepository.findAll();
+        assertThat(comments).hasSize(databaseSizeBeforeDelete);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCommentsForAnnouncementAsGuest() throws Exception {
+        // Initialize the database
+        long announcementId = 1L;
+
+        comment.announcement(new Announcement().id(announcementId));
+        commentService.save(comment);
+
+        final Long commentsCount = commentRepository.findByAnnouncement_Id(announcementId, CommentConstants.PAGEABLE).getTotalElements();
+
+        // Get the comment
+        restCommentMockMvc.perform(get("/api//comments/announcement/{announcementId}", announcementId)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(commentsCount))))
+                .andExpect(jsonPath("$.[*].id").value(comment.getId().intValue()))
+                .andExpect(jsonPath("$.[*].content").value(DEFAULT_CONTENT))
+                .andExpect(jsonPath("$.[*].date").value((int) DEFAULT_DATE.getTime()));
     }
 }

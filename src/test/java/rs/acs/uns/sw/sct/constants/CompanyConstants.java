@@ -1,9 +1,8 @@
 package rs.acs.uns.sw.sct.constants;
 
 
-import rs.acs.uns.sw.sct.users.User;
-
-import java.util.Set;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 public interface CompanyConstants {
 
@@ -24,4 +23,6 @@ public interface CompanyConstants {
     String UPDATED_NAME = "company_updated";
     String UPDATED_ADDRESS = "Trg Kralja Petra";
     String UPDATED_PHONE_NUMBER = "1239555";
+
+    Pageable PAGEABLE = new PageRequest(0, 10);
 }

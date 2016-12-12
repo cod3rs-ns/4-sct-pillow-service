@@ -141,6 +141,14 @@ public class ReportController {
     @PreAuthorize("permitAll()")
     @DeleteMapping("/reports/{id}")
     public ResponseEntity<Void> deleteReport(@PathVariable Long id) {
+
+        final Report report = reportService.findOne(id);
+
+        if (report == null)
+            return ResponseEntity
+                    .notFound()
+                    .build();
+
         reportService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.REPORT, id.toString())).build();
     }
@@ -153,6 +161,7 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/reports/status/{status}")
     public ResponseEntity<List<Report>> getAllReportsByStatus(Pageable pageable, @PathVariable String status)
             throws URISyntaxException {

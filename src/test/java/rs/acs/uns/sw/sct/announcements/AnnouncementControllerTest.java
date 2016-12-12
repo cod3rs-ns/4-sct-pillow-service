@@ -4,17 +4,11 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -40,7 +34,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -78,7 +72,14 @@ public class AnnouncementControllerTest {
     private static final Boolean UPDATED_DELETED = true;
 
     private static final String DEFAULT_VERIFIED = "not-verified";
+    private static final String STATUS_VERIFIED = "verified";
     private static final String UPDATED_VERIFIED = "VERIFIED_BBB";
+
+    private static  final String EXPIRATION_DATE_JSON_AFTER = "{\"expirationDate\": \"4/12/2017\"}";
+    private static  final String EXPIRATION_DATE_JSON_BEFORE = "{\"expirationDate\": \"4/12/2015\"}";
+    private static  final String EXPIRATION_DATE_JSON_INVALID_NAME = "{\"expiration\": \"4/12/2017\"}";
+    private static  final String EXPIRATION_DATE_JSON_INVALID_FORMAT = "{\"expirationDate\": \"4-12-2017\"}";
+    private  static final String EXTENDED_DATE_AS_STRING = "2017-12-4";
 
     @Autowired
     private AnnouncementRepository announcementRepository;
@@ -274,7 +275,7 @@ public class AnnouncementControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
-    public void getAllAnnouncements() throws Exception {
+    public void getAllAnnouncementsAsAdmin() throws Exception {
         // Initialize the database
         announcementRepository.saveAndFlush(announcement);
 
@@ -291,6 +292,18 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllAnnouncementsAsAdvertiser() throws Exception {
+        // Initialize the database
+        announcementRepository.saveAndFlush(announcement);
+
+        // Get all the announcements
+        restAnnouncementMockMvc.perform(get("/api/announcements?sort=id,desc"))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -361,7 +374,7 @@ public class AnnouncementControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
-    public void deleteAnnouncement() throws Exception {
+    public void deleteAnnouncementAsAdvertiser() throws Exception {
         // Initialize the database
         announcementService.save(announcement);
 
@@ -375,6 +388,55 @@ public class AnnouncementControllerTest {
         // Validate the database is empty
         List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void deleteAnnouncementAsVerifier() throws Exception {
+        // Initialize the database
+        announcementService.save(announcement);
+
+        int databaseSizeBeforeDelete = announcementRepository.findAll().size();
+
+        restAnnouncementMockMvc.perform(delete("/api/announcements/{id}", announcement.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isForbidden());
+
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeDelete);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void deleteNonExistingAnnouncementAsAdvertiser() throws Exception {
+        int databaseSizeBeforeDelete = announcementRepository.findAll().size();
+
+        final int id = databaseSizeBeforeDelete + 1;
+
+        restAnnouncementMockMvc.perform(delete("/api/announcements/{id}", id)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
+
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeDelete);
+    }
+
+    @Test
+    @Transactional
+    public void deleteAnnouncementAsGuest() throws Exception {
+        // Initialize the database
+        announcementService.save(announcement);
+
+        int databaseSizeBeforeDelete = announcementRepository.findAll().size();
+
+        restAnnouncementMockMvc.perform(delete("/api/announcements/{id}", announcement.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeDelete);
     }
 
     @Test
@@ -400,7 +462,7 @@ public class AnnouncementControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
-    public void UploadFolderDoesNotExist() throws Exception {
+    public void uploadFolderDoesNotExist() throws Exception {
         File f = new File(Constants.FilePaths.BASE);
         if (f.exists()){
             FileUtils.deleteDirectory(f);
@@ -419,4 +481,317 @@ public class AnnouncementControllerTest {
         // Delete testing file upload folder
         FileUtils.deleteDirectory(f);
     }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void extendExpirationDateAsAdvertiser() throws Exception {
+        // Initialize the database
+        announcementService.save(announcement);
+
+        final int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        restAnnouncementMockMvc.perform(put("/api/announcements/{id}", announcement.getId())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(EXPIRATION_DATE_JSON_AFTER))
+                .andExpect(status().isOk());
+
+        // Validate the Announcement in the database
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+
+        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getExpirationDate()).isEqualTo(EXTENDED_DATE_AS_STRING);
+    }
+
+    @Test
+    @Transactional
+    public void extendExpirationDateAsGuest() throws Exception {
+        // Initialize the database
+        announcementService.save(announcement);
+
+        final int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        restAnnouncementMockMvc.perform(put("/api/announcements/{id}", announcement.getId())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(EXPIRATION_DATE_JSON_AFTER))
+                .andExpect(status().isUnauthorized());
+
+        // Validate the Announcement in the database
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+
+        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void extendExpirationDateAsVerifier() throws Exception {
+        // Initialize the database
+        announcementService.save(announcement);
+
+        final int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        restAnnouncementMockMvc.perform(put("/api/announcements/{id}", announcement.getId())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(EXPIRATION_DATE_JSON_AFTER))
+                .andExpect(status().isForbidden());
+
+        // Validate the Announcement in the database
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+
+        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void extendExpirationDateAsAdvertiserWithInvalidJsonObject() throws Exception {
+        // Initialize the database
+        announcementService.save(announcement);
+
+        final int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        final MvcResult result = restAnnouncementMockMvc.perform(put("/api/announcements/{id}", announcement.getId())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(EXPIRATION_DATE_JSON_INVALID_NAME))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+
+        final String responseBody = result.getResponse().getContentAsString();
+        assertThat(responseBody).isEqualTo("Object must contain expirationDate attribute");
+
+        // Validate the Announcement in the database
+        final List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+
+        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void extendExpirationDateAsAdvertiserToNonExistingAdvertisement() throws Exception {
+
+        final int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        final MvcResult result = restAnnouncementMockMvc.perform(put("/api/announcements/{id}", 99)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(EXPIRATION_DATE_JSON_AFTER))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+
+        final String responseBody = result.getResponse().getContentAsString();
+        assertThat(responseBody).isEqualTo("Announcement not found");
+
+        // Validate the Announcement in the database
+        final List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void extendExpirationDateAsAdvertiserWithInvalidJFormat() throws Exception {
+        // Initialize the database
+        announcementService.save(announcement);
+
+        final int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        final MvcResult result = restAnnouncementMockMvc.perform(put("/api/announcements/{id}", announcement.getId())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(EXPIRATION_DATE_JSON_INVALID_FORMAT))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+
+        final String responseBody = result.getResponse().getContentAsString();
+        assertThat(responseBody).isEqualTo("Date must be in format dd/MM/yyyy");
+
+        // Validate the Announcement in the database
+        final List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+
+        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void extendExpirationDateAsAdvertiserWithInvalidDate() throws Exception {
+        // Initialize the database
+        announcementService.save(announcement);
+
+        final int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        final MvcResult result = restAnnouncementMockMvc.perform(put("/api/announcements/{id}", announcement.getId())
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(EXPIRATION_DATE_JSON_BEFORE))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+
+        final String responseBody = result.getResponse().getContentAsString();
+        assertThat(responseBody).isEqualTo("Modified date must be after today");
+
+        // Validate the Announcement in the database
+        final List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+
+        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
+    }
+
+    @Test
+    @Transactional
+    public void getAllNonDeletedAnnouncementsAsGuest() throws Exception {
+        // Add Non Deleted Announcement
+        announcementRepository.saveAndFlush(announcement);
+
+        final Long announcementsNonDeletedCount = announcementRepository.findAllByDeleted(false, null).getTotalElements();
+
+        // Get all non deleted announcements
+        restAnnouncementMockMvc.perform(get("/api/announcements/deleted/{status}", false))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(announcementsNonDeletedCount))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
+                .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
+                .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
+                .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
+                .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
+                .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)))
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void getAllDeletedAnnouncementsAsAdmin() throws Exception {
+
+        final boolean ANNOUNCEMENT_DELETED = true;
+
+        announcement.deleted(ANNOUNCEMENT_DELETED);
+
+        // Add Deleted Announcement
+        announcementRepository.saveAndFlush(announcement);
+
+        final Long announcementsDeletedCount = announcementRepository.findAllByDeleted(true, null).getTotalElements();
+
+        // Get all non deleted announcements
+        restAnnouncementMockMvc.perform(get("/api/announcements/deleted/{status}", true))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(announcementsDeletedCount))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
+                .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
+                .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
+                .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
+                .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
+                .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
+    }
+
+    // TODO Get announcements by company
+
+    // TODO Get top announcements by company
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
+    public void verifyAnnouncementAsVerifier() throws Exception {
+
+        announcementRepository.saveAndFlush(announcement);
+
+        final int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        restAnnouncementMockMvc.perform(put("/api/announcements/{announcementId}/verify", announcement.getId()))
+                .andExpect(status().isOk());
+
+        // Validate the Announcement in the database
+        final List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+
+        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getVerified()).isEqualTo(STATUS_VERIFIED);
+    }
+
+    @Test
+    @Transactional
+    public void verifyAnnouncementAsGuest() throws Exception {
+        announcementRepository.saveAndFlush(announcement);
+
+        restAnnouncementMockMvc.perform(put("/api/announcements/{announcementId}/verify", announcement.getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.NEW_USER_USERNAME)
+    public void verifyAnnouncementAsAdvertiser() throws Exception {
+
+        announcementRepository.saveAndFlush(announcement);
+
+        restAnnouncementMockMvc.perform(put("/api/announcements/{announcementId}/verify", announcement.getId()))
+                .andExpect(status().isForbidden());
+
+        // Validate the Announcement in the database
+        final List<Announcement> announcements = announcementRepository.findAll();
+
+        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getVerified()).isEqualTo(DEFAULT_VERIFIED);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.ADVERTISER_USERNAME)
+    public void verifyAnnouncementAsVerifierButWrongUsername() throws Exception {
+
+        announcementRepository.saveAndFlush(announcement);
+
+        final MvcResult result = restAnnouncementMockMvc.perform(put("/api/announcements/{announcementId}/verify", announcement.getId()))
+                .andExpect(status().isMethodNotAllowed())
+                .andReturn();
+
+        final String message = result.getResponse().getContentAsString();
+        assertThat(message).isEqualTo("You don't have verifier role.");
+
+        // Validate the Announcement in the database
+        final List<Announcement> announcements = announcementRepository.findAll();
+
+        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getVerified()).isEqualTo(DEFAULT_VERIFIED);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
+    public void verifyNonExistingAnnouncementAsVerifier() throws Exception {
+
+        final int dbSize = announcementRepository.findAll().size();
+
+        final MvcResult result = restAnnouncementMockMvc.perform(put("/api/announcements/{announcementId}/verify", dbSize + 1))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        final String message = result.getResponse().getContentAsString();
+        assertThat(message).isEqualTo("There is no announcement with specified id");
+
+        final List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(dbSize);
+    }
+
 }
