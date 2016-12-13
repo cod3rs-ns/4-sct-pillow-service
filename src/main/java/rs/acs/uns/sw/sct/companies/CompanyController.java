@@ -230,4 +230,18 @@ public class CompanyController {
                 .body(updatedUser);
     }
 
+    /**
+     * GET  /companies/search : get all the companies that satisfied search params.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of companies in body
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/companies/search")
+    public ResponseEntity<List<Company>> search(@RequestParam(value = "name", required = false) String name,
+                                                @RequestParam(value = "address", required = false) String address,
+                                                @RequestParam(value = "phoneNumber", required = false) String phoneNumber) {
+
+        List<Company> list = companyService.findBySearchTerm(name, address, phoneNumber);
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
 }

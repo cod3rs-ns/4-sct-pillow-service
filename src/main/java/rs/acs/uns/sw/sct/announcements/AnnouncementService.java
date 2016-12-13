@@ -1,12 +1,17 @@
 package rs.acs.uns.sw.sct.announcements;
 
+import com.querydsl.core.types.Predicate;
+import org.apache.commons.collections.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 
 import java.util.List;
+
+import static rs.acs.uns.sw.sct.search.AnnouncementPredicates.search;
 
 /**
  * Service Implementation for managing Announcement.
@@ -94,4 +99,15 @@ public class AnnouncementService {
         announcementRepository.delete(id);
     }
 
+    /**
+     * Find all announcement that satisfied criteria defined by query params.
+     *
+     * @param searchWrapper wrapper of all query params
+     */
+    @Transactional(readOnly = true)
+    public List<Announcement> findBySearchTerm(AnnouncementSearchWrapper searchWrapper) {
+        Predicate searchPredicate = search(searchWrapper);
+        Iterable<Announcement> searchResults = announcementRepository.findAll(searchPredicate);
+        return IteratorUtils.toList(searchResults.iterator());
+    }
 }

@@ -104,7 +104,7 @@ public class UserController {
      * GET  /users/company/:companyId : get all users from one company.
      *
      * @param companyId the id of the company
-     * @param pageable the pagination information
+     * @param pageable  the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of users in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
@@ -143,7 +143,7 @@ public class UserController {
     /**
      * GET  /users/deleted/:status : Get all users by status (deleted or not)
      *
-     * @param status deleted or not
+     * @param status   deleted or not
      * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and with body the user, or with status 404 (Not Found)
      */
@@ -172,6 +172,26 @@ public class UserController {
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+
+    /**
+     * GET  /users/search : get all the users that satisfied search params.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of users in body
+     */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
+    @GetMapping("/users/search")
+    public ResponseEntity<List<User>> search(@RequestParam(value = "username", required = false) String username,
+                                             @RequestParam(value = "email", required = false) String email,
+                                             @RequestParam(value = "firstName", required = false) String firstName,
+                                             @RequestParam(value = "lastName", required = false) String lastName,
+                                             @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
+                                             @RequestParam(value = "companyName", required = false) String companyName) {
+
+        List<User> list = userService.findBySearchTerm(username, email, firstName, lastName, phoneNumber, companyName);
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
 
     /**
      * Authentication response
