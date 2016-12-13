@@ -28,4 +28,7 @@ public interface MarkConstants {
     Announcement UPDATED_ANNOUNCEMENT = new Announcement().id(2L);
 
     Pageable PAGEABLE = new PageRequest(0, 10);
+
+    Long MARKED_ANNOUNCEMENT_ID = 2L;
+    Integer MARKED_ANNOUNCEMENT_RECORDS = 3;
 }
