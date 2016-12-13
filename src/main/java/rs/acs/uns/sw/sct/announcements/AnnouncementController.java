@@ -7,8 +7,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rs.acs.uns.sw.sct.users.User;
@@ -16,6 +14,7 @@ import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 
 import javax.validation.Valid;
 import java.io.File;
@@ -42,6 +41,9 @@ public class AnnouncementController {
     @Autowired
     private SimpleDateFormat dateFormatter;
 
+    @Autowired
+    private UserSecurityUtil userSecurityUtil;
+
     /**
      * POST  /announcements : Create a new announcement.
      *
@@ -56,11 +58,12 @@ public class AnnouncementController {
         if (annDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.ANNOUNCEMENT, "id_exists", "A new announcement cannot already have an ID")).body(null);
         }
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
+
+        final User user = userSecurityUtil.getLoggedUser();
+        if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        User user = userService.getUserByUsername(auth.getName());
+
         Announcement announcement = annDTO.convertToAnnouncement(user);
 
         Announcement result = announcementService.save(announcement);
@@ -223,8 +226,6 @@ public class AnnouncementController {
     @DeleteMapping("/announcements/{id}")
     public ResponseEntity<Void> deleteAnnouncement(@PathVariable Long id) {
 
-        System.out.println(announcementService.findOne(id));
-
         if (announcementService.findOne(id) != null) {
 
             announcementService.delete(id);
@@ -292,11 +293,11 @@ public class AnnouncementController {
 
         // TODO @bblagojevic94 Already Verified
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
+        final User user = userSecurityUtil.getLoggedUser();
+
+        if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        User user = userService.getUserByUsername(auth.getName());
 
         if (!user.getType().equals(Constants.Roles.VERIFIER))
             return new ResponseEntity<>("You don't have verifier role.", HttpStatus.METHOD_NOT_ALLOWED);
