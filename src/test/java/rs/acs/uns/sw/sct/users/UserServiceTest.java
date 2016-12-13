@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -206,5 +205,61 @@ public class UserServiceTest {
         userService.save(newUser);
         // rollback previous password
         newUser.setPassword(NEW_USER_PASSWORD);
+    }
+
+    @Test
+    @Transactional
+    public void testFindAllByStatusDeletedTrue() {
+        final Boolean status = true;
+
+        final Page<User> users = userService.findAllByStatus(status, PAGEABLE);
+
+        assertThat(users.getTotalElements()).isEqualTo(DB_COUNT_USERS_DELETED_TRUE);
+
+        for (final User user: users) {
+            assertThat(user.isDeleted()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testFindAllByStatusDeletedFalse() {
+        final Boolean status = false;
+
+        final Page<User> users = userService.findAllByStatus(status, PAGEABLE);
+
+        assertThat(users.getTotalElements()).isEqualTo(DB_COUNT_USERS_DELETED_FALSE);
+
+        for (final User user: users) {
+            assertThat(user.isDeleted()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testFindAllByCompanyMembershipStatusAccepted() {
+        final String status = "accepted";
+
+        final Page<User> users = userService.findAllByCompanyMembershipStatus(USER_COMPANY_ID, status, PAGEABLE);
+
+        assertThat(users.getTotalElements()).isEqualTo(USER_COMPANY_3_ACCEPTED);
+
+        for (final User user: users) {
+            assertThat(user.getCompanyVerified()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testFindAllByCompanyMembershipStatusPending() {
+        final String status = "pending";
+
+        final Page<User> users = userService.findAllByCompanyMembershipStatus(USER_COMPANY_ID, status, PAGEABLE);
+
+        assertThat(users.getTotalElements()).isEqualTo(USER_COMPANY_3_PENDING);
+
+        for (final User user: users) {
+            assertThat(user.getCompanyVerified()).isEqualTo(status);
+        }
     }
 }

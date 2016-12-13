@@ -138,4 +138,16 @@ public class MarkServiceTest {
         // rollback previous value
         newMark.setValue(NEW_VALUE);
     }
+
+    @Test
+    @Transactional
+    public void testFindAllByAnnouncementId() {
+        final Page<Mark> marks = markService.findAllByAnnouncement(MARKED_ANNOUNCEMENT_ID, PAGEABLE);
+
+        assertThat(marks).hasSize(MARKED_ANNOUNCEMENT_RECORDS);
+
+        for (final Mark mark: marks) {
+            assertThat(mark.getAnnouncement().getId()).isEqualTo(MARKED_ANNOUNCEMENT_ID);
+        }
+    }
 }
