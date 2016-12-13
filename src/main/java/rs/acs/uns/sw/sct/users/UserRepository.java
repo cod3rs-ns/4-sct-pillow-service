@@ -3,6 +3,7 @@ package rs.acs.uns.sw.sct.users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.stereotype.Repository;
 
 
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the Report entity.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, QueryDslPredicateExecutor<User> {
 
     /**
      * Get one user by email.
@@ -32,7 +33,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Get all users by 'deleted' status
      *
-     * @param deleted status of user - deleted or not
+     * @param deleted  status of user - deleted or not
      * @param pageable the pagination information
      * @return list of users
      */
@@ -43,7 +44,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * Get all users from one company.
      *
      * @param companyId the id of the user
-     * @param pageable the pagination information
+     * @param pageable  the pagination information
      * @return list of users
      */
     Page<User> findByCompany_Id(Long companyId, Pageable pageable);
@@ -52,9 +53,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Get all users from one company.
      *
-     * @param companyId the id of the user
+     * @param companyId       the id of the user
      * @param companyVerified the status of user request for membership
-     * @param pageable the pagination information
+     * @param pageable        the pagination information
      * @return list of users
      */
     Page<User> findByCompany_IdAndCompanyVerified(Long companyId, String companyVerified, Pageable pageable);
