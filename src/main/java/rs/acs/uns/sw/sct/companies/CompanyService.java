@@ -67,9 +67,9 @@ public class CompanyService {
     /**
      * Find all companies that satisfied criteria defined by query params.
      *
-     * @param name company name
-     * @param address company address
-     * @param phoneNumber company phone numver
+     * @param name        company name
+     * @param address     company address
+     * @param phoneNumber company phone number
      */
     @Transactional(readOnly = true)
     public List<Company> findBySearchTerm(String name, String address, String phoneNumber) {

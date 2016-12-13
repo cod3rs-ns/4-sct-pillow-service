@@ -1,11 +1,17 @@
 package rs.acs.uns.sw.sct.users;
 
+import com.querydsl.core.types.Predicate;
+import org.apache.commons.collections.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static rs.acs.uns.sw.sct.search.UserPredicates.search;
 
 /**
  * Service Implementation for managing Report.
@@ -114,5 +120,23 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findOne(Long id) {
         return userRepository.findOne(id);
+    }
+
+    /**
+     * Find all users that satisfied criteria defined by query params.
+     *
+     * @param username    user username
+     * @param email       user email
+     * @param firstName   user first name
+     * @param lastName    user last name
+     * @param phoneNumber user phone number
+     * @param companyName company name of user
+     */
+    @Transactional(readOnly = true)
+    public List<User> findBySearchTerm(String username, String email, String firstName,
+                                       String lastName, String phoneNumber, String companyName) {
+        Predicate searchPredicate = search(username, email, firstName, lastName, phoneNumber, companyName);
+        Iterable<User> searchResults = userRepository.findAll(searchPredicate);
+        return IteratorUtils.toList(searchResults.iterator());
     }
 }
