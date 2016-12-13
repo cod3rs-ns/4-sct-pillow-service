@@ -30,4 +30,7 @@ public interface RealEstateConstants {
     Boolean DEFAULT_DELETED = false;
 
     Pageable PAGEABLE = new PageRequest(0, 10);
+
+    Long DB_COUNT_REAL_ESTATES_DELETED_TRUE = 1L;
+    Long DB_COUNT_REAL_ESTATES_DELETED_FALSE = 2L;
 }
