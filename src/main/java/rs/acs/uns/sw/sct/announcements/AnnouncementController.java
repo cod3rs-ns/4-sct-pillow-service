@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
@@ -307,5 +308,41 @@ public class AnnouncementController {
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.ANNOUNCEMENT, announcement.getId().toString()))
                 .body(result);
+    }
+
+
+    /**
+     * GET  /announcements/search : get all the announcements that satisfied search params.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/announcements/search")
+    public ResponseEntity<List<Announcement>> search(@RequestParam(value = "startPrice", required = false) Double startPrice,
+                                                     @RequestParam(value = "endPrice", required = false) Double endPrice,
+                                                     @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
+                                                     @RequestParam(value = "type", required = false) String type,
+                                                     @RequestParam(value = "authorName", required = false) String authorName,
+                                                     @RequestParam(value = "authorSurname", required = false) String authorSurname,
+                                                     @RequestParam(value = "startArea", required = false) Double startArea,
+                                                     @RequestParam(value = "endArea", required = false) Double endArea,
+                                                     @RequestParam(value = "heatingType", required = false) String heatingType,
+                                                     @RequestParam(value = "name", required = false) String name,
+                                                     @RequestParam(value = "country", required = false) String country,
+                                                     @RequestParam(value = "cityRegion", required = false) String cityRegion,
+                                                     @RequestParam(value = "city", required = false) String city,
+                                                     @RequestParam(value = "street", required = false) String street) {
+
+        AnnouncementSearchWrapper wrap = new AnnouncementSearchWrapper()
+                .startPrice(startPrice).endPrice(endPrice)
+                .phoneNumber(phoneNumber).type(type)
+                .authorName(authorName).authorSurname(authorSurname)
+                .startArea(startArea).endArea(endArea)
+                .heatingType(heatingType).name(name)
+                .country(country).cityRegion(cityRegion)
+                .city(city).street(street);
+
+        List < Announcement > list = announcementService.findBySearchTerm(wrap);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

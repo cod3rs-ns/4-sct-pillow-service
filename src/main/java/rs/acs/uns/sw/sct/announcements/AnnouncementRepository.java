@@ -3,13 +3,14 @@ package rs.acs.uns.sw.sct.announcements;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
 import java.util.List;
 
 /**
  * Spring Data JPA repository for the Announcement entity.
  */
-public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
+public interface AnnouncementRepository extends JpaRepository<Announcement, Long>, QueryDslPredicateExecutor<Announcement> {
 
     /**
      * Get all announcements where 'delete' status is 'true' or 'false'.
