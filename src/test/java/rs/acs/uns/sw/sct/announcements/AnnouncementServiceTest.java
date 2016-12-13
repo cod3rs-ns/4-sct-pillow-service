@@ -1,22 +1,17 @@
 package rs.acs.uns.sw.sct.announcements;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.parsing.SourceExtractor;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.SerializationUtils;
 import rs.acs.uns.sw.sct.SctServiceApplication;
-import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
 import rs.acs.uns.sw.sct.realestates.Location;
 import rs.acs.uns.sw.sct.realestates.RealEstate;
-import rs.acs.uns.sw.sct.util.Constants;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -38,7 +33,7 @@ public class AnnouncementServiceTest {
     private Announcement updatedAnnouncement;
     private Announcement existingAnnouncement;
 
-    private void compareAnnoncements(Announcement ann1, Announcement ann2) {
+    private void compareAnnouncements(Announcement ann1, Announcement ann2) {
         if (ann1.getId() != null && ann2.getId() != null)
             assertThat(ann1.getId()).isEqualTo(ann2.getId());
         assertThat(ann1.getPrice()).isEqualTo(ann2.getPrice());
@@ -131,7 +126,7 @@ public class AnnouncementServiceTest {
         Announcement ann = announcementService.findOne(ID);
         assertThat(ann).isNotNull();
 
-        compareAnnoncements(ann, existingAnnouncement);
+        compareAnnouncements(ann, existingAnnouncement);
     }
 
     @Test
@@ -146,7 +141,7 @@ public class AnnouncementServiceTest {
         List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(dbSizeBeforeAdd + 1);
 
-        compareAnnoncements(dbAnnouncement, newAnnouncement);
+        compareAnnouncements(dbAnnouncement, newAnnouncement);
     }
 
 
@@ -167,7 +162,7 @@ public class AnnouncementServiceTest {
         Announcement updatedDbAnnouncement = announcementService.save(dbAnnouncement);
         assertThat(updatedDbAnnouncement).isNotNull();
 
-        compareAnnoncements(updatedDbAnnouncement, updatedAnnouncement);
+        compareAnnouncements(updatedDbAnnouncement, updatedAnnouncement);
     }
 
     @Test
@@ -194,7 +189,6 @@ public class AnnouncementServiceTest {
 
         assertThat(content.size()).isEqualTo(COUNT_OF_COMPANY_ANN);
     }
-
 
     @Test
     public void testTopThreeAnnouncements() {
@@ -243,5 +237,31 @@ public class AnnouncementServiceTest {
     public void testAddNullType() {
         newAnnouncement.setType(null);
         announcementService.save(newAnnouncement);
+    }
+
+    @Test
+    public void testFindAllByStatusDeletedTrue() {
+        final Boolean status = true;
+
+        final Page<Announcement> announcements = announcementRepository.findAllByDeleted(status, PAGEABLE);
+
+        assertThat(announcements.getTotalElements()).isEqualTo(DB_COUNT_ANNOUNCEMENT_DELETED_TRUE);
+
+        for (final Announcement announcement : announcements) {
+            assertThat(announcement.isDeleted()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    public void testFindAllByStatusDeletedFalse() {
+        final Boolean status = false;
+
+        final Page<Announcement> announcements = announcementRepository.findAllByDeleted(status, PAGEABLE);
+
+        assertThat(announcements.getTotalElements()).isEqualTo(DB_COUNT_ANNOUNCEMENT_DELETED_FALSE);
+
+        for (final Announcement announcement : announcements) {
+            assertThat(announcement.isDeleted()).isEqualTo(status);
+        }
     }
 }

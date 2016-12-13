@@ -150,4 +150,16 @@ public class CommentServiceTest {
         // rollback previous date
         newComment.setDate(NEW_DATE);
     }
+
+    @Test
+    @Transactional
+    public void testFindAllByAnnouncementId() {
+        final Page<Comment> comments = commentService.findAllByAnnouncement(COMMENTED_ANNOUNCEMENT_ID, PAGEABLE);
+
+        assertThat(comments).hasSize(COMMENTED_ANNOUNCEMENT_RECORDS);
+
+        for (final Comment comment: comments) {
+            assertThat(comment.getAnnouncement().getId()).isEqualTo(COMMENTED_ANNOUNCEMENT_ID);
+        }
+    }
 }

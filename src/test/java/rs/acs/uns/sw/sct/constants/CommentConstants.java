@@ -33,4 +33,7 @@ public interface CommentConstants {
     User UPDATED_AUTHOR = new User().id(1L);
 
     Pageable PAGEABLE = new PageRequest(0, 10);
+
+    Long COMMENTED_ANNOUNCEMENT_ID = 2L;
+    Integer COMMENTED_ANNOUNCEMENT_RECORDS = 3;
 }

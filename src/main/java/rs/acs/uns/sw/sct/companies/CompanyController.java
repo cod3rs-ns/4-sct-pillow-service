@@ -7,14 +7,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -35,6 +34,9 @@ public class CompanyController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserSecurityUtil userSecurityUtil;
 
 
     /**
@@ -135,12 +137,12 @@ public class CompanyController {
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/companies/{companyId}/user-request/")
     public ResponseEntity<?> requestCompanyMembership(@PathVariable Long companyId, @RequestParam(value = "confirmed", required = false) Boolean confirmed) throws URISyntaxException {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
+        final User user = userSecurityUtil.getLoggedUser();
+
+        if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        User user = userService.getUserByUsername(auth.getName());
         Company company = companyService.findOne(companyId);
 
         if (company == null)
@@ -172,12 +174,12 @@ public class CompanyController {
     public ResponseEntity<?> getAllUsersRequestsByStatus(@RequestParam(value = "status") String status, Pageable pageable)
             throws URISyntaxException {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
+        final User user = userSecurityUtil.getLoggedUser();
+
+        if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        User user = userService.getUserByUsername(auth.getName());
         if (user.getCompany() == null || !Constants.CompanyStatus.ACCEPTED.equals(user.getCompanyVerified())) {
             return new ResponseEntity<>("Can't see memberships that are not from your company.", HttpStatus.UNAUTHORIZED);
         }
@@ -197,14 +199,15 @@ public class CompanyController {
      * or with status 500 (Internal Server Error) if the company couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/companies/resolve-request/user/{userId}")
     public ResponseEntity<?> resolveMembershipRequest(@PathVariable Long userId, @RequestParam(value = "accepted") Boolean accepted) throws URISyntaxException {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
+        final User companyMember = userSecurityUtil.getLoggedUser();
+
+        if (companyMember == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        User companyMember = userService.getUserByUsername(auth.getName());
         User user = userService.getUserById(userId);
 
         if (user == null)

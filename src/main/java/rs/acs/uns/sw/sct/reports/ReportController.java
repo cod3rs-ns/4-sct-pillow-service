@@ -7,15 +7,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
+import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -40,6 +40,9 @@ public class ReportController {
     @Autowired
     private AnnouncementService announcementService;
 
+    @Autowired
+    private UserSecurityUtil userSecurityUtil;
+
     /**
      * POST  /reports : Create a new report.
      *
@@ -54,13 +57,8 @@ public class ReportController {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "id_exists", "A new report cannot already have an ID")).body(null);
         }
 
-        if (report.getReporter() == null){
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth == null) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            }
-            report.setReporter(userService.getUserByUsername(auth.getName()));
-        }
+        final User user = userSecurityUtil.getLoggedUser();
+        report.setReporter(user);
 
         Announcement announcement = announcementService.findOne(report.getAnnouncement().getId());
         if (announcement == null){
@@ -84,7 +82,7 @@ public class ReportController {
      * @param report the report to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated report,
      * or with status 400 (Bad Request) if the report is not valid,
-     * or with status 500 (Internal Server Error) if the report couldnt be updated
+     * or with status 500 (Internal Server Error) if the report couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PreAuthorize("permitAll()")
@@ -178,6 +176,7 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
+    @PreAuthorize("permitAll()")
     @GetMapping("/reports/author/{email:.+}")
     public ResponseEntity<List<Report>> getAllReportsByAuthorEmail(Pageable pageable, @PathVariable String email)
             throws URISyntaxException {
