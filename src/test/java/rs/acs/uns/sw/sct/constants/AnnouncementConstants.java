@@ -4,21 +4,16 @@ package rs.acs.uns.sw.sct.constants;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.SerializationUtils;
-import rs.acs.uns.sw.sct.comments.Comment;
-import rs.acs.uns.sw.sct.marks.Mark;
-import rs.acs.uns.sw.sct.realestates.Location;
 import rs.acs.uns.sw.sct.realestates.RealEstate;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.DateUtil;
 
 import java.io.File;
 import java.sql.Timestamp;
-import java.util.Set;
 
 public interface AnnouncementConstants {
 
-    int DB_COUNT_ANNOUNCEMENT = 2;
+    int DB_COUNT_ANNOUNCEMENT = 3;
     int PAGE_SIZE = 2;
 
     Long ID = 1L;
@@ -76,6 +71,13 @@ public interface AnnouncementConstants {
 
     // number of top elements
     Integer TOP = 3;
+
+    // Number of "deleted = true" database records
+    Long DB_COUNT_ANNOUNCEMENT_DELETED_TRUE  = 1L;
+    // Number of "deleted = false" database records
+    Long DB_COUNT_ANNOUNCEMENT_DELETED_FALSE = 2L;
+    // Number of "deleted = false" database records
+
 
     // file to be upload
     String FILE_TO_BE_UPLOAD = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "test_upload.jpg";
