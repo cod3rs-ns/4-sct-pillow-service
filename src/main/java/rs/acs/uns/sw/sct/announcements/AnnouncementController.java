@@ -7,7 +7,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
@@ -95,9 +97,9 @@ public class AnnouncementController {
         }
 
         // check if user has no rights to update
-        if (!SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(AuthorityRoles.ADMIN) &&
+        if (userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADVERTISER)) &&
                 !announcementService.findOne(announcement.getId()).getAuthor().getUsername()
-                        .equals(userSecurityUtil.getLoggedUser().getUsername())) {
+                        .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
                     .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.ANNOUNCEMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_UPDATE_DENIED))
@@ -243,8 +245,17 @@ public class AnnouncementController {
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @DeleteMapping("/announcements/{id}")
     public ResponseEntity<Void> deleteAnnouncement(@PathVariable Long id) {
-
         if (announcementService.findOne(id) != null) {
+
+            // check if user has no rights to update
+            if (userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADVERTISER)) &&
+                    !announcementService.findOne(id).getAuthor().getUsername()
+                            .equals(userSecurityUtil.getLoggedUserUsername())) {
+                return ResponseEntity
+                        .badRequest()
+                        .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.ANNOUNCEMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_UPDATE_DENIED))
+                        .body(null);
+            }
 
             announcementService.delete(id);
 

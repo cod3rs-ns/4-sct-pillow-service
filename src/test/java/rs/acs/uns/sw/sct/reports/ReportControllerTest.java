@@ -24,6 +24,7 @@ import rs.acs.uns.sw.sct.constants.ReportConstants;
 import rs.acs.uns.sw.sct.constants.UserConstants;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
+import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
@@ -173,8 +174,8 @@ public class ReportControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        final String message = result.getResponse().getHeader("X-sct-app-alert");
-        assertThat(message).isEqualTo("You can't report verified announcement");
+        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
+        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT);
 
         final List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
@@ -196,8 +197,8 @@ public class ReportControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        final String message = result.getResponse().getHeader("X-sct-app-alert");
-        assertThat(message).isEqualTo("There is no announcement with id you specified");
+        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
+        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_NON_EXISTING_ANNOUNCEMENT);
 
         final List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
@@ -219,8 +220,8 @@ public class ReportControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        final String message = result.getResponse().getHeader("X-sct-app-alert");
-        assertThat(message).isEqualTo("A new report cannot already have an ID");
+        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
+        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_CUSTOM_ID);
 
         final List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
