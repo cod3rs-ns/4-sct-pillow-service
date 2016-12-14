@@ -15,17 +15,17 @@ public final class UserPredicates {
         BooleanBuilder where = new BooleanBuilder();
         QUser user = QUser.user;
         if (username != null)
-            where.and(user.username.toLowerCase().contains(username.toLowerCase()));
+            where.and(user.username.containsIgnoreCase(username));
         if (email != null)
-            where.and(user.email.toLowerCase().contains(email.toLowerCase()));
+            where.and(user.email.containsIgnoreCase(email));
         if (firstName != null)
-            where.and(user.firstName.toLowerCase().contains(firstName.toLowerCase()));
+            where.and(user.firstName.containsIgnoreCase(firstName));
         if (lastName != null)
-            where.and(user.lastName.toLowerCase().contains(lastName.toLowerCase()));
+            where.and(user.lastName.containsIgnoreCase(lastName));
         if (phoneNumber != null)
-            where.and(user.phoneNumber.toLowerCase().contains(phoneNumber.toLowerCase()));
+            where.and(user.phoneNumber.containsIgnoreCase(phoneNumber));
         if (companyName != null)
-            where.and(user.company.name.toLowerCase().contains(companyName.toLowerCase()));
+            where.and(user.company.name.containsIgnoreCase(companyName));
 
         return where;
     }

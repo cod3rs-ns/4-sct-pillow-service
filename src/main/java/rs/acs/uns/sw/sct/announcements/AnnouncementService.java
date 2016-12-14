@@ -103,11 +103,12 @@ public class AnnouncementService {
      * Find all announcement that satisfied criteria defined by query params.
      *
      * @param searchWrapper wrapper of all query params
+     * @param pageable the pagination information
      */
     @Transactional(readOnly = true)
-    public List<Announcement> findBySearchTerm(AnnouncementSearchWrapper searchWrapper) {
+    public List<Announcement> findBySearchTerm(AnnouncementSearchWrapper searchWrapper, Pageable pageable) {
         Predicate searchPredicate = search(searchWrapper);
-        Iterable<Announcement> searchResults = announcementRepository.findAll(searchPredicate);
+        Iterable<Announcement> searchResults = announcementRepository.findAll(searchPredicate, pageable);
         return IteratorUtils.toList(searchResults.iterator());
     }
 }

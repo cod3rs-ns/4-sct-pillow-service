@@ -18,7 +18,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.constants.RealEstateConstants;
 import rs.acs.uns.sw.sct.constants.UserConstants;
+import rs.acs.uns.sw.sct.realestates.Location;
+import rs.acs.uns.sw.sct.realestates.RealEstate;
+import rs.acs.uns.sw.sct.realestates.RealEstateService;
+import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
@@ -33,13 +38,14 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.FILE_TO_BE_UPLOAD;
 import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.NEW_BASE_DIR;
+import static rs.acs.uns.sw.sct.util.ContainsIgnoreCase.containsIgnoringCase;
+import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 
 /**
  * Test class for the AnnouncementResource REST controller.
@@ -50,7 +56,7 @@ import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.NEW_BASE_DIR;
 @SpringBootTest(classes = SctServiceApplication.class)
 public class AnnouncementControllerTest {
 
-    private static final Double DEFAULT_PRICE = 0D;
+    private static final Double DEFAULT_PRICE = 150D;
     private static final Double UPDATED_PRICE = 1D;
 
     private static final Date DEFAULT_DATE_ANNOUNCED = DateUtil.asDate(LocalDate.ofEpochDay(0L));
@@ -75,11 +81,13 @@ public class AnnouncementControllerTest {
     private static final String STATUS_VERIFIED = "verified";
     private static final String UPDATED_VERIFIED = "VERIFIED_BBB";
 
-    private static  final String EXPIRATION_DATE_JSON_AFTER = "{\"expirationDate\": \"4/12/2017\"}";
-    private static  final String EXPIRATION_DATE_JSON_BEFORE = "{\"expirationDate\": \"4/12/2015\"}";
-    private static  final String EXPIRATION_DATE_JSON_INVALID_NAME = "{\"expiration\": \"4/12/2017\"}";
-    private static  final String EXPIRATION_DATE_JSON_INVALID_FORMAT = "{\"expirationDate\": \"4-12-2017\"}";
-    private  static final String EXTENDED_DATE_AS_STRING = "2017-12-4";
+    private static final String EXPIRATION_DATE_JSON_AFTER = "{\"expirationDate\": \"4/12/2017\"}";
+    private static final String EXPIRATION_DATE_JSON_BEFORE = "{\"expirationDate\": \"4/12/2015\"}";
+    private static final String EXPIRATION_DATE_JSON_INVALID_NAME = "{\"expiration\": \"4/12/2017\"}";
+    private static final String EXPIRATION_DATE_JSON_INVALID_FORMAT = "{\"expirationDate\": \"4-12-2017\"}";
+    private static final String EXTENDED_DATE_AS_STRING = "2017-12-4";
+
+    private static final int PAGE_SIZE = 5;
 
     @Autowired
     private AnnouncementRepository announcementRepository;
@@ -89,6 +97,9 @@ public class AnnouncementControllerTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RealEstateService realEstateService;
 
     @Autowired
     private WebApplicationContext context;
@@ -464,7 +475,7 @@ public class AnnouncementControllerTest {
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void uploadFolderDoesNotExist() throws Exception {
         File f = new File(Constants.FilePaths.BASE);
-        if (f.exists()){
+        if (f.exists()) {
             FileUtils.deleteDirectory(f);
         }
 
@@ -794,4 +805,135 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(dbSize);
     }
 
+    @Test
+    @Transactional
+    public void searchAnnouncementsWithoutAnyAttribute() throws Exception {
+        final int dbSize = announcementRepository.findAll().size();
+        final int requiredSize = dbSize < PAGE_SIZE ? dbSize : PAGE_SIZE;
+
+        restAnnouncementMockMvc.perform(get("/api/announcements/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(requiredSize))))
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    public void searchAnnouncementsByPrice() throws Exception {
+        announcementRepository.saveAndFlush(announcement);
+
+        restAnnouncementMockMvc.perform(get("/api/announcements/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("startPrice", String.valueOf(DEFAULT_PRICE - 1))
+                .param("endPrice", String.valueOf(DEFAULT_PRICE + 1)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].price", everyItem(both(greaterThan(DEFAULT_PRICE - 1)).and(lessThan(DEFAULT_PRICE + 1)))))
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    public void searchAnnouncementsByLimitPriceInclude() throws Exception {
+        announcementRepository.saveAndFlush(announcement);
+
+        restAnnouncementMockMvc.perform(get("/api/announcements/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("startPrice", String.valueOf(DEFAULT_PRICE))
+                .param("endPrice", String.valueOf(DEFAULT_PRICE)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].price", everyItem(greaterThanOrEqualTo(DEFAULT_PRICE))))
+                .andExpect(jsonPath("$.[*].price", everyItem(lessThanOrEqualTo(DEFAULT_PRICE))))
+                .andExpect(jsonPath("$.[*].price", hasItem(DEFAULT_PRICE)))
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    public void searchAnnouncementsByAuthorNameAndTypeAndPhoneNumber() throws Exception {
+        // prepare db data
+        User author = userService.findOne(UserConstants.USER_ID);
+        announcement.setAuthor(author);
+        announcementService.save(announcement);
+
+        final String randomAuthorName = getRandomCaseInsensitiveSubstring(author.getFirstName());
+        final String randomType = getRandomCaseInsensitiveSubstring(DEFAULT_TYPE);
+        final String randomPhoneNumber = getRandomCaseInsensitiveSubstring(DEFAULT_PHONE_NUMBER);
+
+        restAnnouncementMockMvc.perform(get("/api/announcements/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("authorName", randomAuthorName)
+                .param("type", randomType)
+                .param("phoneNumber", randomPhoneNumber))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].author.firstName", everyItem(containsIgnoringCase(randomAuthorName))))
+                .andExpect(jsonPath("$.[*].author.firstName", hasItem(author.getFirstName())))
+                .andExpect(jsonPath("$.[*].type", everyItem(containsIgnoringCase(randomType))))
+                .andExpect(jsonPath("$.[*].type", hasItem(DEFAULT_TYPE)))
+                .andExpect(jsonPath("$.[*].phoneNumber", everyItem(containsIgnoringCase(randomPhoneNumber))))
+                .andExpect(jsonPath("$.[*].phoneNumber", hasItem(DEFAULT_PHONE_NUMBER)))
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    public void searchAnnouncementsByLocation() throws Exception {
+        // prepare db data
+        User author = userService.findOne(UserConstants.USER_ID);
+        RealEstate realEstate = realEstateService.findOne(RealEstateConstants.ID);
+        announcement.setAuthor(author);
+        announcement.setRealEstate(realEstate);
+        announcementService.save(announcement);
+        Location location = realEstate.getLocation();
+
+        final String randomCountry = getRandomCaseInsensitiveSubstring(location.getCountry());
+        final String randomCity = getRandomCaseInsensitiveSubstring(location.getCity());
+        final String randomCityRegion = getRandomCaseInsensitiveSubstring(location.getCityRegion());
+        final String randomStreet = getRandomCaseInsensitiveSubstring(location.getStreet());
+
+        restAnnouncementMockMvc.perform(get("/api/announcements/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("country", randomCountry)
+                .param("cityRegion", randomCityRegion)
+                .param("city", randomCity)
+                .param("street", randomStreet)
+                .param("streetNumber", location.getStreetNumber()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].realEstate.location.country", everyItem(containsIgnoringCase(randomCountry))))
+                .andExpect(jsonPath("$.[*].realEstate.location.country", hasItem(location.getCountry())))
+                .andExpect(jsonPath("$.[*].realEstate.location.city", everyItem(containsIgnoringCase(randomCity))))
+                .andExpect(jsonPath("$.[*].realEstate.location.city", hasItem(location.getCity())))
+                .andExpect(jsonPath("$.[*].realEstate.location.cityRegion", everyItem(containsIgnoringCase(randomCityRegion))))
+                .andExpect(jsonPath("$.[*].realEstate.location.cityRegion", hasItem(location.getCityRegion())))
+                .andExpect(jsonPath("$.[*].realEstate.location.street", everyItem(containsIgnoringCase(randomStreet))))
+                .andExpect(jsonPath("$.[*].realEstate.location.street", hasItem(location.getStreet())))
+                .andExpect(jsonPath("$.[*].realEstate.location.streetNumber", everyItem(equalToIgnoringCase(location.getStreetNumber()))))
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    public void searchAnnouncementsWithWrongAddress() throws Exception {
+        final int dbSize = announcementRepository.findAll().size();
+        final int requiredSize = dbSize < PAGE_SIZE ? dbSize : PAGE_SIZE;
+
+        restAnnouncementMockMvc.perform(get("/api/announcements/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("nameeeee", "nameee"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(requiredSize))))
+                .andReturn();
+    }
 }
