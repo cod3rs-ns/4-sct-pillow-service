@@ -7,17 +7,21 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.companies.Company;
+import rs.acs.uns.sw.sct.companies.CompanyService;
 import rs.acs.uns.sw.sct.constants.CompanyConstants;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
@@ -26,12 +30,15 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static rs.acs.uns.sw.sct.util.ContainsIgnoreCase.containsIgnoringCase;
+import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 
 /**
  * Test class for the User REST controller.
@@ -54,6 +61,8 @@ public class UserControllerTest {
 
     private static final String DEFAULT_PHONE_NUMBER = "0600000000";
 
+    private static final int PAGE_SIZE = 5;
+
     @Autowired
     FilterChainProxy springSecurityFilterChain;
 
@@ -64,6 +73,9 @@ public class UserControllerTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CompanyService companyService;
 
     @Autowired
     private UserRepository userRepository;
@@ -212,4 +224,128 @@ public class UserControllerTest {
     }
 
 
+    @Test
+    @Transactional
+    public void searchUsersWithoutAuthority() throws Exception {
+        mockMvc.perform(get("/api/users/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0"))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+    }
+
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void searchUsersWithoutAnyAttribute() throws Exception {
+        final int dbSize = userRepository.findAll().size();
+        final int requiredSize = dbSize < PAGE_SIZE ? dbSize : PAGE_SIZE;
+
+        mockMvc.perform(get("/api/users/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(requiredSize))))
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void searchUsersByUsernameAndEmailAndNameAndSurname() throws Exception {
+        userRepository.saveAndFlush(advertiser);
+
+        final String randomUsername = getRandomCaseInsensitiveSubstring(advertiser.getUsername());
+        final String randomEmail = getRandomCaseInsensitiveSubstring(advertiser.getEmail());
+        final String randomFN = getRandomCaseInsensitiveSubstring(advertiser.getFirstName());
+        final String randomLN = getRandomCaseInsensitiveSubstring(advertiser.getLastName());
+
+        mockMvc.perform(get("/api/users/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("username", randomUsername)
+                .param("email", randomEmail)
+                .param("firstName", randomFN)
+                .param("lastName", randomLN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].username", everyItem(containsIgnoringCase(randomUsername))))
+                .andExpect(jsonPath("$.[*].username", hasItem(advertiser.getUsername())))
+                .andExpect(jsonPath("$.[*].email", everyItem(containsIgnoringCase(randomEmail))))
+                .andExpect(jsonPath("$.[*].email", hasItem(advertiser.getEmail())))
+                .andExpect(jsonPath("$.[*].firstName", everyItem(containsIgnoringCase(randomFN))))
+                .andExpect(jsonPath("$.[*].firstName", hasItem(advertiser.getFirstName())))
+                .andExpect(jsonPath("$.[*].lastName", everyItem(containsIgnoringCase(randomLN))))
+                .andExpect(jsonPath("$.[*].lastName", hasItem(advertiser.getLastName())))
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void searchDeletedUser() throws Exception {
+        User persisted = userRepository.saveAndFlush(advertiser.deleted(true));
+
+        final int dbSize = userRepository.findAllByDeleted(true, null).getContent().size();
+        assertThat(dbSize).isGreaterThan(0);
+
+        mockMvc.perform(get("/api/users/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].id", everyItem(not(comparesEqualTo(Integer.valueOf(persisted.getId().intValue()))))))
+                .andReturn();
+    }
+
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void searchUsersByPhoneNumberAndCompanyName() throws Exception {
+        Company company = companyService.findOne(CompanyConstants.ID);
+        advertiser.setCompany(company);
+        advertiser.setCompanyVerified(Constants.CompanyStatus.ACCEPTED);
+        userRepository.saveAndFlush(advertiser);
+
+        final String randomPhoneNumber = getRandomCaseInsensitiveSubstring(advertiser.getPhoneNumber());
+        final String randomCompanyName = getRandomCaseInsensitiveSubstring(advertiser.getCompany().getName());
+
+        MvcResult result = mockMvc.perform(get("/api/users/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("phoneNumber", randomPhoneNumber)
+                .param("companyName", randomCompanyName))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].phoneNumber", everyItem(containsIgnoringCase(randomPhoneNumber))))
+                .andExpect(jsonPath("$.[*].phoneNumber", hasItem(advertiser.getPhoneNumber())))
+                .andExpect(jsonPath("$.[*].company.name", everyItem(containsIgnoringCase(randomCompanyName))))
+                .andExpect(jsonPath("$.[*].company.name", hasItem(advertiser.getCompany().getName())))
+                .andReturn();
+
+        System.out.println(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void searchUsersByCompanyNameWhenCompanyStatusIsNotAccepted() throws Exception {
+        Company company = companyService.findOne(CompanyConstants.ID);
+        advertiser.setCompany(company);
+        advertiser.setCompanyVerified(Constants.CompanyStatus.PENDING);
+        userRepository.saveAndFlush(advertiser);
+
+        mockMvc.perform(get("/api/users/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("companyName", company.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].id", everyItem(not(equalTo(advertiser.getId().intValue())))))
+                .andReturn();
+    }
 }

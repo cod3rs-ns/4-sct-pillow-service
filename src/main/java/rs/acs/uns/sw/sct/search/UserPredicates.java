@@ -3,6 +3,7 @@ package rs.acs.uns.sw.sct.search;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import rs.acs.uns.sw.sct.users.QUser;
+import rs.acs.uns.sw.sct.util.Constants;
 
 public final class UserPredicates {
 
@@ -25,7 +26,10 @@ public final class UserPredicates {
         if (phoneNumber != null)
             where.and(user.phoneNumber.containsIgnoreCase(phoneNumber));
         if (companyName != null)
-            where.and(user.company.name.containsIgnoreCase(companyName));
+            where.and(user.company.name.containsIgnoreCase(companyName))
+                    .and(user.companyVerified.contains(Constants.CompanyStatus.ACCEPTED));
+
+        where.and(user.deleted.eq(false));
 
         return where;
     }

@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -808,7 +809,7 @@ public class AnnouncementControllerTest {
     @Test
     @Transactional
     public void searchAnnouncementsWithoutAnyAttribute() throws Exception {
-        final int dbSize = announcementRepository.findAll().size();
+        final int dbSize = announcementRepository.findAllByDeleted(false, null).getContent().size();
         final int requiredSize = dbSize < PAGE_SIZE ? dbSize : PAGE_SIZE;
 
         restAnnouncementMockMvc.perform(get("/api/announcements/search")
@@ -923,8 +924,8 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
-    public void searchAnnouncementsWithWrongAddress() throws Exception {
-        final int dbSize = announcementRepository.findAll().size();
+    public void searchAnnouncementsWithWrongNameQueryKey() throws Exception {
+        final int dbSize = announcementRepository.findAllByDeleted(false, null).getContent().size();
         final int requiredSize = dbSize < PAGE_SIZE ? dbSize : PAGE_SIZE;
 
         restAnnouncementMockMvc.perform(get("/api/announcements/search")
@@ -934,6 +935,25 @@ public class AnnouncementControllerTest {
                 .param("nameeeee", "nameee"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(Math.toIntExact(requiredSize))))
+                .andReturn();
+    }
+
+
+    @Test
+    @Transactional
+    public void searchDeletedAnnouncements() throws Exception {
+        Announcement persisted = announcementRepository.saveAndFlush(announcement.deleted(true));
+
+        final int dbSize = announcementRepository.findAllByDeleted(true, null).getContent().size();
+        assertThat(dbSize).isGreaterThan(0);
+
+        restAnnouncementMockMvc.perform(get("/api/announcements/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("phoneNumber", announcement.getPhoneNumber()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].id", everyItem(not(comparesEqualTo(Integer.valueOf(persisted.getId().intValue()))))))
                 .andReturn();
     }
 }

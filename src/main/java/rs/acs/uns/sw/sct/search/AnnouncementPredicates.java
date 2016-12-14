@@ -40,6 +40,8 @@ public final class AnnouncementPredicates {
         if (searchWrapper.getStreetNumber() != null)
             where.and(announcement.realEstate.location.streetNumber.equalsIgnoreCase(searchWrapper.getStreetNumber()));
 
+        where.and(announcement.deleted.eq(false));
+
         return where;
     }
 }
