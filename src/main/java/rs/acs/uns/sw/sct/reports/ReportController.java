@@ -10,12 +10,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
-import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -59,9 +59,10 @@ public class ReportController {
 
         final User user = userSecurityUtil.getLoggedUser();
         report.setReporter(user);
+        report.setStatus(Constants.ReportStatus.PENDING);
 
         Announcement announcement = announcementService.findOne(report.getAnnouncement().getId());
-        if (announcement == null){
+        if (announcement == null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "There is no announcement with id you specified")).body(null);
         }
 
@@ -91,6 +92,8 @@ public class ReportController {
         if (report.getId() == null) {
             return createReport(report);
         }
+
+        report.setStatus(Constants.ReportStatus.PENDING);
         Report result = reportService.save(report);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.REPORT, report.getId().toString()))
@@ -155,7 +158,7 @@ public class ReportController {
      * GET  /reports/status/:status : get all the reports by status.
      *
      * @param pageable the pagination information
-     * @param status the status of report
+     * @param status   the status of report
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
@@ -172,7 +175,7 @@ public class ReportController {
      * GET  /reports/author/:email : get all the reports by author email.
      *
      * @param pageable the pagination information
-     * @param email the author email
+     * @param email    the author email
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
@@ -184,4 +187,41 @@ public class ReportController {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports/author");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
+
+    /**
+     * PUT  /reports/resolve/:id?status="statusValue" : Resolving an existing report.
+     *
+     * @param id     the report to be resolved
+     * @param status the status of report
+     * @return the ResponseEntity with status 200 (OK) and with body the updated report,
+     * or with status 404 (Not Found) if the report does not exists,
+     */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
+    @PutMapping("/reports/resolve/{id}")
+    public ResponseEntity<?> resolveReport(@PathVariable Long id, @RequestParam(value = "status") String status) {
+        Report report = reportService.findOne(id);
+        if (report == null)
+            return new ResponseEntity<>("Report is not found", HttpStatus.NOT_FOUND);
+
+        if (!Constants.ReportStatus.PENDING.equals(report.getStatus()))
+            return new ResponseEntity<>("Can't modified status of accepted or rejected report!", HttpStatus.BAD_REQUEST);
+
+        if (Constants.ReportStatus.ACCEPTED.equals(status)) {
+            Announcement announcement = announcementService.findOne(report.getAnnouncement().getId());
+            announcement.deleted(true);
+            Announcement persistedAnnouncement = announcementService.save(announcement);
+            report.setStatus(Constants.ReportStatus.ACCEPTED);
+            report.setAnnouncement(persistedAnnouncement);
+        } else if (Constants.ReportStatus.REJECTED.equals(status)) {
+            report.setStatus(Constants.ReportStatus.REJECTED);
+        } else {
+            return new ResponseEntity<>("Wrong status of report", HttpStatus.BAD_REQUEST);
+        }
+
+        Report result = reportService.save(report);
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.REPORT, report.getId().toString()))
+                .body(result);
+    }
+
 }
