@@ -10,14 +10,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
 import rs.acs.uns.sw.sct.realestates.Location;
 import rs.acs.uns.sw.sct.realestates.RealEstate;
+import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.*;
+import static rs.acs.uns.sw.sct.constants.CompanyConstants.PAGEABLE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
@@ -198,7 +201,7 @@ public class AnnouncementServiceTest {
 
         // test sorting ascending by price
         for (int i = 0; i < dbAnnouncements.size() - 1; i++) {
-            assertThat(dbAnnouncements.get(i).getPrice()).isLessThanOrEqualTo(dbAnnouncements.get(i+1).getPrice());
+            assertThat(dbAnnouncements.get(i).getPrice()).isLessThanOrEqualTo(dbAnnouncements.get(i + 1).getPrice());
         }
     }
 
@@ -262,6 +265,48 @@ public class AnnouncementServiceTest {
 
         for (final Announcement announcement : announcements) {
             assertThat(announcement.isDeleted()).isEqualTo(status);
+        }
+    }
+
+
+    @Test
+    @Transactional
+    public void searchAnnouncementsWithoutAnyAttribute() throws Exception {
+        final int dbSize = announcementService.findAllByStatus(false, null).getContent().size();
+        final int requiredSize = dbSize < PAGEABLE.getPageSize() ? dbSize : PAGEABLE.getPageSize();
+
+        List<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), PAGEABLE);
+        assertThat(result).hasSize(requiredSize);
+    }
+
+    @Test
+    @Transactional
+    public void searchAnnouncementsByAreaLimitInclude() throws Exception {
+        announcementRepository.saveAndFlush(newAnnouncement);
+
+        final double area = newAnnouncement.getRealEstate().getArea();
+
+        AnnouncementSearchWrapper wrapper = new AnnouncementSearchWrapper()
+                .startArea(area)
+                .endArea(area);
+
+        List<Announcement> result = announcementService.findBySearchTerm(wrapper, PAGEABLE);
+
+        for (Announcement ann : result) {
+            assertThat(ann.getRealEstate().getArea()).isBetween(area, area);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void searchDeletedAnnouncements() throws Exception {
+        Announcement persisted = announcementRepository.saveAndFlush(
+                newAnnouncement.deleted(true));
+
+        List<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), AnnouncementConstants.PAGEABLE);
+
+        for (Announcement ann : result) {
+            assertThat(ann.getId()).isNotEqualTo(persisted.getId());
         }
     }
 }
