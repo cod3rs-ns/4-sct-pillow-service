@@ -131,6 +131,14 @@ public class UserController {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.USER, "id_exists", "A new user cannot already have an ID")).body(null);
         }
 
+        if (userService.getUserByEmail(user.getEmail()) != null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.USER, "email_exists", "Email already exists!")).body(null);
+        }
+
+        if (userService.getUserByUsername(user.getUsername()) != null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.USER, "username_exists", "Username already exists!")).body(null);
+        }
+
         User result = userService.save(user);
 
         mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
