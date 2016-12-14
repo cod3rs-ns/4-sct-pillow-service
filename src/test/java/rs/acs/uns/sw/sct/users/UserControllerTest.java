@@ -451,4 +451,62 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.[*].id", everyItem(not(equalTo(advertiser.getId().intValue())))))
                 .andReturn();
     }
+
+    @Test
+    @Transactional
+    public void isUsernameAvailableTrue() throws Exception {
+        // We didn't save 'advertiser' to database
+
+        final MvcResult result = mockMvc.perform(get("/api/users/username-available")
+                .param("username", advertiser.getUsername()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        final Boolean response = Boolean.parseBoolean(result.getResponse().getContentAsString());
+        assertThat(response).isEqualTo(true);
+    }
+
+    @Test
+    @Transactional
+    public void isUsernameAvailableFalse() throws Exception {
+        // We saved 'advertiser' to database
+        userRepository.saveAndFlush(advertiser);
+
+        final MvcResult result = mockMvc.perform(get("/api/users/username-available")
+                .param("username", advertiser.getUsername()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        final Boolean response = Boolean.parseBoolean(result.getResponse().getContentAsString());
+        assertThat(response).isEqualTo(false);
+    }
+
+    @Test
+    @Transactional
+    public void isEmailAvailableTrue() throws Exception {
+        // We didn't save 'advertiser' to database
+
+        final MvcResult result = mockMvc.perform(get("/api/users/email-available")
+                .param("email", advertiser.getEmail()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        final Boolean response = Boolean.parseBoolean(result.getResponse().getContentAsString());
+        assertThat(response).isEqualTo(true);
+    }
+
+    @Test
+    @Transactional
+    public void isEmailAvailableFalse() throws Exception {
+        // We saved 'advertiser' to database
+        userRepository.saveAndFlush(advertiser);
+
+        final MvcResult result = mockMvc.perform(get("/api/users/email-available")
+                .param("email", advertiser.getEmail()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        final Boolean response = Boolean.parseBoolean(result.getResponse().getContentAsString());
+        assertThat(response).isEqualTo(false);
+    }
 }
