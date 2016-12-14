@@ -74,8 +74,8 @@ public class ReportController {
 
         report.setAnnouncement(announcement);
 
-        Report exists = reportService.findByReaporterEmailAndStatus(report.getEmail(), report.getStatus());
-        if(exists != null)
+        Report exists = reportService.findByReporterEmailAndStatusAndAnnouncementId(report.getEmail(), report.getStatus(), announcement.getId());
+        if (exists != null)
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "You can't have more reports for the same advert unless they are with pending status")).body(null);
 
         Report result = reportService.save(report);

@@ -160,6 +160,35 @@ public class ReportControllerTest {
         assertThat(testReport.getContent()).isEqualTo(DEFAULT_CONTENT);
     }
 
+
+    @Test
+    @Transactional
+    public void createReportSameReportTwoTimesAsSameUser() throws Exception {
+        reportService.save(report.status(Constants.ReportStatus.PENDING));
+        int databaseSizeBeforeCreate = reportRepository.findAll().size();
+
+        Report sameReport = new Report()
+                .announcement(report.getAnnouncement())
+                .email(report.getEmail())
+                .type(report.getType())
+                .content(report.getContent())
+                .status(report.getStatus());
+
+        // Create the Report
+        MvcResult result = restReportMockMvc.perform(post("/api/reports")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sameReport)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // Validate the Report in the database
+        List<Report> reports = reportRepository.findAll();
+        assertThat(reports).hasSize(databaseSizeBeforeCreate);
+
+        final String message = result.getResponse().getHeader("X-sct-app-alert");
+        assertThat(message).isEqualTo("You can't have more reports for the same advert unless they are with pending status");
+    }
+
     @Test
     @Transactional
     public void createReportAsGuestToVerifiedAnnouncement() throws Exception {

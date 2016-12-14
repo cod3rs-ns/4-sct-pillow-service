@@ -33,5 +33,5 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
      * @param status status of report
      * @return list of announcements
      */
-    Report findByEmailAndStatus(String email, String status);
+    Report findByEmailAndStatusAndAnnouncement_Id(String email, String status, Long id);
 }
