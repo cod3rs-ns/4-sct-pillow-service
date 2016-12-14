@@ -58,6 +58,9 @@ public class ReportController {
         }
 
         final User user = userSecurityUtil.getLoggedUser();
+        if (user != null)
+            report.setEmail(user.getEmail());
+
         report.setReporter(user);
         report.setStatus(Constants.ReportStatus.PENDING);
 
@@ -70,6 +73,10 @@ public class ReportController {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "You can't report verified announcement")).body(null);
 
         report.setAnnouncement(announcement);
+
+        Report exists = reportService.findByReporterEmailAndStatusAndAnnouncementId(report.getEmail(), report.getStatus(), announcement.getId());
+        if (exists != null)
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "You can't have more reports for the same advert unless they are with pending status")).body(null);
 
         Report result = reportService.save(report);
         return ResponseEntity.created(new URI("/api/reports/" + result.getId()))

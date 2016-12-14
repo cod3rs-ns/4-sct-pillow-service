@@ -51,7 +51,7 @@ public class ReportService {
     /**
      * Get all reports by status.
      *
-     * @param status the id of the entity
+     * @param status   the id of the entity
      * @param pageable the pagination information
      * @return the list of entities
      */
@@ -63,7 +63,7 @@ public class ReportService {
     /**
      * Get all reports by author email.
      *
-     * @param email the id of the entity
+     * @param email    the id of the entity
      * @param pageable the pagination information
      * @return the list of entities
      */
@@ -80,5 +80,19 @@ public class ReportService {
      */
     public void delete(Long id) {
         reportRepository.delete(id);
+    }
+
+
+    /**
+     * Get all reports by author email.
+     *
+     * @param email          the reporter email
+     * @param status         status of report
+     * @param announcementId id of announcement
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    Report findByReporterEmailAndStatusAndAnnouncementId(String email, String status, Long announcementId) {
+        return reportRepository.findByEmailAndStatusAndAnnouncement_Id(email, status, announcementId);
     }
 }

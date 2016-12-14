@@ -22,6 +22,7 @@ import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
 import rs.acs.uns.sw.sct.constants.ReportConstants;
 import rs.acs.uns.sw.sct.constants.UserConstants;
+import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
@@ -141,6 +142,7 @@ public class ReportControllerTest {
     @WithMockUser(username = UserConstants.USER_USERNAME)
     public void createReportAsRegisteredUser() throws Exception {
         int databaseSizeBeforeCreate = reportRepository.findAll().size();
+        User user = userService.getUserByUsername(UserConstants.USER_USERNAME);
 
         // Create the Report
         restReportMockMvc.perform(post("/api/reports")
@@ -152,10 +154,39 @@ public class ReportControllerTest {
         List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate + 1);
         Report testReport = reports.get(reports.size() - 1);
-        assertThat(testReport.getEmail()).isEqualTo(DEFAULT_EMAIL);
+        assertThat(testReport.getEmail()).isEqualTo(user.getEmail());
         assertThat(testReport.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testReport.getStatus()).isEqualTo(Constants.ReportStatus.PENDING);
         assertThat(testReport.getContent()).isEqualTo(DEFAULT_CONTENT);
+    }
+
+
+    @Test
+    @Transactional
+    public void createReportSameReportTwoTimesAsSameUser() throws Exception {
+        reportService.save(report.status(Constants.ReportStatus.PENDING));
+        int databaseSizeBeforeCreate = reportRepository.findAll().size();
+
+        Report sameReport = new Report()
+                .announcement(report.getAnnouncement())
+                .email(report.getEmail())
+                .type(report.getType())
+                .content(report.getContent())
+                .status(report.getStatus());
+
+        // Create the Report
+        MvcResult result = restReportMockMvc.perform(post("/api/reports")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sameReport)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // Validate the Report in the database
+        List<Report> reports = reportRepository.findAll();
+        assertThat(reports).hasSize(databaseSizeBeforeCreate);
+
+        final String message = result.getResponse().getHeader("X-sct-app-alert");
+        assertThat(message).isEqualTo("You can't have more reports for the same advert unless they are with pending status");
     }
 
     @Test

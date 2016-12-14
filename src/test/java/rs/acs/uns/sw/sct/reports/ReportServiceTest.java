@@ -150,7 +150,7 @@ public class ReportServiceTest {
     public void testFindByStatus() {
         Page<Report> reports = reportService.findByStatus(FIND_STATUS, PAGEABLE);
 
-        for(Report report: reports.getContent()){
+        for (Report report : reports.getContent()) {
             assertThat(report.getStatus()).isEqualTo(FIND_STATUS);
         }
     }
@@ -159,7 +159,7 @@ public class ReportServiceTest {
     public void testFindByAuthorEmail() {
         Page<Report> reports = reportService.findByAuthorEmail(FIND_AUTHOR_EMAIL, PAGEABLE);
 
-        for(Report report: reports.getContent()){
+        for (Report report : reports.getContent()) {
             assertThat(report.getEmail()).isEqualTo(FIND_AUTHOR_EMAIL);
         }
     }
@@ -202,5 +202,17 @@ public class ReportServiceTest {
         reportService.save(newReport);
         // rollback previous status
         newReport.setStatus(NEW_STATUS);
+    }
+
+
+    @Test
+    @Transactional
+    public void findSameReports() {
+        Report savedReport = reportService.save(newReport);
+
+        Report same = reportService.findByReporterEmailAndStatusAndAnnouncementId(
+                savedReport.getEmail(), savedReport.getStatus(), savedReport.getAnnouncement().getId());
+
+        assertThat(same).isNotNull();
     }
 }
