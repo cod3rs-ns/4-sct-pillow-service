@@ -332,7 +332,9 @@ public class AnnouncementController {
                                                      @RequestParam(value = "country", required = false) String country,
                                                      @RequestParam(value = "cityRegion", required = false) String cityRegion,
                                                      @RequestParam(value = "city", required = false) String city,
-                                                     @RequestParam(value = "street", required = false) String street) {
+                                                     @RequestParam(value = "street", required = false) String street,
+                                                     @RequestParam(value = "streetNumber", required = false) String streetNumber,
+                                                     Pageable pageable) {
 
         AnnouncementSearchWrapper wrap = new AnnouncementSearchWrapper()
                 .startPrice(startPrice).endPrice(endPrice)
@@ -341,9 +343,10 @@ public class AnnouncementController {
                 .startArea(startArea).endArea(endArea)
                 .heatingType(heatingType).name(name)
                 .country(country).cityRegion(cityRegion)
-                .city(city).street(street);
+                .city(city).street(street)
+                .streetNumber(streetNumber);
 
-        List < Announcement > list = announcementService.findBySearchTerm(wrap);
+        List < Announcement > list = announcementService.findBySearchTerm(wrap, pageable);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

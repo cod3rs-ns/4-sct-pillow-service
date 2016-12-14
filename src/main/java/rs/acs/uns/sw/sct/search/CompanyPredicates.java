@@ -14,11 +14,11 @@ public final class CompanyPredicates {
 
         QCompany company = QCompany.company;
         if (name != null)
-            where.and(company.name.toLowerCase().contains(name.toLowerCase()));
+            where.and(company.name.containsIgnoreCase(name));
         if (address != null)
-            where.and(company.address.toLowerCase().contains(address.toLowerCase()));
+            where.and(company.address.containsIgnoreCase(address));
         if (phoneNumber != null)
-            where.and(company.phoneNumber.toLowerCase().contains(phoneNumber.toLowerCase()));
+            where.and(company.phoneNumber.containsIgnoreCase(phoneNumber));
 
         return where;
     }
