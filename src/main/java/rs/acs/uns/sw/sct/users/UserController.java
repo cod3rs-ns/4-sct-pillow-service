@@ -139,9 +139,10 @@ public class UserController {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.USER, "username_exists", "Username already exists!")).body(null);
         }
 
+        user.setVerified(false);
         User result = userService.save(user);
 
-        mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
+        // mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
 
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.USER, result.getId().toString()))

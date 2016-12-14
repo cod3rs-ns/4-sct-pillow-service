@@ -509,4 +509,32 @@ public class UserControllerTest {
         final Boolean response = Boolean.parseBoolean(result.getResponse().getContentAsString());
         assertThat(response).isEqualTo(false);
     }
+
+    @Test
+    @Transactional
+    public void tryToSetVerificationToTrueWhenRegister() throws Exception {
+        // Try to verify user through bean (without sending mail)
+        advertiser.verified(true);
+
+        // Create Advertiser
+        mockMvc.perform(post("/api/users/")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(advertiser)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.verified", is(false)));
+    }
+
+    @Test
+    @Transactional
+    public void tryAuthenticateWhenEmailVerificationIsNotConfirmed() throws Exception {
+        // Try to verify user through bean (without sending mail)
+        userService.save(advertiser.verified(false));
+
+        // Try to authenticate
+        mockMvc.perform(post("/api/users/auth")
+                .param("username", DEFAULT_USERNAME)
+                .param("password", DEFAULT_PASSWORD))
+                .andExpect(status().isUnauthorized());
+    }
 }
