@@ -50,4 +50,8 @@ public interface UserConstants {
     Long USER_COMPANY_3_ACCEPTED = 4L;
     Long USER_COMPANY_3_PENDING  = 1L;
 
+    // Existing username in database
+    String EXISTING_USERNAME = "isco";
+    String EXISTING_EMAIL = "isco@gmail.com";
+
 }
