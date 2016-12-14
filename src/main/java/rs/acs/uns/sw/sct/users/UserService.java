@@ -131,12 +131,13 @@ public class UserService {
      * @param lastName    user last name
      * @param phoneNumber user phone number
      * @param companyName company name of user
+     * @param pageable    the pagination information
      */
     @Transactional(readOnly = true)
     public List<User> findBySearchTerm(String username, String email, String firstName,
-                                       String lastName, String phoneNumber, String companyName) {
+                                       String lastName, String phoneNumber, String companyName, Pageable pageable) {
         Predicate searchPredicate = search(username, email, firstName, lastName, phoneNumber, companyName);
-        Iterable<User> searchResults = userRepository.findAll(searchPredicate);
+        Iterable<User> searchResults = userRepository.findAll(searchPredicate, pageable);
         return IteratorUtils.toList(searchResults.iterator());
     }
 }

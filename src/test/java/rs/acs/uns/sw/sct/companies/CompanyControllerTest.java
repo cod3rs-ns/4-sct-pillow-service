@@ -26,11 +26,13 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.everyItem;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static rs.acs.uns.sw.sct.util.ContainsIgnoreCase.containsIgnoringCase;
+import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 
 /**
  * Test class for the CompanyResource REST controller.
@@ -49,6 +51,9 @@ public class CompanyControllerTest {
 
     private static final String DEFAULT_PHONE_NUMBER = "0600000000";
     private static final String UPDATED_PHONE_NUMBER = "0611111111";
+
+    private static final int PAGE_SIZE = 5;
+
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -651,4 +656,46 @@ public class CompanyControllerTest {
         // TODO Check for updated user
     }
 
+
+    @Test
+    @Transactional
+    public void searchCompaniesWithoutAnyAttribute() throws Exception {
+        final int dbSize = companyRepository.findAll().size();
+        final int requiredSize = dbSize < PAGE_SIZE ? dbSize : PAGE_SIZE;
+
+        restCompanyMockMvc.perform(get("/api/companies/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(requiredSize))))
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
+    public void searchCompaniesByNameAndAddressAndPhoneNumber() throws Exception {
+        // prepare db data
+        companyService.save(company);
+
+        final String randomName = getRandomCaseInsensitiveSubstring(company.getName());
+        final String randomAddress = getRandomCaseInsensitiveSubstring(company.getAddress());
+        final String randomPhoneNumber = getRandomCaseInsensitiveSubstring(company.getPhoneNumber());
+
+        restCompanyMockMvc.perform(get("/api/companies/search")
+                .param("sort", "id,desc")
+                .param("size", String.valueOf(PAGE_SIZE))
+                .param("page", "0")
+                .param("name", randomName)
+                .param("address", randomAddress)
+                .param("phoneNumber", randomPhoneNumber))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[*].name", everyItem(containsIgnoringCase(randomName))))
+                .andExpect(jsonPath("$.[*].name", hasItem(company.getName())))
+                .andExpect(jsonPath("$.[*].address", everyItem(containsIgnoringCase(randomAddress))))
+                .andExpect(jsonPath("$.[*].address", hasItem(company.getAddress())))
+                .andExpect(jsonPath("$.[*].phoneNumber", everyItem(containsIgnoringCase(randomPhoneNumber))))
+                .andExpect(jsonPath("$.[*].phoneNumber", hasItem(company.getPhoneNumber())))
+                .andReturn();
+    }
 }

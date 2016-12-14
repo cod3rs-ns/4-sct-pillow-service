@@ -15,6 +15,7 @@ public class AnnouncementSearchWrapper {
     private String cityRegion;
     private String city;
     private String street;
+    private String streetNumber;
 
     /**
      * Setter used for 'method chaining'.
@@ -170,6 +171,17 @@ public class AnnouncementSearchWrapper {
         return this;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param streetNumber contains street number
+     * @return AnnouncementSearchWrapper (this)
+     */
+    public AnnouncementSearchWrapper streetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
+        return this;
+    }
+
     public Double getStartPrice() {
         return startPrice;
     }
@@ -280,5 +292,13 @@ public class AnnouncementSearchWrapper {
 
     public void setStreet(String street) {
         this.street = street;
+    }
+
+    public String getStreetNumber() {
+        return streetNumber;
+    }
+
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
     }
 }

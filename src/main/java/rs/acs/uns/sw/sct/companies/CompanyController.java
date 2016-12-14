@@ -239,9 +239,10 @@ public class CompanyController {
     @GetMapping("/companies/search")
     public ResponseEntity<List<Company>> search(@RequestParam(value = "name", required = false) String name,
                                                 @RequestParam(value = "address", required = false) String address,
-                                                @RequestParam(value = "phoneNumber", required = false) String phoneNumber) {
+                                                @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
+                                                Pageable pageable) {
 
-        List<Company> list = companyService.findBySearchTerm(name, address, phoneNumber);
+        List<Company> list = companyService.findBySearchTerm(name, address, phoneNumber, pageable);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

@@ -7,11 +7,14 @@ import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Random;
 
 /**
  * Utility class for testing REST controllers.
  */
 public class TestUtil {
+
+    private static Random random = new Random();
 
     /**
      * MediaType for JSON UTF8
@@ -38,4 +41,31 @@ public class TestUtil {
         return mapper.writeValueAsBytes(object);
     }
 
+
+    /**
+     * Return random case insensitive substring.
+     *
+     * @param value string to be converted
+     * @return the String
+     */
+    public static String getRandomCaseInsensitiveSubstring(String value) {
+        StringBuilder builder = new StringBuilder();
+
+        int startIndex = getRandomIntBetween(0, value.length() - 1);
+        int endIndex = getRandomIntBetween(startIndex + 1, value.length());
+
+        for (int i = startIndex; i < endIndex; i++) {
+            boolean upper = random.nextBoolean();
+            if(upper)
+                builder.append(Character.toUpperCase(value.charAt(i)));
+            else
+                builder.append(Character.toLowerCase(value.charAt(i)));
+        }
+
+        return builder.toString();
+    }
+
+    public static int getRandomIntBetween(int start, int end) {
+        return random.nextInt(end - start + 1) + start;
+    }
 }

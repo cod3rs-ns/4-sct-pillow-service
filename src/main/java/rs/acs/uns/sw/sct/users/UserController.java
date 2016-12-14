@@ -186,9 +186,10 @@ public class UserController {
                                              @RequestParam(value = "firstName", required = false) String firstName,
                                              @RequestParam(value = "lastName", required = false) String lastName,
                                              @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-                                             @RequestParam(value = "companyName", required = false) String companyName) {
+                                             @RequestParam(value = "companyName", required = false) String companyName,
+                                             Pageable pageable) {
 
-        List<User> list = userService.findBySearchTerm(username, email, firstName, lastName, phoneNumber, companyName);
+        List<User> list = userService.findBySearchTerm(username, email, firstName, lastName, phoneNumber, companyName, pageable);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

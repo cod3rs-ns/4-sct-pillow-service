@@ -15,8 +15,10 @@ INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `passw
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (9, 1, 'davies@gmail.com', 'Antony', 'Davies', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'verifier', 'eyebrow', '3', 'accepted');
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (10, 1, 'towns@gmail.com', 'Karl Anthony', 'Towns', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'advertiser', 'kat', '3', 'accepted');
 
+INSERT INTO `locations` (`id`, `city`, `city_region`, `country`, `street`, `street_number`) VALUES (1, 'Novi Sad', 'Grbavica', 'Srbija', 'Trg Dositeja Obradovica', '15');
+
 /* Insert new real estates */
-INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `name`, `type`) VALUES ('1', '120', 0, 'coal', 'RealEstate1', 'flat');
+INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `name`, `type`, `location_id`) VALUES ('1', '120', 0, 'coal', 'RealEstate1', 'flat', 1);
 INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `name`, `type`) VALUES ('2', '220', 0, 'central_heating', 'RealEstate2', 'house');
 INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `name`, `type`) VALUES ('3', '360', 1, 'central_heating', 'RealEstate3', 'flat');
 
