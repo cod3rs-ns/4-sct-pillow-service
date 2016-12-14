@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
@@ -39,11 +40,14 @@ public class CommentController {
     @PostMapping("/comments")
     public ResponseEntity<Comment> createComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
         if (comment.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.COMMENT, "id_exists", "A new comment cannot already have an ID")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.COMMENT, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .body(null);
         }
         Comment result = commentService.save(comment);
         return ResponseEntity.created(new URI("/api/comments/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.COMMENT, result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.COMMENT, result.getId().toString()))
                 .body(result);
     }
 
@@ -64,7 +68,7 @@ public class CommentController {
         }
         Comment result = commentService.save(comment);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.COMMENT, comment.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.COMMENT, comment.getId().toString()))
                 .body(result);
     }
 
@@ -128,7 +132,7 @@ public class CommentController {
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
         commentService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.COMMENT, id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.COMMENT, id.toString())).build();
     }
 
 }

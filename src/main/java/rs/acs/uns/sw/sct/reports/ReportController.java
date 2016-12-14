@@ -54,7 +54,10 @@ public class ReportController {
     @PostMapping("/reports")
     public ResponseEntity<Report> createReport(@Valid @RequestBody Report report) throws URISyntaxException {
         if (report.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "id_exists", "A new report cannot already have an ID")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .body(null);
         }
 
         final User user = userSecurityUtil.getLoggedUser();
@@ -62,17 +65,23 @@ public class ReportController {
 
         Announcement announcement = announcementService.findOne(report.getAnnouncement().getId());
         if (announcement == null){
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "There is no announcement with id you specified")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_NON_EXISTING_ANNOUNCEMENT, HeaderUtil.ERROR_MSG_NON_EXISTING_ANNOUNCEMENT))
+                    .body(null);
         }
 
         if (announcement.getVerified().equals(Constants.VerifiedStatuses.VERIFIED))
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REPORT, "announcement", "You can't report verified announcement")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_REPORT_VERIFED_ANNOUNCEMENT, HeaderUtil.ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT))
+                    .body(null);
 
         report.setAnnouncement(announcement);
 
         Report result = reportService.save(report);
         return ResponseEntity.created(new URI("/api/reports/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.REPORT, result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.REPORT, result.getId().toString()))
                 .body(result);
     }
 
@@ -93,7 +102,7 @@ public class ReportController {
         }
         Report result = reportService.save(report);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.REPORT, report.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
                 .body(result);
     }
 
@@ -148,7 +157,7 @@ public class ReportController {
                     .build();
 
         reportService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.REPORT, id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.REPORT, id.toString())).build();
     }
 
     /**

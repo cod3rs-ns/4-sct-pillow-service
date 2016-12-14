@@ -8,18 +8,47 @@ import org.springframework.http.HttpHeaders;
 public final class HeaderUtil {
 
     // ========================== Header names ========================== //
-    private static final String SCT_HEADER_ALERT = "X-sct-alert";
-    private static final String SCT_HEADER_PARAMS = "X-sct-params";
-    private static final String SCT_HEADER_ERROR_KEY = "X-sct-error-key";
+    public static final String SCT_HEADER_ALERT = "X-SCT-Alert";
+    public static final String SCT_HEADER_PARAMS = "X-SCT-Params";
+    public static final String SCT_HEADER_ERROR_KEY = "X-SCT-Error-Key";
 
-    // ====================================== Common error messages ======================================= //
-    public static final String ERROR_MSG_UPDATE_DENIED = "You do not have permit to update this entity.";
+    // ===========================================  Common error messages =========================================== //
+    public static final String ERROR_MSG_UPDATE_DENIED = "You do not have permit to update this entity";
+    public static final String ERROR_MSG_ID_EXISTS = "Entity with provided ID already exists";
+    public static final String ERROR_MSG_CUSTOM_ID = "A new entity cannot have custom ID";
+    public static final String ERROR_MSG_NON_EXISTING_ANNOUNCEMENT = "There is no announcement with id you specified";
+    public static final String ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT = "You cannot report verified announcement";
 
-    // ============================================== Error codes ============================================== //
+    // ================================================ Error codes ================================================= //
     /**
-     * Code which receives user who cannot perform action because he is not the the <em>owner</em> of the entity
+     * Error code representing situation in which user cannot perform action because he is not
+     * the <em>owner</em> of the entity.
      */
     public static final Integer ERROR_CODE_NOT_OWNER = 1001;
+
+    /**
+     * Error code representing situation in which user cannot perform creation of entity
+     * because entity with same ID exists.
+     */
+    public static final Integer ERROR_CODE_ID_EXISTS = 1002;
+
+    /**
+     * Error code representing situation in which user cannot perform creation of entity
+     * because he provided custom entity ID.
+     */
+    public static final Integer ERROR_CODE_CUSTOM_ID = 1003;
+
+    /**
+     * Error code representing situation in which user tries to create report for announcement
+     * which does not exists.
+     */
+    public static final Integer ERROR_CODE_NON_EXISTING_ANNOUNCEMENT = 1004;
+
+    /**
+     * Error code representing situation in which user tries to report
+     * announcement that is already been verified.
+     */
+    public static final Integer ERROR_CODE_REPORT_VERIFED_ANNOUNCEMENT = 1005;
 
     private HeaderUtil() {
     }

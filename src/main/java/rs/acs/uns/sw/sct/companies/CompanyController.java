@@ -50,11 +50,14 @@ public class CompanyController {
     @PostMapping("/companies")
     public ResponseEntity<Company> createCompany(@Valid @RequestBody Company company) throws URISyntaxException {
         if (company.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.COMPANY, "id_exists", "A new company cannot already have an ID")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.COMPANY, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .body(null);
         }
         Company result = companyService.save(company);
         return ResponseEntity.created(new URI("/api/companies/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.COMPANY, result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.COMPANY, result.getId().toString()))
                 .body(result);
     }
 
@@ -75,7 +78,7 @@ public class CompanyController {
         }
         Company result = companyService.save(company);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.COMPANY, company.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.COMPANY, company.getId().toString()))
                 .body(result);
     }
 
@@ -122,7 +125,7 @@ public class CompanyController {
     @DeleteMapping("/companies/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         companyService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.COMPANY, id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.COMPANY, id.toString())).build();
     }
 
     /**
@@ -156,7 +159,7 @@ public class CompanyController {
         User updatedUser = userService.save(user);
 
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.USER, user.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.USER, user.getId().toString()))
                 .body(updatedUser);
     }
 
@@ -226,7 +229,7 @@ public class CompanyController {
         User updatedUser = userService.save(user);
 
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.USER, user.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.USER, user.getId().toString()))
                 .body(updatedUser);
     }
 

@@ -7,15 +7,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
-import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 
 import javax.validation.Valid;
 import java.io.File;
@@ -57,7 +59,10 @@ public class AnnouncementController {
     @PostMapping("/announcements")
     public ResponseEntity<Announcement> createAnnouncement(@Valid @RequestBody AnnouncementDTO annDTO) throws URISyntaxException {
         if (annDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.ANNOUNCEMENT, "id_exists", "A new announcement cannot already have an ID")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.ANNOUNCEMENT, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .body(null);
         }
 
         final User user = userSecurityUtil.getLoggedUser();
@@ -69,7 +74,7 @@ public class AnnouncementController {
 
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.created(new URI("/api/announcements/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.ANNOUNCEMENT, result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.ANNOUNCEMENT, result.getId().toString()))
                 .body(result);
     }
 
@@ -82,15 +87,26 @@ public class AnnouncementController {
      * or with status 500 (Internal Server Error) if the announcement couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements")
     public ResponseEntity<Announcement> updateAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
         if (announcement.getId() == null) {
             return createAnnouncement(announcement.convertToDTO());
         }
+
+        // check if user has no rights to update
+        if (!SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(AuthorityRoles.ADMIN) &&
+                !announcementService.findOne(announcement.getId()).getAuthor().getUsername()
+                        .equals(userSecurityUtil.getLoggedUser().getUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.ANNOUNCEMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_UPDATE_DENIED))
+                    .body(null);
+        }
+
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.ANNOUNCEMENT, announcement.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.ANNOUNCEMENT, announcement.getId().toString()))
                 .body(result);
     }
 
@@ -100,7 +116,8 @@ public class AnnouncementController {
      * @param id   the announcement to update
      * @param data the data send in RequestBody
      * @return the ResponseEntity with status 200 (OK) and with body the updated announcement,
-     * or with status 400 (Bad Request) if the announcement doesn't contain expirationDate attribute or date have wrong format or date is before today
+     * or with status 400 (Bad Request) if the announcement doesn't contain expirationDate
+     * attribute or date have wrong format or date is before today
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
@@ -131,7 +148,7 @@ public class AnnouncementController {
         Announcement result = announcementService.save(persistedAnnouncement);
 
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.ANNOUNCEMENT, persistedAnnouncement.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.ANNOUNCEMENT, persistedAnnouncement.getId().toString()))
                 .body(result);
     }
 
@@ -154,7 +171,7 @@ public class AnnouncementController {
     /**
      * GET  /announcements/deleted/:status : get all the announcements by status - deleted or not.
      *
-     * @param status deleted or not deleted
+     * @param status   deleted or not deleted
      * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
@@ -233,10 +250,9 @@ public class AnnouncementController {
 
             return ResponseEntity
                     .ok()
-                    .headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.ANNOUNCEMENT, id.toString()))
+                    .headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.ANNOUNCEMENT, id.toString()))
                     .build();
-        }
-        else {
+        } else {
             return ResponseEntity
                     .notFound()
                     .build();
@@ -247,7 +263,8 @@ public class AnnouncementController {
      * POST  /announcements/:id : upload file for announcement.
      *
      * @param file the file to be upload
-     * @return the ResponseEntity with status 201 (Created) and with body the new file name, or with status 400 (Bad Request) if the upload failed, or with status 204 (No content)
+     * @return the ResponseEntity with status 201 (Created) and with body the new file name,
+     * or with status 400 (Bad Request) if the upload failed, or with status 204 (No content)
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PostMapping("/announcements/upload")
@@ -307,7 +324,7 @@ public class AnnouncementController {
 
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.ANNOUNCEMENT, announcement.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.ANNOUNCEMENT, announcement.getId().toString()))
                 .body(result);
     }
 
@@ -343,7 +360,7 @@ public class AnnouncementController {
                 .country(country).cityRegion(cityRegion)
                 .city(city).street(street);
 
-        List < Announcement > list = announcementService.findBySearchTerm(wrap);
+        List<Announcement> list = announcementService.findBySearchTerm(wrap);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

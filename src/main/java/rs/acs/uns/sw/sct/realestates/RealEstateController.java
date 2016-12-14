@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
@@ -39,11 +40,14 @@ public class RealEstateController {
     @PostMapping("/real-estates")
     public ResponseEntity<RealEstate> createRealEstate(@Valid @RequestBody RealEstate realEstate) throws URISyntaxException {
         if (realEstate.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.REAL_ESTATE, "id_exists", "A new realEstate cannot already have an ID")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REAL_ESTATE, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .body(null);
         }
         RealEstate result = realEstateService.save(realEstate);
         return ResponseEntity.created(new URI("/api/real-estates/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.REAL_ESTATE, result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.REAL_ESTATE, result.getId().toString()))
                 .body(result);
     }
 
@@ -64,7 +68,7 @@ public class RealEstateController {
         }
         RealEstate result = realEstateService.save(realEstate);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.REAL_ESTATE, realEstate.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REAL_ESTATE, realEstate.getId().toString()))
                 .body(result);
     }
 
@@ -128,7 +132,7 @@ public class RealEstateController {
     @DeleteMapping("/real-estates/{id}")
     public ResponseEntity<Void> deleteRealEstate(@PathVariable Long id) {
         realEstateService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.REAL_ESTATE, id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.REAL_ESTATE, id.toString())).build();
     }
 
 }

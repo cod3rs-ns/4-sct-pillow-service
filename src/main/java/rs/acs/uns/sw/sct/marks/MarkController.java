@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
@@ -39,11 +40,14 @@ public class MarkController {
     @PostMapping("/marks")
     public ResponseEntity<Mark> createMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
         if (mark.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.MARK, "id_exists", "A new mark cannot already have an ID")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.MARK, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .body(null);
         }
         Mark result = markService.save(mark);
         return ResponseEntity.created(new URI("/api/marks/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.MARK, result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.MARK, result.getId().toString()))
                 .body(result);
     }
 
@@ -64,7 +68,7 @@ public class MarkController {
         }
         Mark result = markService.save(mark);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.MARK, mark.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.MARK, mark.getId().toString()))
                 .body(result);
     }
 
@@ -128,7 +132,7 @@ public class MarkController {
     @DeleteMapping("/marks/{id}")
     public ResponseEntity<Void> deleteMark(@PathVariable Long id) {
         markService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(HeaderUtil.MARK, id.toString())).build();
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.MARK, id.toString())).build();
     }
 
 }
