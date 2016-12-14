@@ -149,6 +149,48 @@ public class UserControllerTest {
 
     @Test
     @Transactional
+    public void registerUserWithExistingUsername() throws Exception {
+        final int beforeDbSize = userRepository.findAll().size();
+
+        advertiser.setUsername(UserConstants.EXISTING_USERNAME);
+
+        // Create Advertiser
+        final MvcResult result = mockMvc.perform(post("/api/users/")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(advertiser)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        final String message = result.getResponse().getHeader("X-sct-app-alert");
+        assertThat(message).isEqualTo("Username already exists!");
+
+        final List<User> users = userRepository.findAll();
+        assertThat(users).hasSize(beforeDbSize);
+    }
+
+    @Test
+    @Transactional
+    public void registerUserWithExistingEmail() throws Exception {
+        final int beforeDbSize = userRepository.findAll().size();
+
+        advertiser.setEmail(UserConstants.EXISTING_EMAIL);
+
+        // Create Advertiser
+        final MvcResult result = mockMvc.perform(post("/api/users/")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(advertiser)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        final String message = result.getResponse().getHeader("X-sct-app-alert");
+        assertThat(message).isEqualTo("Email already exists!");
+
+        final List<User> users = userRepository.findAll();
+        assertThat(users).hasSize(beforeDbSize);
+    }
+
+    @Test
+    @Transactional
     public void checkValueIsRequired() throws Exception {
         final int beforeDbSize = userRepository.findAll().size();
 
@@ -376,7 +418,7 @@ public class UserControllerTest {
         final String randomPhoneNumber = getRandomCaseInsensitiveSubstring(advertiser.getPhoneNumber());
         final String randomCompanyName = getRandomCaseInsensitiveSubstring(advertiser.getCompany().getName());
 
-        MvcResult result = mockMvc.perform(get("/api/users/search")
+        mockMvc.perform(get("/api/users/search")
                 .param("sort", "id,desc")
                 .param("size", String.valueOf(PAGE_SIZE))
                 .param("page", "0")
@@ -389,7 +431,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.[*].company.name", hasItem(advertiser.getCompany().getName())))
                 .andReturn();
 
-        System.out.println(result.getResponse().getContentAsString());
     }
 
     @Test
@@ -409,5 +450,63 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[*].id", everyItem(not(equalTo(advertiser.getId().intValue())))))
                 .andReturn();
+    }
+
+    @Test
+    @Transactional
+    public void isUsernameAvailableTrue() throws Exception {
+        // We didn't save 'advertiser' to database
+
+        final MvcResult result = mockMvc.perform(get("/api/users/username-available")
+                .param("username", advertiser.getUsername()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        final Boolean response = Boolean.parseBoolean(result.getResponse().getContentAsString());
+        assertThat(response).isEqualTo(true);
+    }
+
+    @Test
+    @Transactional
+    public void isUsernameAvailableFalse() throws Exception {
+        // We saved 'advertiser' to database
+        userRepository.saveAndFlush(advertiser);
+
+        final MvcResult result = mockMvc.perform(get("/api/users/username-available")
+                .param("username", advertiser.getUsername()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        final Boolean response = Boolean.parseBoolean(result.getResponse().getContentAsString());
+        assertThat(response).isEqualTo(false);
+    }
+
+    @Test
+    @Transactional
+    public void isEmailAvailableTrue() throws Exception {
+        // We didn't save 'advertiser' to database
+
+        final MvcResult result = mockMvc.perform(get("/api/users/email-available")
+                .param("email", advertiser.getEmail()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        final Boolean response = Boolean.parseBoolean(result.getResponse().getContentAsString());
+        assertThat(response).isEqualTo(true);
+    }
+
+    @Test
+    @Transactional
+    public void isEmailAvailableFalse() throws Exception {
+        // We saved 'advertiser' to database
+        userRepository.saveAndFlush(advertiser);
+
+        final MvcResult result = mockMvc.perform(get("/api/users/email-available")
+                .param("email", advertiser.getEmail()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        final Boolean response = Boolean.parseBoolean(result.getResponse().getContentAsString());
+        assertThat(response).isEqualTo(false);
     }
 }

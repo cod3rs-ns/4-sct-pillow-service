@@ -131,6 +131,14 @@ public class UserController {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.USER, "id_exists", "A new user cannot already have an ID")).body(null);
         }
 
+        if (userService.getUserByEmail(user.getEmail()) != null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.USER, "email_exists", "Email already exists!")).body(null);
+        }
+
+        if (userService.getUserByUsername(user.getUsername()) != null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.USER, "username_exists", "Username already exists!")).body(null);
+        }
+
         User result = userService.save(user);
 
         mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
@@ -191,6 +199,18 @@ public class UserController {
 
         List<User> list = userService.findBySearchTerm(username, email, firstName, lastName, phoneNumber, companyName, pageable);
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/users/username-available")
+    public ResponseEntity<Boolean> isUsernameAvailable(@RequestParam(value = "username") String username) {
+        return new ResponseEntity<>(userService.getUserByUsername(username) == null, HttpStatus.OK);
+    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/users/email-available")
+    public ResponseEntity<Boolean> isEmailAvailable(@RequestParam(value = "email") String email) {
+        return new ResponseEntity<>(userService.getUserByEmail(email) == null, HttpStatus.OK);
     }
 
 

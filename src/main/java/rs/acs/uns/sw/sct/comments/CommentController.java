@@ -113,8 +113,10 @@ public class CommentController {
     @GetMapping("/comments/announcement/{announcementId}")
     public ResponseEntity<List<Comment>> getAllCommentsByAnnouncementId(@PathVariable Long announcementId, Pageable pageable)
             throws URISyntaxException {
+
         Page<Comment> page = commentService.findAllByAnnouncement(announcementId, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/comments/announcement");
+
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 

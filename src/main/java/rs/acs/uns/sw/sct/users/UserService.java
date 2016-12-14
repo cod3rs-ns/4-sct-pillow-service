@@ -99,6 +99,9 @@ public class UserService {
      * @return the persisted user
      */
     public User save(User newUser) {
+
+        // FIXME @bblagojevic Not sure if we need this
+
         User user = userRepository.findOneByUsername(newUser.getUsername());
         if (user == null || !newUser.getPassword().equals(user.getPassword())) {
             if (newUser != null && newUser.getPassword() != null) {
@@ -110,6 +113,8 @@ public class UserService {
 
         return userRepository.save(newUser);
     }
+
+
 
     /**
      * Get one User by id.
