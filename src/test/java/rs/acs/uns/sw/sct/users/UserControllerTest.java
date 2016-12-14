@@ -21,6 +21,7 @@ import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.companies.Company;
 import rs.acs.uns.sw.sct.companies.CompanyService;
 import rs.acs.uns.sw.sct.constants.CompanyConstants;
+import rs.acs.uns.sw.sct.constants.UserConstants;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.TestUtil;
@@ -39,6 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static rs.acs.uns.sw.sct.util.ContainsIgnoreCase.containsIgnoringCase;
 import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
+
 
 /**
  * Test class for the User REST controller.
@@ -143,7 +145,6 @@ public class UserControllerTest {
         assertThat(testUser.getUsername()).isEqualTo(DEFAULT_USERNAME);
         assertThat(testUser.getType()).isEqualTo(Constants.Roles.ADVERTISER);
         assertThat(testUser.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
-        // TODO Check for password encoding
     }
 
     @Test
@@ -190,7 +191,24 @@ public class UserControllerTest {
 
     @Test
     @Transactional
-    public void getExistingUser() throws Exception {
+    public void getExistingUserAsGuest() throws Exception {
+        // Add user to database first
+        userService.save(advertiser);
+
+        mockMvc.perform(get("/api/users/{id}", advertiser.getId()))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.id").value(advertiser.getId().intValue()))
+                .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME))
+                .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
+                .andExpect(jsonPath("$.type").value(Constants.Roles.ADVERTISER))
+                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getExistingUserAsGuestAsAdvertiser() throws Exception {
         // Add user to database first
         userService.save(advertiser);
 
@@ -223,6 +241,50 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void getUsersByStatusDeletedAsAdmin() throws Exception {
+
+        final String status = "true";
+
+        advertiser.deleted(true);
+        userService.save(advertiser);
+
+        final Long usersDeletedCount = userRepository.findAllByDeleted(true, UserConstants.PAGEABLE).getTotalElements();
+
+        mockMvc.perform(get("/api/users/deleted/{status}", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(usersDeletedCount))))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(advertiser.getId().intValue())))
+                .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME)))
+                .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(Constants.Roles.ADVERTISER)))
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)));
+    }
+
+    @Test
+    @Transactional
+    public void getUsersByStatusDeletedAsGuest() throws Exception {
+
+        final String status = "false";
+
+        advertiser.deleted(false);
+        userService.save(advertiser);
+
+        final Long usersDeletedCount = userRepository.findAllByDeleted(false, UserConstants.PAGEABLE).getTotalElements();
+
+        mockMvc.perform(get("/api/users/deleted/{status}", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(usersDeletedCount))))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(advertiser.getId().intValue())))
+                .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME)))
+                .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(Constants.Roles.ADVERTISER)))
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)));
+    }
 
     @Test
     @Transactional
