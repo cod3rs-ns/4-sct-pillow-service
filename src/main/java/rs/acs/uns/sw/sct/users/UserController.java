@@ -201,6 +201,18 @@ public class UserController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    @PreAuthorize("permitAll()")
+    @GetMapping("/users/username-available")
+    public ResponseEntity<Boolean> isUsernameAvailable(@RequestParam(value = "username") String username) {
+        return new ResponseEntity<>(userService.getUserByUsername(username) == null, HttpStatus.OK);
+    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/users/email-available")
+    public ResponseEntity<Boolean> isEmailAvailable(@RequestParam(value = "email") String email) {
+        return new ResponseEntity<>(userService.getUserByEmail(email) == null, HttpStatus.OK);
+    }
+
 
     /**
      * Authentication response
