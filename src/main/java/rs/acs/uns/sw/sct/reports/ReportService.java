@@ -81,4 +81,17 @@ public class ReportService {
     public void delete(Long id) {
         reportRepository.delete(id);
     }
+
+
+    /**
+     * Get all reports by author email.
+     *
+     * @param email the reporter email
+     * @param status status of report
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    Report findByReaporterEmailAndStatus(String email, String status) {
+        return reportRepository.findByEmailAndStatus(email, status);
+    }
 }

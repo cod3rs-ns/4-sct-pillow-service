@@ -22,6 +22,7 @@ import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
 import rs.acs.uns.sw.sct.constants.ReportConstants;
 import rs.acs.uns.sw.sct.constants.UserConstants;
+import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
@@ -141,6 +142,7 @@ public class ReportControllerTest {
     @WithMockUser(username = UserConstants.USER_USERNAME)
     public void createReportAsRegisteredUser() throws Exception {
         int databaseSizeBeforeCreate = reportRepository.findAll().size();
+        User user = userService.getUserByUsername(UserConstants.USER_USERNAME);
 
         // Create the Report
         restReportMockMvc.perform(post("/api/reports")
@@ -152,7 +154,7 @@ public class ReportControllerTest {
         List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate + 1);
         Report testReport = reports.get(reports.size() - 1);
-        assertThat(testReport.getEmail()).isEqualTo(DEFAULT_EMAIL);
+        assertThat(testReport.getEmail()).isEqualTo(user.getEmail());
         assertThat(testReport.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testReport.getStatus()).isEqualTo(Constants.ReportStatus.PENDING);
         assertThat(testReport.getContent()).isEqualTo(DEFAULT_CONTENT);
