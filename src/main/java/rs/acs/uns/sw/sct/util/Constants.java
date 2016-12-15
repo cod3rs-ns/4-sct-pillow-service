@@ -50,6 +50,18 @@ public final class Constants {
     }
 
     /**
+     * Constants representing REPORT statuses.
+     */
+    public static final class ReportStatus {
+        public static final String ACCEPTED = "accepted";
+        public static final String REJECTED = "rejected";
+        public static final String PENDING = "pending";
+
+        private ReportStatus() {
+        }
+    }
+
+    /**
      * Constants representing Verified statuses.
      */
     public static final class VerifiedStatuses {

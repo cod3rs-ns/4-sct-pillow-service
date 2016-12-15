@@ -22,18 +22,15 @@ import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.constants.AnnouncementConstants;
 import rs.acs.uns.sw.sct.constants.ReportConstants;
 import rs.acs.uns.sw.sct.constants.UserConstants;
+import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
-import rs.acs.uns.sw.sct.util.AuthorityRoles;
-import rs.acs.uns.sw.sct.util.DBUserMocker;
-import rs.acs.uns.sw.sct.util.HeaderUtil;
-import rs.acs.uns.sw.sct.util.TestUtil;
+import rs.acs.uns.sw.sct.util.*;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -59,6 +56,7 @@ public class ReportControllerTest {
 
     private static final String DEFAULT_CONTENT = "CONTENT_A";
     private static final String UPDATED_CONTENT = "CONTENT_B";
+
 
     @Autowired
     private ReportRepository reportRepository;
@@ -142,6 +140,7 @@ public class ReportControllerTest {
     @WithMockUser(username = UserConstants.USER_USERNAME)
     public void createReportAsRegisteredUser() throws Exception {
         int databaseSizeBeforeCreate = reportRepository.findAll().size();
+        User user = userService.getUserByUsername(UserConstants.USER_USERNAME);
 
         // Create the Report
         restReportMockMvc.perform(post("/api/reports")
@@ -153,10 +152,39 @@ public class ReportControllerTest {
         List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate + 1);
         Report testReport = reports.get(reports.size() - 1);
-        assertThat(testReport.getEmail()).isEqualTo(DEFAULT_EMAIL);
+        assertThat(testReport.getEmail()).isEqualTo(user.getEmail());
         assertThat(testReport.getType()).isEqualTo(DEFAULT_TYPE);
-        assertThat(testReport.getStatus()).isEqualTo(DEFAULT_STATUS);
+        assertThat(testReport.getStatus()).isEqualTo(Constants.ReportStatus.PENDING);
         assertThat(testReport.getContent()).isEqualTo(DEFAULT_CONTENT);
+    }
+
+
+    @Test
+    @Transactional
+    public void createReportSameReportTwoTimesAsSameUser() throws Exception {
+        reportService.save(report.status(Constants.ReportStatus.PENDING));
+        int databaseSizeBeforeCreate = reportRepository.findAll().size();
+
+        Report sameReport = new Report()
+                .announcement(report.getAnnouncement())
+                .email(report.getEmail())
+                .type(report.getType())
+                .content(report.getContent())
+                .status(report.getStatus());
+
+        // Create the Report
+        MvcResult result = restReportMockMvc.perform(post("/api/reports")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(sameReport)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // Validate the Report in the database
+        List<Report> reports = reportRepository.findAll();
+        assertThat(reports).hasSize(databaseSizeBeforeCreate);
+
+        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
+        assertThat(message).isEqualTo("You can't have more reports for the same advert unless they are with pending status");
     }
 
     @Test
@@ -251,7 +279,7 @@ public class ReportControllerTest {
         final Report testReport = reports.get(reports.size() - 1);
         assertThat(testReport.getEmail()).isEqualTo(email);
         assertThat(testReport.getType()).isEqualTo(DEFAULT_TYPE);
-        assertThat(testReport.getStatus()).isEqualTo(DEFAULT_STATUS);
+        assertThat(testReport.getStatus()).isEqualTo(Constants.ReportStatus.PENDING);
         assertThat(testReport.getContent()).isEqualTo(DEFAULT_CONTENT);
     }
 
@@ -419,7 +447,7 @@ public class ReportControllerTest {
         updatedReport
                 .email(UPDATED_EMAIL)
                 .type(UPDATED_TYPE)
-                .status(UPDATED_STATUS)
+                .status(Constants.ReportStatus.PENDING)
                 .content(UPDATED_CONTENT);
 
         restReportMockMvc.perform(put("/api/reports")
@@ -434,7 +462,7 @@ public class ReportControllerTest {
         Report testReport = reports.get(reports.size() - 1);
         assertThat(testReport.getEmail()).isEqualTo(UPDATED_EMAIL);
         assertThat(testReport.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testReport.getStatus()).isEqualTo(UPDATED_STATUS);
+        assertThat(testReport.getStatus()).isEqualTo(Constants.ReportStatus.PENDING);
         assertThat(testReport.getContent()).isEqualTo(UPDATED_CONTENT);
     }
 
@@ -543,7 +571,7 @@ public class ReportControllerTest {
         final Long count = reportRepository.findByStatus(status, ReportConstants.PAGEABLE).getTotalElements();
 
         // Get all the reports by status
-         restReportMockMvc.perform(get("/api/reports/status/{status}", status))
+        restReportMockMvc.perform(get("/api/reports/status/{status}", status))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
@@ -581,5 +609,132 @@ public class ReportControllerTest {
         // Get all the reports
         restReportMockMvc.perform(get("/api/reports/status/{status}", status))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void acceptReport() throws Exception {
+        final String status = Constants.ReportStatus.ACCEPTED;
+
+        // Initialize the database
+        report.setStatus(Constants.ReportStatus.PENDING);
+        Report savedReport = reportRepository.saveAndFlush(report);
+
+        // Get all the reports
+        restReportMockMvc.perform(put("/api/reports/resolve/{id}", savedReport.getId())
+                .param("status", status))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.status").value(equalTo(status)))
+                .andExpect(jsonPath("$.announcement.deleted").value(equalTo(true)));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void rejectReport() throws Exception {
+        final String status = Constants.ReportStatus.REJECTED;
+
+        // Initialize the database
+        report.setStatus(Constants.ReportStatus.PENDING);
+        Report savedReport = reportRepository.saveAndFlush(report);
+
+        // Get all the reports
+        restReportMockMvc.perform(put("/api/reports/resolve/{id}", savedReport.getId())
+                .param("status", status))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.status").value(equalTo(status)));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void resolveReportWrongId() throws Exception {
+        final Long reportId = Long.MAX_VALUE;
+
+        Report report = reportService.findOne(reportId);
+        assertThat(report).isNull();
+
+        final String status = Constants.ReportStatus.ACCEPTED;
+
+        // Get all the reports
+        restReportMockMvc.perform(put("/api/reports/resolve/{id}", reportId)
+                .param("status", status))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void resolveReportWithoutStatus() throws Exception {
+        report.setStatus(Constants.ReportStatus.PENDING);
+        Report savedReport = reportRepository.saveAndFlush(report);
+
+        // Get all the reports
+        restReportMockMvc.perform(put("/api/reports/resolve/{id}", savedReport.getId()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void resolveReportWithWrongStatusQuery() throws Exception {
+        report.setStatus(Constants.ReportStatus.PENDING);
+        Report savedReport = reportRepository.saveAndFlush(report);
+
+        // Get all the reports
+        MvcResult result = restReportMockMvc.perform(put("/api/reports/resolve/{id}", savedReport.getId())
+                .param("status", DEFAULT_STATUS))
+                .andExpect(status().isBadRequest()).andReturn();
+
+        assertThat("Wrong status of report").isEqualTo(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void resolveReportThatIsAlreadyResolved() throws Exception {
+        report.setStatus(Constants.ReportStatus.ACCEPTED);
+        Report savedReport = reportRepository.saveAndFlush(report);
+
+        // Get all the reports
+        MvcResult result = restReportMockMvc.perform(put("/api/reports/resolve/{id}", savedReport.getId())
+                .param("status", Constants.ReportStatus.REJECTED))
+                .andExpect(status().isBadRequest()).andReturn();
+
+        assertThat("Can't modified status of accepted or rejected report!").isEqualTo(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Transactional
+    public void resolveReportAsGuest() throws Exception {
+        final String status = Constants.ReportStatus.ACCEPTED;
+
+        // Initialize the database
+        report.setStatus(Constants.ReportStatus.PENDING);
+        Report savedReport = reportRepository.saveAndFlush(report);
+
+        // Get all the reports
+        restReportMockMvc.perform(put("/api/reports/resolve/{id}", savedReport.getId())
+                .param("status", status))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void resolveReportAsAdvertiser() throws Exception {
+        final String status = Constants.ReportStatus.ACCEPTED;
+
+        // Initialize the database
+        report.setStatus(Constants.ReportStatus.PENDING);
+        Report savedReport = reportRepository.saveAndFlush(report);
+
+        // Get all the reports
+        restReportMockMvc.perform(put("/api/reports/resolve/{id}", savedReport.getId())
+                .param("status", status))
+                .andExpect(status().isForbidden());
     }
 }

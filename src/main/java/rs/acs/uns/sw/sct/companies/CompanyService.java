@@ -70,11 +70,12 @@ public class CompanyService {
      * @param name        company name
      * @param address     company address
      * @param phoneNumber company phone number
+     * @param pageable    the pagination information
      */
     @Transactional(readOnly = true)
-    public List<Company> findBySearchTerm(String name, String address, String phoneNumber) {
+    public List<Company> findBySearchTerm(String name, String address, String phoneNumber, Pageable pageable) {
         Predicate searchPredicate = search(name, address, phoneNumber);
-        Iterable<Company> searchResults = companyRepository.findAll(searchPredicate);
+        Iterable<Company> searchResults = companyRepository.findAll(searchPredicate, pageable);
         return IteratorUtils.toList(searchResults.iterator());
     }
 }

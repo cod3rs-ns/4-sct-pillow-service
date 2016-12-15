@@ -16,27 +16,31 @@ public final class AnnouncementPredicates {
         if (searchWrapper.getStartPrice() != null || searchWrapper.getEndPrice() != null)
             where.and(announcement.price.between(searchWrapper.getStartPrice(), searchWrapper.getEndPrice()));
         if (searchWrapper.getPhoneNumber() != null)
-            where.and(announcement.phoneNumber.toLowerCase().contains(searchWrapper.getPhoneNumber().toLowerCase()));
+            where.and(announcement.phoneNumber.containsIgnoreCase(searchWrapper.getPhoneNumber()));
         if (searchWrapper.getType() != null)
-            where.and(announcement.type.toLowerCase().contains(searchWrapper.getType().toLowerCase()));
+            where.and(announcement.type.containsIgnoreCase(searchWrapper.getType()));
         if (searchWrapper.getAuthorName() != null)
-            where.and(announcement.author.firstName.toLowerCase().contains(searchWrapper.getAuthorName().toLowerCase()));
+            where.and(announcement.author.firstName.containsIgnoreCase(searchWrapper.getAuthorName()));
         if (searchWrapper.getAuthorSurname() != null)
-            where.and(announcement.author.lastName.toLowerCase().contains(searchWrapper.getAuthorSurname().toLowerCase()));
+            where.and(announcement.author.lastName.containsIgnoreCase(searchWrapper.getAuthorSurname()));
         if (searchWrapper.getStartArea() != null || searchWrapper.getEndArea() != null)
             where.and(announcement.realEstate.area.between(searchWrapper.getStartArea(), searchWrapper.getEndArea()));
         if (searchWrapper.getHeatingType() != null)
-            where.and(announcement.realEstate.heatingType.toLowerCase().contains(searchWrapper.getHeatingType().toLowerCase()));
+            where.and(announcement.realEstate.heatingType.containsIgnoreCase(searchWrapper.getHeatingType()));
         if (searchWrapper.getName() != null)
-            where.and(announcement.realEstate.name.toLowerCase().contains(searchWrapper.getName().toLowerCase()));
+            where.and(announcement.realEstate.name.containsIgnoreCase(searchWrapper.getName()));
         if (searchWrapper.getCity() != null)
-            where.and(announcement.realEstate.location.city.toLowerCase().contains(searchWrapper.getCity().toLowerCase()));
+            where.and(announcement.realEstate.location.city.containsIgnoreCase(searchWrapper.getCity()));
         if (searchWrapper.getCityRegion() != null)
-            where.and(announcement.realEstate.location.cityRegion.toLowerCase().contains(searchWrapper.getCityRegion().toLowerCase()));
+            where.and(announcement.realEstate.location.cityRegion.containsIgnoreCase(searchWrapper.getCityRegion()));
         if (searchWrapper.getCountry() != null)
-            where.and(announcement.realEstate.location.country.toLowerCase().contains(searchWrapper.getCountry().toLowerCase()));
+            where.and(announcement.realEstate.location.country.containsIgnoreCase(searchWrapper.getCountry()));
         if (searchWrapper.getStreet() != null)
-            where.and(announcement.realEstate.location.street.toLowerCase().contains(searchWrapper.getStreet().toLowerCase()));
+            where.and(announcement.realEstate.location.street.containsIgnoreCase(searchWrapper.getStreet()));
+        if (searchWrapper.getStreetNumber() != null)
+            where.and(announcement.realEstate.location.streetNumber.equalsIgnoreCase(searchWrapper.getStreetNumber()));
+
+        where.and(announcement.deleted.eq(false));
 
         return where;
     }

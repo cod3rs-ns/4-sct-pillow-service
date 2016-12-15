@@ -412,4 +412,17 @@ public class CommentControllerTest {
                 .andExpect(jsonPath("$.[*].content").value(DEFAULT_CONTENT))
                 .andExpect(jsonPath("$.[*].date").value((int) DEFAULT_DATE.getTime()));
     }
+
+    @Test
+    @Transactional
+    public void getAllCommentsForNonExistingAnnouncementAsGuest() throws Exception {
+        // Initialize the database
+        final Long announcementId = Long.MAX_VALUE;
+
+        // Get the comment
+        restCommentMockMvc.perform(get("/api/comments/announcement/{announcementId}", announcementId)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(0))))
+                .andExpect(status().isOk());
+    }
 }

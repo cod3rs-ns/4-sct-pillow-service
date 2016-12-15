@@ -135,9 +135,19 @@ public class UserController {
                     .body(null);
         }
 
+        // TODO create real error code in HeaderUtils
+        if (userService.getUserByEmail(user.getEmail()) != null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(Constants.EntityNames.USER, 2000, "Email already exists!")).body(null);
+        }
+
+        if (userService.getUserByUsername(user.getUsername()) != null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(Constants.EntityNames.USER, 2001, "Username already exists!")).body(null);
+        }
+
+        user.setVerified(false);
         User result = userService.save(user);
 
-        mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
+        // mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
 
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.USER, result.getId().toString()))
@@ -190,10 +200,23 @@ public class UserController {
                                              @RequestParam(value = "firstName", required = false) String firstName,
                                              @RequestParam(value = "lastName", required = false) String lastName,
                                              @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-                                             @RequestParam(value = "companyName", required = false) String companyName) {
+                                             @RequestParam(value = "companyName", required = false) String companyName,
+                                             Pageable pageable) {
 
-        List<User> list = userService.findBySearchTerm(username, email, firstName, lastName, phoneNumber, companyName);
+        List<User> list = userService.findBySearchTerm(username, email, firstName, lastName, phoneNumber, companyName, pageable);
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/users/username-available")
+    public ResponseEntity<Boolean> isUsernameAvailable(@RequestParam(value = "username") String username) {
+        return new ResponseEntity<>(userService.getUserByUsername(username) == null, HttpStatus.OK);
+    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/users/email-available")
+    public ResponseEntity<Boolean> isEmailAvailable(@RequestParam(value = "email") String email) {
+        return new ResponseEntity<>(userService.getUserByEmail(email) == null, HttpStatus.OK);
     }
 
 
