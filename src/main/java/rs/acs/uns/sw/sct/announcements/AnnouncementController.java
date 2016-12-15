@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
@@ -102,7 +100,7 @@ public class AnnouncementController {
                         .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.ANNOUNCEMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_UPDATE_DENIED))
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.ANNOUNCEMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
                     .body(null);
         }
 
@@ -253,7 +251,7 @@ public class AnnouncementController {
                             .equals(userSecurityUtil.getLoggedUserUsername())) {
                 return ResponseEntity
                         .badRequest()
-                        .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.ANNOUNCEMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_UPDATE_DENIED))
+                        .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.ANNOUNCEMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
                         .body(null);
             }
 

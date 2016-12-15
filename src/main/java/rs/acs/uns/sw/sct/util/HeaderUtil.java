@@ -13,7 +13,7 @@ public final class HeaderUtil {
     public static final String SCT_HEADER_ERROR_KEY = "X-SCT-Error-Key";
 
     // ===========================================  Common error messages =========================================== //
-    public static final String ERROR_MSG_UPDATE_DENIED = "You do not have permit to update this entity";
+    public static final String ERROR_MSG_NOT_OWNER = "You do not owner rights on this entity";
     public static final String ERROR_MSG_ID_EXISTS = "Entity with provided ID already exists";
     public static final String ERROR_MSG_CUSTOM_ID = "A new entity cannot have custom ID";
     public static final String ERROR_MSG_NON_EXISTING_ANNOUNCEMENT = "There is no announcement with id you specified";

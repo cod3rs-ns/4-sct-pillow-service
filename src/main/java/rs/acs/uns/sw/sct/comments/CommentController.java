@@ -7,7 +7,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
@@ -28,6 +31,9 @@ public class CommentController {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private UserSecurityUtil userSecurityUtil;
 
     /**
      * POST  /comments : Create a new comment.
@@ -65,6 +71,15 @@ public class CommentController {
     public ResponseEntity<Comment> updateComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
         if (comment.getId() == null) {
             return createComment(comment);
+        }
+        // check if user has no rights to update
+        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
+                !commentService.findOne(comment.getId()).getAuthor().getUsername()
+                        .equals(userSecurityUtil.getLoggedUserUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.COMMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
+                    .body(null);
         }
         Comment result = commentService.save(comment);
         return ResponseEntity.ok()
@@ -109,7 +124,7 @@ public class CommentController {
      * GET  /comments/announcement/:announcementId : get all comments for one announcement.
      *
      * @param announcementId the id of the announcement
-     * @param pageable the pagination information
+     * @param pageable       the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of comments in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
@@ -131,6 +146,16 @@ public class CommentController {
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
+        // check if user has no rights to update
+        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
+                !commentService.findOne(id).getAuthor().getUsername()
+                        .equals(userSecurityUtil.getLoggedUserUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.COMMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
+                    .body(null);
+        }
+
         commentService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.COMMENT, id.toString())).build();
     }
