@@ -7,11 +7,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
@@ -100,6 +102,15 @@ public class ReportController {
         if (report.getId() == null) {
             return createReport(report);
         }
+        // check if user has no rights to update
+        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
+                !reportService.findOne(report.getId()).getReporter().getUsername()
+                        .equals(userSecurityUtil.getLoggedUserUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
+                    .body(null);
+        }
         Report result = reportService.save(report);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
@@ -151,10 +162,21 @@ public class ReportController {
 
         final Report report = reportService.findOne(id);
 
+
         if (report == null)
             return ResponseEntity
                     .notFound()
                     .build();
+
+        // check if user has no rights to update
+        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
+                !reportService.findOne(report.getId()).getReporter().getUsername()
+                        .equals(userSecurityUtil.getLoggedUserUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.COMMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
+                    .body(null);
+        }
 
         reportService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.REPORT, id.toString())).build();
