@@ -18,6 +18,7 @@ import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.constants.MarkConstants;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
+import rs.acs.uns.sw.sct.util.DBUserMocker;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
@@ -212,8 +213,9 @@ public class MarkControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
     public void updateMark() throws Exception {
+        mark.grader(DBUserMocker.ADVERTISER);
         // Initialize the database
         markService.save(mark);
 
@@ -238,8 +240,9 @@ public class MarkControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = DBUserMocker.VERIFIER_USERNAME)
     public void deleteMarkAsVerifier() throws Exception {
+        mark.grader(DBUserMocker.VERIFIER);
         // Initialize the database
         markService.save(mark);
 

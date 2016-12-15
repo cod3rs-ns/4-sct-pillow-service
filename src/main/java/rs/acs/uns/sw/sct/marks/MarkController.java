@@ -7,7 +7,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
@@ -28,6 +31,9 @@ public class MarkController {
 
     @Autowired
     private MarkService markService;
+
+    @Autowired
+    private UserSecurityUtil userSecurityUtil;
 
     /**
      * POST  /marks : Create a new mark.
@@ -65,6 +71,15 @@ public class MarkController {
     public ResponseEntity<Mark> updateMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
         if (mark.getId() == null) {
             return createMark(mark);
+        }
+        // check if user has no rights to update
+        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
+                !markService.findOne(mark.getId()).getGrader().getUsername()
+                        .equals(userSecurityUtil.getLoggedUserUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.MARK, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
+                    .body(null);
         }
         Mark result = markService.save(mark);
         return ResponseEntity.ok()
@@ -131,8 +146,21 @@ public class MarkController {
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @DeleteMapping("/marks/{id}")
     public ResponseEntity<Void> deleteMark(@PathVariable Long id) {
+        // check if user has no rights to update
+        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
+                !markService.findOne(id).getGrader().getUsername()
+                        .equals(userSecurityUtil.getLoggedUserUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.MARK, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
+                    .body(null);
+        }
         markService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.MARK, id.toString())).build();
+
+        return ResponseEntity
+                .ok()
+                .headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.MARK, id.toString()))
+                .build();
     }
 
 }
