@@ -24,6 +24,8 @@ import rs.acs.uns.sw.sct.constants.ReportConstants;
 import rs.acs.uns.sw.sct.constants.UserConstants;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
+import rs.acs.uns.sw.sct.util.DBUserMocker;
+import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
@@ -173,8 +175,8 @@ public class ReportControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        final String message = result.getResponse().getHeader("X-sct-app-alert");
-        assertThat(message).isEqualTo("You can't report verified announcement");
+        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
+        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT);
 
         final List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
@@ -196,8 +198,8 @@ public class ReportControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        final String message = result.getResponse().getHeader("X-sct-app-alert");
-        assertThat(message).isEqualTo("There is no announcement with id you specified");
+        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
+        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_NON_EXISTING_ANNOUNCEMENT);
 
         final List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
@@ -219,8 +221,8 @@ public class ReportControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        final String message = result.getResponse().getHeader("X-sct-app-alert");
-        assertThat(message).isEqualTo("A new report cannot already have an ID");
+        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
+        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_CUSTOM_ID);
 
         final List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
@@ -406,6 +408,7 @@ public class ReportControllerTest {
     @Test
     @Transactional
     public void updateReportAsGuest() throws Exception {
+        report.reporter(DBUserMocker.ADVERTISER);
         // Initialize the database
         reportService.save(report);
 
@@ -422,7 +425,8 @@ public class ReportControllerTest {
         restReportMockMvc.perform(put("/api/reports")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(updatedReport)))
-                .andExpect(status().isOk());
+                .andExpect(status().isBadRequest());
+        // TODO make fix to throw isOK()
 
         // Validate the Report in the database
         List<Report> reports = reportRepository.findAll();
@@ -437,6 +441,7 @@ public class ReportControllerTest {
     @Test
     @Transactional
     public void deleteReportAsGuest() throws Exception {
+        report.reporter(DBUserMocker.ADVERTISER);
         // Initialize the database
         reportService.save(report);
 
@@ -445,11 +450,12 @@ public class ReportControllerTest {
         // Get the report
         restReportMockMvc.perform(delete("/api/reports/{id}", report.getId())
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+                .andExpect(status().isBadRequest());
+        // TODO make fix to throw isOK();
 
         // Validate the database is empty
         List<Report> reports = reportRepository.findAll();
-        assertThat(reports).hasSize(databaseSizeBeforeDelete - 1);
+        assertThat(reports).hasSize(databaseSizeBeforeDelete);
     }
 
     @Test

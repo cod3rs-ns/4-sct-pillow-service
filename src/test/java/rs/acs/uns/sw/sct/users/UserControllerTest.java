@@ -84,7 +84,7 @@ public class UserControllerTest {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static User createEntity(EntityManager em, final String USER_TYPE) {
+    public static User createEntity(final String USER_TYPE) {
         return new User()
                 .email(DEFAULT_EMAIL)
                 .username(DEFAULT_USERNAME)
@@ -111,7 +111,7 @@ public class UserControllerTest {
 
     @Before
     public void initTest() {
-        advertiser = createEntity(em, Constants.Roles.ADVERTISER);
+        advertiser = createEntity(Constants.Roles.ADVERTISER);
     }
 
     @Test

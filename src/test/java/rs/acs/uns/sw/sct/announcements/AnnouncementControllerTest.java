@@ -1,6 +1,7 @@
 package rs.acs.uns.sw.sct.announcements;
 
 import org.apache.commons.io.FileUtils;
+import org.hibernate.usertype.UserType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.constants.UserConstants;
+import rs.acs.uns.sw.sct.users.User;
+import rs.acs.uns.sw.sct.users.UserControllerTest;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
@@ -26,6 +30,7 @@ import rs.acs.uns.sw.sct.util.DateUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.time.LocalDate;
@@ -92,6 +97,9 @@ public class AnnouncementControllerTest {
 
     @Autowired
     private WebApplicationContext context;
+
+    @Autowired
+    private EntityManager em;
 
     private MockMvc restAnnouncementMockMvc;
 
@@ -337,9 +345,13 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "username")
     public void updateAnnouncement() throws Exception {
-        // Initialize the database
+        // initialize author of announcement
+        User userWithPermit = UserControllerTest.createEntity(Constants.Roles.ADVERTISER);
+        userService.save(userWithPermit);
+
+        announcement.setAuthor(new User().username(userWithPermit.getUsername()).id(userWithPermit.getId()));
         announcementService.save(announcement);
 
         int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
@@ -373,8 +385,97 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
-    public void deleteAnnouncementAsAdvertiser() throws Exception {
+    @WithMockUser(authorities = AuthorityRoles.ADMIN, username = "admin")
+    public void updateAnnouncementAsAdmin() throws Exception {
+        // initialize author of announcement
+        User owner = UserControllerTest.createEntity(Constants.Roles.ADVERTISER);
+        userService.save(owner);
+
+        announcement.setAuthor(new User().username(owner.getUsername()).id(owner.getId()));
+        announcementService.save(announcement);
+
+        // Update the announcement
+        Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
+        updatedAnnouncement
+                .price(UPDATED_PRICE)
+                .dateAnnounced(UPDATED_DATE_ANNOUNCED)
+                .dateModified(UPDATED_DATE_MODIFIED)
+                .expirationDate(UPDATED_EXPIRATION_DATE)
+                .phoneNumber(UPDATED_PHONE_NUMBER)
+                .type(UPDATED_TYPE);
+
+        int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        restAnnouncementMockMvc.perform(put("/api/announcements")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(updatedAnnouncement)))
+                .andExpect(status().isOk());
+
+        // Validate the Announcement in the database
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+        Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getPrice()).isEqualTo(UPDATED_PRICE);
+        assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(UPDATED_DATE_ANNOUNCED);
+        assertThat(testAnnouncement.getDateModified()).isEqualTo(UPDATED_DATE_MODIFIED);
+        assertThat(testAnnouncement.getExpirationDate()).isEqualTo(UPDATED_EXPIRATION_DATE);
+        assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(UPDATED_PHONE_NUMBER);
+        assertThat(testAnnouncement.getType()).isEqualTo(UPDATED_TYPE);
+    }
+
+    @Test
+    @Rollback
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "not_owner_username")
+    public void updateAnnouncementNotOwner() throws Exception {
+        // initialize author of announcement
+        User userWithPermit = UserControllerTest.createEntity(Constants.Roles.ADVERTISER);
+        userService.save(userWithPermit);
+        // set different author than logged user
+        announcement.setAuthor(new User().username(userWithPermit.getUsername()).id(userWithPermit.getId()));
+
+        // Initialize the database
+        announcementService.save(announcement);
+        announcementRepository.flush();
+
+        int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
+
+        // Update the announcement
+        Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
+        updatedAnnouncement
+                .price(UPDATED_PRICE)
+                .dateAnnounced(UPDATED_DATE_ANNOUNCED)
+                .dateModified(UPDATED_DATE_MODIFIED)
+                .expirationDate(UPDATED_EXPIRATION_DATE)
+                .phoneNumber(UPDATED_PHONE_NUMBER)
+                .type(UPDATED_TYPE)
+                .images(null);
+
+        restAnnouncementMockMvc.perform(put("/api/announcements")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(updatedAnnouncement)))
+                .andExpect(status().isBadRequest());
+
+        // Validate the Announcement in the database
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
+        Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getPrice()).isNotEqualTo(UPDATED_PRICE);
+        assertThat(testAnnouncement.getDateAnnounced()).isNotEqualTo(UPDATED_DATE_ANNOUNCED);
+        assertThat(testAnnouncement.getDateModified()).isNotEqualTo(UPDATED_DATE_MODIFIED);
+        assertThat(testAnnouncement.getExpirationDate()).isNotEqualTo(UPDATED_EXPIRATION_DATE);
+        assertThat(testAnnouncement.getPhoneNumber()).isNotEqualTo(UPDATED_PHONE_NUMBER);
+        assertThat(testAnnouncement.getType()).isNotEqualTo(UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "username")
+    public void deleteAnnouncement() throws Exception {
+        // initialize author of announcement
+        User userWithPermit = UserControllerTest.createEntity(Constants.Roles.ADVERTISER);
+        userService.save(userWithPermit);
+
+        announcement.setAuthor(new User().username(userWithPermit.getUsername()).id(userWithPermit.getId()));
         // Initialize the database
         announcementService.save(announcement);
 
@@ -388,6 +489,56 @@ public class AnnouncementControllerTest {
         // Validate the database is empty
         List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN, username = "admin")
+    public void deleteAnnouncementAsAdmin() throws Exception {
+        // initialize author of announcement
+        User userWithPermit = UserControllerTest.createEntity(Constants.Roles.ADVERTISER);
+        userService.save(userWithPermit);
+
+        announcement.setAuthor(userWithPermit);
+        // Initialize the database
+        announcementService.save(announcement);
+
+        int databaseSizeBeforeDelete = announcementRepository.findAll().size();
+
+        // Get the announcement
+        restAnnouncementMockMvc
+                .perform(delete("/api/announcements/{id}", announcement.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
+
+        // Validate the database is empty
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "not_owner_username")
+    public void deleteAnnouncementNotOwner() throws Exception {
+        // initialize author of announcement
+        User userWithPermit = UserControllerTest.createEntity(Constants.Roles.ADVERTISER);
+        userService.save(userWithPermit);
+
+        announcement.setAuthor(userWithPermit);
+        // Initialize the database
+        announcementService.save(announcement);
+
+        int databaseSizeBeforeDelete = announcementRepository.findAll().size();
+
+        // Get the announcement
+        restAnnouncementMockMvc
+                .perform(delete("/api/announcements/{id}", announcement.getId())
+                        .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isBadRequest());
+
+        // Validate the database is empty
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeDelete);
     }
 
     @Test

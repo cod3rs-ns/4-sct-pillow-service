@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.companies.CompanyService;
 import rs.acs.uns.sw.sct.security.TokenUtils;
+import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.MailSender;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
@@ -95,7 +96,7 @@ public class UserController {
 
         User result = userService.save(user);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(HeaderUtil.USER, user.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.USER, user.getId().toString()))
                 .body(result);
     }
 
@@ -128,7 +129,10 @@ public class UserController {
     @PostMapping("/users/")
     public ResponseEntity<User> registerUser(@Valid @RequestBody User user) throws URISyntaxException {
         if (user.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(HeaderUtil.USER, "id_exists", "A new user cannot already have an ID")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.USER, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .body(null);
         }
 
         User result = userService.save(user);
@@ -136,7 +140,7 @@ public class UserController {
         mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
 
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(HeaderUtil.USER, result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.USER, result.getId().toString()))
                 .body(result);
     }
 
