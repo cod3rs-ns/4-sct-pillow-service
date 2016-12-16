@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -78,8 +77,7 @@ public class AnnouncementControllerTest {
     private static final Boolean UPDATED_DELETED = true;
 
     private static final String DEFAULT_VERIFIED = "not-verified";
-    private static final String STATUS_VERIFIED = "verified";
-    private static final String UPDATED_VERIFIED = "VERIFIED_BBB";
+    private static final String UPDATED_VERIFIED = "verified";
 
     private static final String EXPIRATION_DATE_JSON_AFTER = "{\"expirationDate\": \"4/12/2017\"}";
     private static final String EXPIRATION_DATE_JSON_BEFORE = "{\"expirationDate\": \"4/12/2015\"}";
@@ -317,7 +315,7 @@ public class AnnouncementControllerTest {
 
         // Get all the announcements
         restAnnouncementMockMvc.perform(get("/api/announcements?sort=id,desc"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -621,9 +619,10 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
     public void extendExpirationDateAsAdvertiser() throws Exception {
         // Initialize the database
+        announcement.setAuthor(DBUserMocker.ADVERTISER);
         announcementService.save(announcement);
 
         final int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
@@ -700,8 +699,8 @@ public class AnnouncementControllerTest {
                 .andReturn();
 
 
-        final String responseBody = result.getResponse().getContentAsString();
-        assertThat(responseBody).isEqualTo("Object must contain expirationDate attribute");
+        final Integer errorCode = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorCode).isEqualTo(HeaderUtil.ERROR_CODE_NO_EXPIRATION_DATE);
 
         // Validate the Announcement in the database
         final List<Announcement> announcements = announcementRepository.findAll();
@@ -725,8 +724,8 @@ public class AnnouncementControllerTest {
                 .andReturn();
 
 
-        final String responseBody = result.getResponse().getContentAsString();
-        assertThat(responseBody).isEqualTo("Announcement not found");
+        final Integer errorCode = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorCode).isEqualTo(HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY);
 
         // Validate the Announcement in the database
         final List<Announcement> announcements = announcementRepository.findAll();
@@ -749,8 +748,8 @@ public class AnnouncementControllerTest {
                 .andReturn();
 
 
-        final String responseBody = result.getResponse().getContentAsString();
-        assertThat(responseBody).isEqualTo("Date must be in format dd/MM/yyyy");
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_INVALID_DATE_FORMAT);
 
         // Validate the Announcement in the database
         final List<Announcement> announcements = announcementRepository.findAll();
@@ -775,9 +774,8 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-
-        final String responseBody = result.getResponse().getContentAsString();
-        assertThat(responseBody).isEqualTo("Modified date must be after today");
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_PAST_DATE);
 
         // Validate the Announcement in the database
         final List<Announcement> announcements = announcementRepository.findAll();
@@ -863,7 +861,7 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
 
         final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
-        assertThat(testAnnouncement.getVerified()).isEqualTo(STATUS_VERIFIED);
+        assertThat(testAnnouncement.getVerified()).isEqualTo(UPDATED_VERIFIED);
     }
 
     @Test
@@ -894,27 +892,6 @@ public class AnnouncementControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.ADVERTISER_USERNAME)
-    public void verifyAnnouncementAsVerifierButWrongUsername() throws Exception {
-
-        announcementRepository.saveAndFlush(announcement);
-
-        final MvcResult result = restAnnouncementMockMvc.perform(put("/api/announcements/{announcementId}/verify", announcement.getId()))
-                .andExpect(status().isMethodNotAllowed())
-                .andReturn();
-
-        final String message = result.getResponse().getContentAsString();
-        assertThat(message).isEqualTo("You don't have verifier role.");
-
-        // Validate the Announcement in the database
-        final List<Announcement> announcements = announcementRepository.findAll();
-
-        final Announcement testAnnouncement = announcements.get(announcements.size() - 1);
-        assertThat(testAnnouncement.getVerified()).isEqualTo(DEFAULT_VERIFIED);
-    }
-
-    @Test
-    @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
     public void verifyNonExistingAnnouncementAsVerifier() throws Exception {
 
@@ -924,8 +901,8 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isNotFound())
                 .andReturn();
 
-        final String message = result.getResponse().getContentAsString();
-        assertThat(message).isEqualTo("There is no announcement with specified id");
+        final Integer errorCode = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorCode).isEqualTo(HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY);
 
         final List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(dbSize);

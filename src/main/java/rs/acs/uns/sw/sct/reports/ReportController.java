@@ -73,14 +73,14 @@ public class ReportController {
         if (announcement == null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_NON_EXISTING_ANNOUNCEMENT, HeaderUtil.ERROR_MSG_NON_EXISTING_ANNOUNCEMENT))
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY, HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
                     .body(null);
         }
 
         if (announcement.getVerified().equals(Constants.VerifiedStatuses.VERIFIED))
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_REPORT_VERIFED_ANNOUNCEMENT, HeaderUtil.ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT))
+                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_REPORT_VERIFIED_ANNOUNCEMENT, HeaderUtil.ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT))
                     .body(null);
 
         report.setAnnouncement(announcement);

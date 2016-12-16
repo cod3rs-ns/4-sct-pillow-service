@@ -227,7 +227,7 @@ public class ReportControllerTest {
                 .andReturn();
 
         final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
-        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_NON_EXISTING_ANNOUNCEMENT);
+        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY);
 
         final List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate);

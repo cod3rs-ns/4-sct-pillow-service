@@ -16,9 +16,12 @@ public final class HeaderUtil {
     public static final String ERROR_MSG_NOT_OWNER = "You do not owner rights on this entity";
     public static final String ERROR_MSG_ID_EXISTS = "Entity with provided ID already exists";
     public static final String ERROR_MSG_CUSTOM_ID = "A new entity cannot have custom ID";
-    public static final String ERROR_MSG_NON_EXISTING_ANNOUNCEMENT = "There is no announcement with id you specified";
+    public static final String ERROR_MSG_NON_EXISTING_ENTITY = "There is no entity with the ID you specified";
     public static final String ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT = "You cannot report verified announcement";
-
+    public static final String ERROR_MSG_NO_EXPIRATION_DATE = "Object must contain expirationDate attribute";
+    public static final String ERROR_MSG_INVALID_DATE_FORMAT = "Date must be in format dd/MM/yyyy";
+    public static final String ERROR_MSG_PAST_DATE = "Modified date must be after today";
+    public static final String ERROR_MSG_ALREADY_VERIFIED = "Entity is already verified";
     // ================================================ Error codes ================================================= //
     /**
      * Error code representing situation in which user cannot perform action because he is not
@@ -42,14 +45,21 @@ public final class HeaderUtil {
      * Error code representing situation in which user tries to create report for announcement
      * which does not exists.
      */
-    public static final Integer ERROR_CODE_NON_EXISTING_ANNOUNCEMENT = 1004;
+    public static final Integer ERROR_CODE_NON_EXISTING_ENTITY = 1004;
 
     /**
      * Error code representing situation in which user tries to report
      * announcement that is already been verified.
      */
-    public static final Integer ERROR_CODE_REPORT_VERIFED_ANNOUNCEMENT = 1005;
+    public static final Integer ERROR_CODE_REPORT_VERIFIED_ANNOUNCEMENT = 1005;
 
+    public static final Integer ERROR_CODE_NO_EXPIRATION_DATE = 1006;
+
+    public static final Integer ERROR_CODE_INVALID_DATE_FORMAT = 1007;
+
+    public static final Integer ERROR_CODE_PAST_DATE = 1008;
+
+    public static final Integer ERROR_CODE_ALREADY_VERIFIED = 1009;
     private HeaderUtil() {
     }
 
