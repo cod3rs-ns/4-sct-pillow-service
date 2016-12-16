@@ -364,7 +364,7 @@ public class Announcement implements Serializable {
      *
      * @return AnnouncementDTO (dto)
      */
-    public AnnouncementDTO convertToDTO(){
+    public AnnouncementDTO convertToDTO() {
         AnnouncementDTO dto = new AnnouncementDTO();
         dto.setType(this.type);
         dto.setId(id);

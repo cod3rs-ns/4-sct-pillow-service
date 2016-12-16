@@ -425,7 +425,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/search")
-    public ResponseEntity<List<Announcement>> search(@RequestParam(value = "startPrice", required = false) Double startPrice,
+    public ResponseEntity<List<Announcement>> search(@RequestParam(value = "startPrice", required = false) Double startPrice, //NOSONAR - there is no other way
                                                      @RequestParam(value = "endPrice", required = false) Double endPrice,
                                                      @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
                                                      @RequestParam(value = "type", required = false) String type,
