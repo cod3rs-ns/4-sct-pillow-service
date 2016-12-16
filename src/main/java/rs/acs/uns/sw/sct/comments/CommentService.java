@@ -41,7 +41,7 @@ public class CommentService {
     /**
      * Get all the comments by announcement id.
      *
-     * @param pageable the pagination information
+     * @param pageable       the pagination information
      * @param announcementId id of one announcement
      * @return the list of entities
      */

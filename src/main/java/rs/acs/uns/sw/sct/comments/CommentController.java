@@ -7,7 +7,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
@@ -39,21 +38,27 @@ public class CommentController {
      * POST  /comments : Create a new comment.
      *
      * @param comment the comment to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new comment, or with status 400 (Bad Request) if the comment has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new comment,
+     * or with status 400 (Bad Request) if the comment has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
+    @PreAuthorize("permitAll()")
     @PostMapping("/comments")
     public ResponseEntity<Comment> createComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
         if (comment.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.COMMENT, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .headers(HeaderUtil.createFailureAlert(
+                            Constants.EntityNames.COMMENT,
+                            HeaderUtil.ERROR_CODE_CUSTOM_ID,
+                            HeaderUtil.ERROR_MSG_CUSTOM_ID))
                     .body(null);
         }
         Comment result = commentService.save(comment);
         return ResponseEntity.created(new URI("/api/comments/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.COMMENT, result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert(
+                        Constants.EntityNames.COMMENT,
+                        result.getId().toString()))
                 .body(result);
     }
 
@@ -72,20 +77,28 @@ public class CommentController {
         if (comment.getId() == null) {
             return createComment(comment);
         }
-        // check if user has no rights to update
-        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
+        // check if user has no rights to update comment
+        if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) &&
                 !commentService.findOne(comment.getId()).getAuthor().getUsername()
                         .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.COMMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
+                    .headers(HeaderUtil.createFailureAlert(
+                            Constants.EntityNames.COMMENT,
+                            HeaderUtil.ERROR_CODE_NOT_OWNER,
+                            HeaderUtil.ERROR_MSG_NOT_OWNER))
                     .body(null);
         }
+
+
         Comment result = commentService.save(comment);
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.COMMENT, comment.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(
+                        Constants.EntityNames.COMMENT,
+                        comment.getId().toString()))
                 .body(result);
     }
+
 
     /**
      * GET  /comments : get all the comments.
@@ -96,8 +109,8 @@ public class CommentController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/comments")
-    public ResponseEntity<List<Comment>> getAllComments(Pageable pageable)
-            throws URISyntaxException {
+    public ResponseEntity<List<Comment>> getAllComments(Pageable pageable) throws URISyntaxException {
+        // TODO this method should not be allowed for anyone
         Page<Comment> page = commentService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/comments");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -149,17 +162,25 @@ public class CommentController {
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
         // check if user has no rights to update
-        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
+        if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) &&
                 !commentService.findOne(id).getAuthor().getUsername()
                         .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.COMMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
+                    .headers(HeaderUtil.createFailureAlert(
+                            Constants.EntityNames.COMMENT,
+                            HeaderUtil.ERROR_CODE_NOT_OWNER,
+                            HeaderUtil.ERROR_MSG_NOT_OWNER))
                     .body(null);
         }
 
         commentService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.COMMENT, id.toString())).build();
+        return ResponseEntity
+                .ok()
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        Constants.EntityNames.COMMENT,
+                        id.toString()))
+                .build();
     }
 
 }
