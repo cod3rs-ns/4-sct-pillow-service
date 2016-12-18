@@ -33,7 +33,8 @@ public class RealEstateController {
      * POST  /real-estates : Create a new realEstate.
      *
      * @param realEstate the realEstate to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new realEstate, or with status 400 (Bad Request) if the realEstate has already an ID
+     * @return the ResponseEntity with status 201 (Created) and with body the new realEstate,
+     * or with status 400 (Bad Request) if the realEstate has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
@@ -42,9 +43,13 @@ public class RealEstateController {
         if (realEstate.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REAL_ESTATE, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .headers(HeaderUtil.createFailureAlert(
+                            Constants.EntityNames.REAL_ESTATE,
+                            HeaderUtil.ERROR_CODE_CUSTOM_ID,
+                            HeaderUtil.ERROR_MSG_CUSTOM_ID))
                     .body(null);
         }
+
         RealEstate result = realEstateService.save(realEstate);
         return ResponseEntity.created(new URI("/api/real-estates/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.REAL_ESTATE, result.getId().toString()))
@@ -63,6 +68,7 @@ public class RealEstateController {
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/real-estates")
     public ResponseEntity<RealEstate> updateRealEstate(@Valid @RequestBody RealEstate realEstate) throws URISyntaxException {
+        // TODO this feature need further discussion
         if (realEstate.getId() == null) {
             return createRealEstate(realEstate);
         }
@@ -91,7 +97,7 @@ public class RealEstateController {
     /**
      * GET  /real-estates/deleted/:status : get all the realEstates.
      *
-     * @param status deleted or not deleted
+     * @param status   deleted or not deleted
      * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of realEstates in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
