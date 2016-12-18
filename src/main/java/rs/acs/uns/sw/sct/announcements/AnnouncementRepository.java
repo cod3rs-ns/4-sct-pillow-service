@@ -15,7 +15,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
     /**
      * Get all announcements where 'delete' status is 'true' or 'false'.
      *
-     * @param deleted status we've search for
+     * @param deleted  status we've search for
      * @param pageable the pagination information
      * @return list of announcements
      */
@@ -25,10 +25,10 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * Get all announcements created by one company.
      *
      * @param companyId the id of the company
-     * @param pageable the pagination information
+     * @param pageable  the pagination information
      * @return list of announcements
      */
-    Page<Announcement> findByAuthor_Company_Id(Long companyId, Pageable pageable);
+    Page<Announcement> findByAuthor_Company_Id(Long companyId, Pageable pageable); //NOSONAR - invalid warning
 
     /**
      * Get all announcements created by one company.
@@ -36,6 +36,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * @param companyId the id of the company
      * @return list of announcements
      */
-    List<Announcement> findFirst3ByAuthor_Company_IdOrderByPriceAsc(Long companyId);
+    List<Announcement> findFirst3ByAuthor_Company_IdOrderByPriceAsc(Long companyId); //NOSONAR - invalid warning
 
 }

@@ -92,7 +92,7 @@ public class ReportService {
      * @return the list of entities
      */
     @Transactional(readOnly = true)
-    Report findByReporterEmailAndStatusAndAnnouncementId(String email, String status, Long announcementId) {
+    public Report findByReporterEmailAndStatusAndAnnouncementId(String email, String status, Long announcementId) {
         return reportRepository.findByEmailAndStatusAndAnnouncement_Id(email, status, announcementId);
     }
 }

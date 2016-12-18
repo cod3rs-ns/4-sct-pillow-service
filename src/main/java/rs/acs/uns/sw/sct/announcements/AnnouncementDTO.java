@@ -9,7 +9,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class AnnouncementDTO implements Serializable{
+/**
+ * Announcement Data Transfer Object.
+ *
+ * @see Announcement
+ */
+public class AnnouncementDTO implements Serializable {
 
     private Long id;
 
@@ -29,11 +34,14 @@ public class AnnouncementDTO implements Serializable{
 
     private Set<Image> images = new HashSet<>(0);
 
-    public AnnouncementDTO(){
-    }
-
-    public Announcement convertToAnnouncement(User user){
-        Announcement newAnnouncement = new Announcement()
+    /**
+     * Converts DTO to Announcement entity
+     *
+     * @param user author of the announcement
+     * @return announcement for further use
+     */
+    public Announcement convertToAnnouncement(User user) {
+        return new Announcement()
                 .id(id)
                 .author(user)
                 .images(images)
@@ -46,7 +54,6 @@ public class AnnouncementDTO implements Serializable{
                 .verified("not-verified")
                 .realEstate(realEstate);
 
-        return newAnnouncement;
     }
 
     public Long getId() {

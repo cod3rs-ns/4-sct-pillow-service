@@ -47,7 +47,7 @@ public class AnnouncementService {
     /**
      * Get all the announcements.
      *
-     * @param status deleted or not deleted
+     * @param status   deleted or not deleted
      * @param pageable the pagination information
      * @return the list of entities
      */
@@ -59,7 +59,7 @@ public class AnnouncementService {
     /**
      * Get all the announcements by company id.
      *
-     * @param pageable the pagination information
+     * @param pageable  the pagination information
      * @param companyId id of one company
      * @return the list of entities
      */
@@ -103,7 +103,8 @@ public class AnnouncementService {
      * Find all announcement that satisfied criteria defined by query params.
      *
      * @param searchWrapper wrapper of all query params
-     * @param pageable the pagination information
+     * @param pageable      the pagination information
+     * @return list of founded Announcements
      */
     @Transactional(readOnly = true)
     public List<Announcement> findBySearchTerm(AnnouncementSearchWrapper searchWrapper, Pageable pageable) {

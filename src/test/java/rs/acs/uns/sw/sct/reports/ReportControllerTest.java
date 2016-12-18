@@ -183,8 +183,8 @@ public class ReportControllerTest {
         List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
 
-        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
-        assertThat(message).isEqualTo("You can't have more reports for the same advert unless they are with pending status");
+        Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_CANNOT_POST_MULTIPLE_REPORTS);
     }
 
     @Test
@@ -227,7 +227,7 @@ public class ReportControllerTest {
                 .andReturn();
 
         final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
-        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_NON_EXISTING_ANNOUNCEMENT);
+        assertThat(message).isEqualTo(HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY);
 
         final List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
@@ -453,17 +453,11 @@ public class ReportControllerTest {
         restReportMockMvc.perform(put("/api/reports")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(updatedReport)))
-                .andExpect(status().isBadRequest());
-        // TODO make fix to throw isOK()
+                .andExpect(status().isUnauthorized());
 
         // Validate the Report in the database
         List<Report> reports = reportRepository.findAll();
         assertThat(reports).hasSize(databaseSizeBeforeUpdate);
-        Report testReport = reports.get(reports.size() - 1);
-        assertThat(testReport.getEmail()).isEqualTo(UPDATED_EMAIL);
-        assertThat(testReport.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testReport.getStatus()).isEqualTo(Constants.ReportStatus.PENDING);
-        assertThat(testReport.getContent()).isEqualTo(UPDATED_CONTENT);
     }
 
     @Test
@@ -478,8 +472,7 @@ public class ReportControllerTest {
         // Get the report
         restReportMockMvc.perform(delete("/api/reports/{id}", report.getId())
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isBadRequest());
-        // TODO make fix to throw isOK();
+                .andExpect(status().isUnauthorized());
 
         // Validate the database is empty
         List<Report> reports = reportRepository.findAll();
@@ -488,6 +481,7 @@ public class ReportControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void deleteNonExistingReport() throws Exception {
 
         final Long reportId = Long.MAX_VALUE;
@@ -689,7 +683,8 @@ public class ReportControllerTest {
                 .param("status", DEFAULT_STATUS))
                 .andExpect(status().isBadRequest()).andReturn();
 
-        assertThat("Wrong status of report").isEqualTo(result.getResponse().getContentAsString());
+        Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_PROVIDED_UNKNOWN_REPORT_STATUS);
     }
 
     @Test
@@ -704,7 +699,8 @@ public class ReportControllerTest {
                 .param("status", Constants.ReportStatus.REJECTED))
                 .andExpect(status().isBadRequest()).andReturn();
 
-        assertThat("Can't modified status of accepted or rejected report!").isEqualTo(result.getResponse().getContentAsString());
+        Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_REPORT_ALREADY_RESOLVED);
     }
 
     @Test

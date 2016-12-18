@@ -40,7 +40,7 @@ public class MarkService {
     /**
      * Get all the marks by announcement id.
      *
-     * @param pageable the pagination information
+     * @param pageable       the pagination information
      * @param announcementId id of one announcement
      * @return the list of entities
      */

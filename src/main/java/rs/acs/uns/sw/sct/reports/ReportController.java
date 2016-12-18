@@ -7,14 +7,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
-import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
@@ -58,7 +56,10 @@ public class ReportController {
         if (report.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.REPORT,
+                            HeaderUtil.ERROR_CODE_CUSTOM_ID,
+                            HeaderUtil.ERROR_MSG_CUSTOM_ID))
                     .body(null);
         }
 
@@ -70,28 +71,44 @@ public class ReportController {
         report.setStatus(Constants.ReportStatus.PENDING);
 
         Announcement announcement = announcementService.findOne(report.getAnnouncement().getId());
+
+        // OPTION 1 - user is trying to create report for announcement that doesn't exist
         if (announcement == null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_NON_EXISTING_ANNOUNCEMENT, HeaderUtil.ERROR_MSG_NON_EXISTING_ANNOUNCEMENT))
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.ANNOUNCEMENT,
+                            HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
+                            HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
                     .body(null);
         }
 
+        // OPTION 2 - user is trying to create report for announcement that is verified
         if (announcement.getVerified().equals(Constants.VerifiedStatuses.VERIFIED))
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_REPORT_VERIFED_ANNOUNCEMENT, HeaderUtil.ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT))
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.REPORT,
+                            HeaderUtil.ERROR_CODE_REPORT_VERIFIED_ANNOUNCEMENT,
+                            HeaderUtil.ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT))
                     .body(null);
 
         report.setAnnouncement(announcement);
 
+        // OPTION 3 - user cannot post more than one report which is not resolved at the same time
         Report exists = reportService.findByReporterEmailAndStatusAndAnnouncementId(report.getEmail(), report.getStatus(), announcement.getId());
-        // TODO Create real error key in HEADERUTILS
         if (exists != null)
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, 1010, "You can't have more reports for the same advert unless they are with pending status")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.REPORT,
+                            HeaderUtil.ERROR_CODE_CANNOT_POST_MULTIPLE_REPORTS,
+                            HeaderUtil.ERROR_MSG_CANNOT_POST_MULTIPLE_REPORTS))
+                    .body(null);
 
         Report result = reportService.save(report);
-        return ResponseEntity.created(new URI("/api/reports/" + result.getId()))
+        return ResponseEntity
+                .created(new URI("/api/reports/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.REPORT, result.getId().toString()))
                 .body(result);
     }
@@ -106,23 +123,13 @@ public class ReportController {
      * or with status 500 (Internal Server Error) if the report couldn't be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/reports")
     public ResponseEntity<Report> updateReport(@Valid @RequestBody Report report) throws URISyntaxException {
         if (report.getId() == null) {
             return createReport(report);
         }
-        // check if user has no rights to update
-        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
-                !reportService.findOne(report.getId()).getReporter().getUsername()
-                        .equals(userSecurityUtil.getLoggedUserUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.REPORT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
-                    .body(null);
-        }
-
-        report.setStatus(Constants.ReportStatus.PENDING);
+        // TODO 5 - existing of this method should be considered
         Report result = reportService.save(report);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
@@ -168,27 +175,18 @@ public class ReportController {
      * @param id the id of the report to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @DeleteMapping("/reports/{id}")
     public ResponseEntity<Void> deleteReport(@PathVariable Long id) {
-
         final Report report = reportService.findOne(id);
-
-
         if (report == null)
             return ResponseEntity
                     .notFound()
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.REPORT,
+                            HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
+                            HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
                     .build();
-
-        // check if user has no rights to update
-        if (!userSecurityUtil.getLoggedUserAuthorities().contains(new SimpleGrantedAuthority(AuthorityRoles.ADMIN)) &&
-                !reportService.findOne(report.getId()).getReporter().getUsername()
-                        .equals(userSecurityUtil.getLoggedUserUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.COMMENT, HeaderUtil.ERROR_CODE_NOT_OWNER, HeaderUtil.ERROR_MSG_NOT_OWNER))
-                    .body(null);
-        }
 
         reportService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.REPORT, id.toString())).build();
@@ -238,13 +236,27 @@ public class ReportController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/reports/resolve/{id}")
-    public ResponseEntity<?> resolveReport(@PathVariable Long id, @RequestParam(value = "status") String status) {
+    public ResponseEntity<Report> resolveReport(@PathVariable Long id, @RequestParam(value = "status") String status) {
         Report report = reportService.findOne(id);
+        // OPTION 1 - user is trying to resolve report that doesn't exist
         if (report == null)
-            return new ResponseEntity<>("Report is not found", HttpStatus.NOT_FOUND);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.REPORT,
+                            HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
+                            HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
+                    .body(null);
 
+        // OPTION 2 - user is trying to resolve report that have already been resolved
         if (!Constants.ReportStatus.PENDING.equals(report.getStatus()))
-            return new ResponseEntity<>("Can't modified status of accepted or rejected report!", HttpStatus.BAD_REQUEST);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.REPORT,
+                            HeaderUtil.ERROR_CODE_REPORT_ALREADY_RESOLVED,
+                            HeaderUtil.ERROR_MSG_REPORT_ALREADY_RESOLVED))
+                    .body(null);
 
         if (Constants.ReportStatus.ACCEPTED.equals(status)) {
             Announcement announcement = announcementService.findOne(report.getAnnouncement().getId());
@@ -255,13 +267,19 @@ public class ReportController {
         } else if (Constants.ReportStatus.REJECTED.equals(status)) {
             report.setStatus(Constants.ReportStatus.REJECTED);
         } else {
-            return new ResponseEntity<>("Wrong status of report", HttpStatus.BAD_REQUEST);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.REPORT,
+                            HeaderUtil.ERROR_CODE_PROVIDED_UNKNOWN_REPORT_STATUS,
+                            HeaderUtil.ERROR_MSG_PROVIDED_UNKNOWN_REPORT_STATUS))
+                    .body(null);
         }
 
         Report result = reportService.save(report);
-        return ResponseEntity.ok()
+        return ResponseEntity
+                .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
                 .body(result);
     }
-
 }

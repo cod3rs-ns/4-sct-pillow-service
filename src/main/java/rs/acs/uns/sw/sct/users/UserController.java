@@ -128,25 +128,43 @@ public class UserController {
     @PreAuthorize("permitAll()")
     @PostMapping("/users/")
     public ResponseEntity<User> registerUser(@Valid @RequestBody User user) throws URISyntaxException {
+        // TODO 6 - this method should be allowed only for guests - not logged in users
         if (user.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(Constants.EntityNames.USER, HeaderUtil.ERROR_CODE_CUSTOM_ID, HeaderUtil.ERROR_MSG_CUSTOM_ID))
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.USER,
+                            HeaderUtil.ERROR_CODE_CUSTOM_ID,
+                            HeaderUtil.ERROR_MSG_CUSTOM_ID))
                     .body(null);
         }
 
-        // TODO create real error code in HeaderUtils
+        // OPTION 1 - provided email is already in use by another user
         if (userService.getUserByEmail(user.getEmail()) != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(Constants.EntityNames.USER, 2000, "Email already exists!")).body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.USER,
+                            HeaderUtil.ERROR_CODE_EMAIL_ALREADY_IN_USE,
+                            HeaderUtil.ERROR_MSG_EMAIL_ALREADY_IN_USE))
+                    .body(null);
         }
 
+        // OPTION 2 - provide username is already in use by another user
         if (userService.getUserByUsername(user.getUsername()) != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(Constants.EntityNames.USER, 2001, "Username already exists!")).body(null);
+            return ResponseEntity.
+                    badRequest()
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.USER,
+                            HeaderUtil.ERROR_CODE_USERNAME_ALREADY_IN_USE,
+                            HeaderUtil.ERROR_MSG_USERNAME_ALREADY_IN_USE))
+                    .body(null);
         }
 
         user.setVerified(false);
         User result = userService.save(user);
 
+        // TODO 7 - this code is probably commented for development purpose
         // mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
 
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
@@ -187,10 +205,16 @@ public class UserController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-
     /**
      * GET  /users/search : get all the users that satisfied search params.
      *
+     * @param username    username of the user
+     * @param email       email of the user
+     * @param firstName   first name of the user
+     * @param lastName    last name of the user
+     * @param phoneNumber phone number of the user
+     * @param companyName company name of the user
+     * @param pageable    pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of users in body
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
@@ -207,12 +231,24 @@ public class UserController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    /**
+     * Method that checks if provided username is available for use by new user.
+     *
+     * @param username term to perform check on
+     * @return the ResponseEntity with status 200 (OK) if username is available
+     */
     @PreAuthorize("permitAll()")
     @GetMapping("/users/username-available")
     public ResponseEntity<Boolean> isUsernameAvailable(@RequestParam(value = "username") String username) {
         return new ResponseEntity<>(userService.getUserByUsername(username) == null, HttpStatus.OK);
     }
 
+    /**
+     * Method that checks if provided email is available for use by new user.
+     *
+     * @param email term to perform check on
+     * @return the ResponseEntity with status 200 (OK) if username is available
+     */
     @PreAuthorize("permitAll()")
     @GetMapping("/users/email-available")
     public ResponseEntity<Boolean> isEmailAvailable(@RequestParam(value = "email") String email) {

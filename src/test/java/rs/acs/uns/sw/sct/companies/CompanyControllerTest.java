@@ -20,6 +20,7 @@ import rs.acs.uns.sw.sct.constants.CompanyConstants;
 import rs.acs.uns.sw.sct.constants.UserConstants;
 import rs.acs.uns.sw.sct.users.UserRepository;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
+import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
 import javax.annotation.PostConstruct;
@@ -27,7 +28,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.everyItem;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -53,6 +53,11 @@ public class CompanyControllerTest {
     private static final String UPDATED_PHONE_NUMBER = "0611111111";
 
     private static final int PAGE_SIZE = 5;
+
+    /**
+     * Company already in database, which Test Advertiser (username: 'test_advertiser_company_member) is member of
+     */
+    private static final long DB_TEST_COMPANY_ID = 4L;
 
 
     @Autowired
@@ -254,15 +259,15 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
     public void updateCompanyAsAdvertiser() throws Exception {
         // Initialize the database
-        companyService.save(company);
 
         int databaseSizeBeforeUpdate = companyRepository.findAll().size();
 
         // Update the company
-        Company updatedCompany = companyRepository.findOne(company.getId());
+        Company updatedCompany = companyRepository.findOne(DB_TEST_COMPANY_ID);
+
         updatedCompany
                 .name(UPDATED_NAME)
                 .address(UPDATED_ADDRESS)
@@ -276,7 +281,7 @@ public class CompanyControllerTest {
         // Validate the Company in the database
         List<Company> companies = companyRepository.findAll();
         assertThat(companies).hasSize(databaseSizeBeforeUpdate);
-        Company testCompany = companies.get(companies.size() - 1);
+        Company testCompany = companyService.findOne(DB_TEST_COMPANY_ID);
         assertThat(testCompany.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCompany.getAddress()).isEqualTo(UPDATED_ADDRESS);
         assertThat(testCompany.getPhoneNumber()).isEqualTo(UPDATED_PHONE_NUMBER);
@@ -402,23 +407,7 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_USERNAME)
-    public void sendRequestForWrongCompanyAsAdvertiser() throws Exception {
-        // Initialize the database
-        final Long companyId = Long.MAX_VALUE;
-
-        final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/{companyId}/user-request/", companyId)
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        final String message = result.getResponse().getContentAsString();
-        assertThat(message).isEqualTo("Wrong id of company");
-    }
-
-    @Test
-    @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_COMPANY_USERNAME)
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
     public void sendRequestForCompanyAsAlreadyCompanyVerifiedAdvertiser() throws Exception {
         // Initialize the database
         companyService.save(company);
@@ -429,7 +418,8 @@ public class CompanyControllerTest {
                 .andReturn();
 
         final String message = result.getResponse().getContentAsString();
-        assertThat(message).isEqualTo("Already requested company membership. Set request param confirmed=True to overwrite previous request");
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_ALREADY_REQUESTED_MEMBERSHIP);
     }
 
     @Test
@@ -467,22 +457,23 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = "sr4")
-    public void getCompanyRequestsByStatusAsCompanyNotVerifiedVerifier() throws Exception {
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_pending_membership")
+    public void getCompanyRequestsByStatusAsCompanyNotVerifiedAdvertiser() throws Exception {
 
         final String status = "accepted";
 
         // Already Existed Company
-        final Long companyId = 3L;
+        final Long companyId = 4L;
 
         final MvcResult result = restCompanyMockMvc.perform(get("/api/companies/users-requests", companyId)
                 .param("status", status)
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isBadRequest())
                 .andReturn();
 
         final String message = result.getResponse().getContentAsString();
-        assertThat(message).isEqualTo("Can't see memberships that are not from your company.");
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_NOT_MEMBER_OF_COMPANY);
     }
 
     @Test
@@ -533,7 +524,7 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_USERNAME)
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
     public void resolveCompanyMembershipAsAdvertiserForWrongUser() throws Exception {
 
         final String accepted = "true";
@@ -547,20 +538,19 @@ public class CompanyControllerTest {
                 .andExpect(status().isNotFound())
                 .andReturn();
 
-        final String message = result.getResponse().getContentAsString();
-
-        assertThat(message).isEqualTo("There is no user with id " + userId);
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY);
     }
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_USERNAME)
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
     public void resolveCompanyMembershipAsAdvertiserForUserWithoutRequest() throws Exception {
 
         final String accepted = "true";
 
         // Already Existed Company
-        final Long userId = 2L;
+        final Long userId = 14L;
 
         final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
                 .param("accepted", accepted)
@@ -568,20 +558,19 @@ public class CompanyControllerTest {
                 .andExpect(status().isNotAcceptable())
                 .andReturn();
 
-        final String message = result.getResponse().getContentAsString();
-
-        assertThat(message).isEqualTo("User with this id doesn't request membership");
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_USER_DID_NOT_REQUEST_MEMBERSHIP);
     }
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
     public void resolveCompanyMembershipAsVerifierWithAlreadyAcceptedUser() throws Exception {
 
         final String accepted = "true";
 
         // User that's already in the same company
-        final Long userId = 8L;
+        final Long userId = 16L;
 
         final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
                 .param("accepted", accepted)
@@ -589,44 +578,44 @@ public class CompanyControllerTest {
                 .andExpect(status().isNotAcceptable())
                 .andReturn();
 
-        final String message = result.getResponse().getContentAsString();
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
 
-        assertThat(message).isEqualTo("User with this id doesn't request membership");
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_USER_DID_NOT_REQUEST_MEMBERSHIP);
     }
+
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.VERIFIER_ISCO_USERNAME)
-    public void resolveCompanyMembershipAsVerifierForUserWithDifferentCompany() throws Exception {
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_other_company_member")
+    public void resolveCompanyMembershipAsAdvertiserForUserWithDifferentCompany() throws Exception {
 
         // Our user belongs to company with ID = 1
 
         final String accepted = "true";
 
         // User which pending for company with ID = 3
-        final Long userId = 3L;
+        final Long userId = 13L;
 
         final MvcResult result = restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
                 .param("accepted", accepted)
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isMethodNotAllowed())
+                .andExpect(status().isBadRequest())
                 .andReturn();
 
-        final String message = result.getResponse().getContentAsString();
-
-        assertThat(message).isEqualTo("You don't have permission for resolving membership status");
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP);
     }
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
-    public void resolveCompanyMembershipAsVerifierAndSetToAccepted() throws Exception {
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
+    public void resolveCompanyMembershipAsAdvertiserAndSetToAccepted() throws Exception {
 
-        // Our user belongs to company with ID = 3
+        // Our user belongs to company with ID = 4
 
         final String accepted = "true";
 
-        // User which pending for company with ID = 3
-        final Long userId = 3L;
+        // User which pending for company with ID = 4
+        final Long userId = 13L;
 
         restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
                 .param("accepted", accepted)
@@ -638,20 +627,21 @@ public class CompanyControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
-    public void resolveCompanyMembershipAsVerifierAndSetToFalse() throws Exception {
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
+    public void resolveCompanyMembershipAsAdvertiserAndSetToFalse() throws Exception {
 
-        // Our user belongs to company with ID = 3
+        // Our user belongs to company with ID = 4
 
         final String accepted = "false";
 
-        // User which pending for company with ID = 3
-        final Long userId = 3L;
+        // User which pending for company with ID = 4
+        final Long userId = 13L;
 
         restCompanyMockMvc.perform(put("/api/companies/resolve-request/user/{userId}", userId)
                 .param("accepted", accepted)
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
+
 
         // TODO Check for updated user
     }

@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * REST Controller for token verification.
+ */
 @RestController
 @RequestMapping("/api")
 public class VerificationTokenController {
@@ -36,21 +39,21 @@ public class VerificationTokenController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/registration-confirm")
-    public void registrationConfirm(@RequestParam(value="token") String token, HttpServletResponse response) throws IOException {
+    public void registrationConfirm(@RequestParam(value = "token") String token, HttpServletResponse response) throws IOException {
 
         VerificationToken verificationToken = verificationTokenService.findOneByToken(token);
 
         if (verificationToken == null) {
-            // TODO create page for registration-confirm-wrong-link
-            // response.sendRedirect("");
+            // TODO 10 - create page for registration-confirm-wrong-link
+            // response.sendRedirect#("");-
             return;
         }
 
         Date currentTime = new Date();
 
         if (currentTime.after(verificationToken.getExpiryDate())) {
-            // TODO create page for registration-confirm-expired-link
-            // response.sendRedirect("");
+            // TODO 11 - create page for registration-confirm-expired-link
+            // response.sendRedirect("");-
             return;
         }
 
@@ -60,8 +63,8 @@ public class VerificationTokenController {
         userService.save(user);
         verificationTokenService.delete(verificationToken.getId());
 
-        // TODO create page for registration-confirm-success
-        // response.sendRedirect("");
+        // TODO 12 - create page for registration-confirm-success
+        // response.sendRedirect("");-
     }
 
 

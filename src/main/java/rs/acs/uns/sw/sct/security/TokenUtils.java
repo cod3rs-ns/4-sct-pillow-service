@@ -35,15 +35,11 @@ public class TokenUtils {
      * @return username
      */
     public String getUsernameFromToken(String token) {
-        String username;
-
-        try {
+        String username = null;
+        if (token != null && !"null".equals(token)) {
             final Claims claims = this.getClaimsFromToken(token);
             username = claims.getSubject();
-        } catch (Exception e) {
-            username = null;
         }
-
         return username;
     }
 
@@ -100,18 +96,13 @@ public class TokenUtils {
      * @return Claims
      */
     private Claims getClaimsFromToken(String token) {
-        Claims claims;
-
-        try {
+        Claims claims = null;
+        if (token != null && !"null".equals(token)) {
             claims = Jwts.parser()
                     .setSigningKey(this.secret)
                     .parseClaimsJws(token)
                     .getBody();
         }
-        catch (Exception e) {
-            claims = null;
-        }
-
         return claims;
     }
 
@@ -197,16 +188,11 @@ public class TokenUtils {
         SecurityUser user = (SecurityUser) userDetails;
         final String username = this.getUsernameFromToken(token);
 
-        final Date created = this.getCreatedDateFromToken(token);
-        final Date expiration = this.getExpirationDateFromToken(token);
-
-        System.out.println("aaa");
-        System.out.println(this.isTokenExpired(token));
-
+        String refreshedToken = "";
         if (this.isTokenExpired(token)) {
-            token = refreshToken(token);
+            refreshedToken = refreshToken(token);
         }
 
-        return (username.equals(user.getUsername()) && !(this.isTokenExpired(token)));
+        return username.equals(user.getUsername()) && !(this.isTokenExpired(refreshedToken));
     }
 }

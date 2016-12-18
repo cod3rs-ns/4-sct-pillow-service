@@ -29,7 +29,7 @@ public class RealEstateService {
     /**
      * Get all the realEstates.
      *
-     * @param status deleted or not deleted
+     * @param status   deleted or not deleted
      * @param pageable the pagination information
      * @return the list of entities
      */

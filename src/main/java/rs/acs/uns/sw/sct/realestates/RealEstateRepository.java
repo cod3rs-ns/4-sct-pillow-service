@@ -11,7 +11,7 @@ public interface RealEstateRepository extends JpaRepository<RealEstate, Long> {
     /**
      * Get all real estates where 'delete' status is 'true' or 'false'.
      *
-     * @param deleted status we've search for
+     * @param deleted  status we are searching for
      * @param pageable the pagination information
      * @return list of real estates
      */

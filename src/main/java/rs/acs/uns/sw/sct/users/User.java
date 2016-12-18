@@ -1,7 +1,5 @@
 package rs.acs.uns.sw.sct.users;
 
-
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import rs.acs.uns.sw.sct.companies.Company;
 
 import javax.persistence.*;

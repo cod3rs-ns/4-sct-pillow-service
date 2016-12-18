@@ -4,11 +4,23 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import rs.acs.uns.sw.sct.announcements.QAnnouncement;
 
+/**
+ * AnnouncementPredicates used for resolving search criteria from
+ *
+ * @see AnnouncementSearchWrapper
+ * to allow search for announcements functionality.
+ */
 public final class AnnouncementPredicates {
 
     private AnnouncementPredicates() {
     }
 
+    /**
+     * Creates predicate on based on wrapper.
+     *
+     * @param searchWrapper announcement wrapper which contains announcement fields used as search criteria
+     * @return search predicate
+     */
     public static Predicate search(AnnouncementSearchWrapper searchWrapper) {
         BooleanBuilder where = new BooleanBuilder();
 

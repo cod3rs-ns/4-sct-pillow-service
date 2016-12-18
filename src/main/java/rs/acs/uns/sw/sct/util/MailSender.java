@@ -17,7 +17,12 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Component that is used for sending mail to users.
+ */
 @Component
 public class MailSender {
     @Autowired
@@ -26,6 +31,13 @@ public class MailSender {
     @Autowired
     UserService userService;
 
+    private Logger logger = Logger.getLogger(getClass().getName());
+
+    /**
+     * Sends email to newly registerd users.
+     * @param name name of the user
+     * @param address email address of the user
+     */
     @Async
     public void sendRegistrationMail(String name, String address){
         Map<String, Object> model = new HashMap<>();
@@ -39,9 +51,9 @@ public class MailSender {
             String html = Jade4J.render("./src/main/resources/templates/mail-template.jade", model);
             sendMail(address, "Potvrda registracije", html);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "", e);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "", e);
         }
     }
 

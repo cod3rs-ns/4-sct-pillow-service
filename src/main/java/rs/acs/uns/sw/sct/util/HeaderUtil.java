@@ -16,9 +16,22 @@ public final class HeaderUtil {
     public static final String ERROR_MSG_NOT_OWNER = "You do not owner rights on this entity";
     public static final String ERROR_MSG_ID_EXISTS = "Entity with provided ID already exists";
     public static final String ERROR_MSG_CUSTOM_ID = "A new entity cannot have custom ID";
-    public static final String ERROR_MSG_NON_EXISTING_ANNOUNCEMENT = "There is no announcement with id you specified";
+    public static final String ERROR_MSG_NON_EXISTING_ENTITY = "There is no entity with the ID you specified";
     public static final String ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT = "You cannot report verified announcement";
-
+    public static final String ERROR_MSG_NO_EXPIRATION_DATE = "Object must contain expirationDate attribute";
+    public static final String ERROR_MSG_INVALID_DATE_FORMAT = "Date must be in format dd/MM/yyyy";
+    public static final String ERROR_MSG_PAST_DATE = "Modified date must be after today";
+    public static final String ERROR_MSG_ALREADY_VERIFIED = "Entity is already verified";
+    public static final String ERROR_MSG_NOT_MEMBER_OF_COMPANY = "You are not member of company which you are trying to update";
+    public static final String ERROR_MSG_ALREADY_REQUESTED_MEMBERSHIP = "Already requested company membership. Set request param confirmed=True to overwrite previous request";
+    public static final String ERROR_MSG_USER_DID_NOT_REQUEST_MEMBERSHIP = "User with this ID did not request membership";
+    public static final String ERROR_MSG_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP = "You do not have permission to resolve membership status";
+    public static final String ERROR_MSG_CANNOT_RATE_OWN_COMPANY_ANNOUNCEMENT = "You cannot rate your own company's announcement";
+    public static final String ERROR_MSG_CANNOT_POST_MULTIPLE_REPORTS = "You cannot post multiple reports for the same advertisement";
+    public static final String ERROR_MSG_REPORT_ALREADY_RESOLVED = "Cannot modify status of resolved report";
+    public static final String ERROR_MSG_PROVIDED_UNKNOWN_REPORT_STATUS = "You have specified unknown report status.";
+    public static final String ERROR_MSG_EMAIL_ALREADY_IN_USE = "Email is already in use";
+    public static final String ERROR_MSG_USERNAME_ALREADY_IN_USE = "Username is already in use";
     // ================================================ Error codes ================================================= //
     /**
      * Error code representing situation in which user cannot perform action because he is not
@@ -42,13 +55,41 @@ public final class HeaderUtil {
      * Error code representing situation in which user tries to create report for announcement
      * which does not exists.
      */
-    public static final Integer ERROR_CODE_NON_EXISTING_ANNOUNCEMENT = 1004;
+    public static final Integer ERROR_CODE_NON_EXISTING_ENTITY = 1004;
 
     /**
      * Error code representing situation in which user tries to report
      * announcement that is already been verified.
      */
-    public static final Integer ERROR_CODE_REPORT_VERIFED_ANNOUNCEMENT = 1005;
+    public static final Integer ERROR_CODE_REPORT_VERIFIED_ANNOUNCEMENT = 1005;
+
+    public static final Integer ERROR_CODE_NO_EXPIRATION_DATE = 1006;
+
+    public static final Integer ERROR_CODE_INVALID_DATE_FORMAT = 1007;
+
+    public static final Integer ERROR_CODE_PAST_DATE = 1008;
+
+    public static final Integer ERROR_CODE_ALREADY_VERIFIED = 1009;
+
+    public static final Integer ERROR_CODE_NOT_MEMBER_OF_COMPANY = 1010;
+
+    public static final Integer ERROR_CODE_ALREADY_REQUESTED_MEMBERSHIP = 1011;
+
+    public static final Integer ERROR_CODE_USER_DID_NOT_REQUEST_MEMBERSHIP = 1012;
+
+    public static final Integer ERROR_CODE_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP = 1013;
+
+    public static final Integer ERROR_CODE_CANNOT_RATE_OWN_COMPANY_ANNOUNCEMENT = 1014;
+
+    public static final Integer ERROR_CODE_CANNOT_POST_MULTIPLE_REPORTS = 1015;
+
+    public static final Integer ERROR_CODE_REPORT_ALREADY_RESOLVED = 1016;
+
+    public static final Integer ERROR_CODE_PROVIDED_UNKNOWN_REPORT_STATUS = 1017;
+
+    public static final Integer ERROR_CODE_EMAIL_ALREADY_IN_USE = 1018;
+
+    public static final Integer ERROR_CODE_USERNAME_ALREADY_IN_USE = 1019;
 
     private HeaderUtil() {
     }
@@ -113,7 +154,7 @@ public final class HeaderUtil {
      * @param defaultMessage default message to be shown - value from the above <em>ERROR MESSAGES</em>
      * @return HttpHeader
      */
-    public static HttpHeaders createFailureAlert(String entityName, Integer errorKey, String defaultMessage) {
+    public static HttpHeaders failure(String entityName, Integer errorKey, String defaultMessage) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(SCT_HEADER_ALERT, defaultMessage);
         headers.add(SCT_HEADER_PARAMS, entityName);

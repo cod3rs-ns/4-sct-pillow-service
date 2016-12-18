@@ -5,7 +5,9 @@ import rs.acs.uns.sw.sct.users.User;
 import javax.persistence.*;
 import java.util.Date;
 
-
+/**
+ * Token used for user verification.
+ */
 @Entity
 @Table(name = "verification_tokens")
 public class VerificationToken {
@@ -25,10 +27,13 @@ public class VerificationToken {
     @OneToOne(cascade = CascadeType.REFRESH)
     private User user;
 
-    public VerificationToken() {
-        super();
-    }
-
+    /**
+     * Constructor
+     *
+     * @param token token value
+     * @param date  date of expiration
+     * @param user  user for whom token is created
+     */
     public VerificationToken(String token, Date date, User user) {
         super();
         this.token = token;
