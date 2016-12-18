@@ -68,7 +68,7 @@ public class RealEstateController {
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/real-estates")
     public ResponseEntity<RealEstate> updateRealEstate(@Valid @RequestBody RealEstate realEstate) throws URISyntaxException {
-        // TODO this feature need further discussion
+        // TODO 4 - this feature need further discussion
         if (realEstate.getId() == null) {
             return createRealEstate(realEstate);
         }

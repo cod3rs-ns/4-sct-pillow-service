@@ -162,8 +162,8 @@ public class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
-        assertThat(message).isEqualTo("Username already exists!");
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_USERNAME_ALREADY_IN_USE);
 
         final List<User> users = userRepository.findAll();
         assertThat(users).hasSize(beforeDbSize);
@@ -183,8 +183,8 @@ public class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
-        final String message = result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ALERT);
-        assertThat(message).isEqualTo("Email already exists!");
+        final Integer errorKey = Integer.valueOf(result.getResponse().getHeader(HeaderUtil.SCT_HEADER_ERROR_KEY));
+        assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_EMAIL_ALREADY_IN_USE);
 
         final List<User> users = userRepository.findAll();
         assertThat(users).hasSize(beforeDbSize);

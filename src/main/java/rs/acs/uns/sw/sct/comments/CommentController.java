@@ -110,7 +110,7 @@ public class CommentController {
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/comments")
     public ResponseEntity<List<Comment>> getAllComments(Pageable pageable) throws URISyntaxException {
-        // TODO this method should not be allowed for anyone
+        // TODO 1 - this method should not be allowed for anyone
         Page<Comment> page = commentService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/comments");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);

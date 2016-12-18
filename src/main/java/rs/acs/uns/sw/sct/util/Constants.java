@@ -80,13 +80,16 @@ public final class Constants {
         public static final String COMPANIES = "companies";
         public static final String USERS = "users";
         // need not to be final because of reflection
-        public static String BASE = new String("C:\\uploads");
-
-        public FilePaths() {
+        public static String BASE = new String("C:\\uploads"); // NOSONAR - explained in comment
+        // TODO 9 - I think that this is not good solution because partition C doesn't need to exists, also this maybe
+        // wont work on MAC or Linux because of line separators by @keky
+        private FilePaths() {
         }
     }
 
-
+    /**
+     * Constants for Sending Emails functionality.
+     */
     public static final class MailParameters {
         public static final long TOKEN_EXPIRE_TIME = 1800000;
         public static final String TOKEN_CONFIRM_LINK = "http://localhost:8091/api/registration-confirm?token=";
@@ -94,5 +97,8 @@ public final class Constants {
         public static final int HOST_PORT = 587;
         public static final String AUTH_USER = "bacovakuhinja@gmail.com";
         public static final String AUTH_PASS = "jedanjebaco";
+
+        private MailParameters(){
+        }
     }
 }

@@ -88,6 +88,7 @@ public class CompanyController {
         final User companyMember = userSecurityUtil.getLoggedUser();
 
         // OPTION 1 - user doesn't have permission to update company
+        // TODO 2 - simplify or merge conditions
         if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN)) {
             if (companyMember.getCompany() == null ||
                     !companyMember.getCompanyVerified().equals(Constants.CompanyStatus.ACCEPTED) ||

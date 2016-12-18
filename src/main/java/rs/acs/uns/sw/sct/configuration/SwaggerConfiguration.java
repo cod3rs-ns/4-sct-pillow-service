@@ -40,7 +40,7 @@ public class SwaggerConfiguration {
         return new ApiInfo(
                 "Baćova Nekretnina API",
                 "Current version of API approved by Baćo!",
-                "0.1",
+                "1.5",
                 null,
                 "admin@bacovanekretnina.com",
                 null,

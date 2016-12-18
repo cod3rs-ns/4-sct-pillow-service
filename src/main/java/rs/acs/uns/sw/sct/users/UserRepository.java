@@ -47,7 +47,7 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryDslPredi
      * @param pageable  the pagination information
      * @return list of users
      */
-    Page<User> findByCompany_Id(Long companyId, Pageable pageable);
+    Page<User> findByCompany_Id(Long companyId, Pageable pageable); // NOSONAR - invalid warning
 
 
     /**
@@ -58,5 +58,5 @@ public interface UserRepository extends JpaRepository<User, Long>, QueryDslPredi
      * @param pageable        the pagination information
      * @return list of users
      */
-    Page<User> findByCompany_IdAndCompanyVerified(Long companyId, String companyVerified, Pageable pageable);
+    Page<User> findByCompany_IdAndCompanyVerified(Long companyId, String companyVerified, Pageable pageable); // NOSONAR - invalid warning
 }

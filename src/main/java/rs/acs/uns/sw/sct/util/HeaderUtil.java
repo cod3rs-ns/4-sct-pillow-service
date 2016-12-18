@@ -30,6 +30,8 @@ public final class HeaderUtil {
     public static final String ERROR_MSG_CANNOT_POST_MULTIPLE_REPORTS = "You cannot post multiple reports for the same advertisement";
     public static final String ERROR_MSG_REPORT_ALREADY_RESOLVED = "Cannot modify status of resolved report";
     public static final String ERROR_MSG_PROVIDED_UNKNOWN_REPORT_STATUS = "You have specified unknown report status.";
+    public static final String ERROR_MSG_EMAIL_ALREADY_IN_USE = "Email is already in use";
+    public static final String ERROR_MSG_USERNAME_ALREADY_IN_USE = "Username is already in use";
     // ================================================ Error codes ================================================= //
     /**
      * Error code representing situation in which user cannot perform action because he is not
@@ -84,6 +86,10 @@ public final class HeaderUtil {
     public static final Integer ERROR_CODE_REPORT_ALREADY_RESOLVED = 1016;
 
     public static final Integer ERROR_CODE_PROVIDED_UNKNOWN_REPORT_STATUS = 1017;
+
+    public static final Integer ERROR_CODE_EMAIL_ALREADY_IN_USE = 1018;
+
+    public static final Integer ERROR_CODE_USERNAME_ALREADY_IN_USE = 1019;
 
     private HeaderUtil() {
     }

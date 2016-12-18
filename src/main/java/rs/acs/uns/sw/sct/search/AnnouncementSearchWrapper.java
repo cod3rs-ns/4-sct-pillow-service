@@ -1,5 +1,8 @@
 package rs.acs.uns.sw.sct.search;
 
+/**
+ * Object that wraps all search criteria attributes.
+ */
 public class AnnouncementSearchWrapper {
     private Double startPrice;
     private Double endPrice;

@@ -99,9 +99,7 @@ public class UserService {
      * @return the persisted user
      */
     public User save(User newUser) {
-
         // FIXME @bblagojevic Not sure if we need this
-
         User user = userRepository.findOneByUsername(newUser.getUsername());
         if (user == null || !newUser.getPassword().equals(user.getPassword())) {
             if (newUser != null && newUser.getPassword() != null) {
@@ -110,10 +108,10 @@ public class UserService {
                 newUser.setPassword(hashedPassword);
             }
         }
+        // TODO 8 line 105 - always evaluates to true, these two IF statements should be merged into one - by SONAR from @keky to @bblagojevic :)
 
         return userRepository.save(newUser);
     }
-
 
 
     /**
@@ -137,6 +135,7 @@ public class UserService {
      * @param phoneNumber user phone number
      * @param companyName company name of user
      * @param pageable    the pagination information
+     * @return List of Users that match search criteria.
      */
     @Transactional(readOnly = true)
     public List<User> findBySearchTerm(String username, String email, String firstName,
