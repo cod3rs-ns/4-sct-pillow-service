@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.constants.MarkConstants;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.DBUserMocker;
@@ -52,6 +53,9 @@ public class MarkControllerTest {
     @Autowired
     private WebApplicationContext context;
 
+    @Autowired
+    private AnnouncementService announcementService;
+
     private MockMvc restMarkMockMvc;
 
     private Mark mark;
@@ -85,12 +89,12 @@ public class MarkControllerTest {
 
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
     public void createMarkAsAdvertiser() throws Exception {
         int databaseSizeBeforeCreate = markRepository.findAll().size();
 
         // Create the Mark
-
+        mark.setAnnouncement(announcementService.findOne(1L));
         restMarkMockMvc.perform(post("/api/marks")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(mark)))

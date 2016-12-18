@@ -25,7 +25,8 @@ public final class HeaderUtil {
     public static final String ERROR_MSG_NOT_MEMBER_OF_COMPANY = "You are not member of company which you are trying to update";
     public static final String ERROR_MSG_ALREADY_REQUESTED_MEMBERSHIP = "Already requested company membership. Set request param confirmed=True to overwrite previous request";
     public static final String ERROR_MSG_USER_DID_NOT_REQUEST_MEMBERSHIP = "User with this ID did not request membership";
-    public static final String ERROR_MSG_NO_PERMISSON_TO_RESOLVE_MEMBERSHIP = "You do not have permission to resolve membership status";
+    public static final String ERROR_MSG_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP = "You do not have permission to resolve membership status";
+    public static final String ERROR_MSG_CANNOT_RATE_OWN_COMPANY_ANNOUNCEMENT = "You cannot rate your own company's announcement";
     // ================================================ Error codes ================================================= //
     /**
      * Error code representing situation in which user cannot perform action because he is not
@@ -72,6 +73,8 @@ public final class HeaderUtil {
     public static final Integer ERROR_CODE_USER_DID_NOT_REQUEST_MEMBERSHIP = 1012;
 
     public static final Integer ERROR_CODE_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP = 1013;
+
+    public static final Integer ERROR_CODE_CANNOT_RATE_OWN_COMPANY_ANNOUNCEMENT= 1014;
 
     private HeaderUtil() {
     }

@@ -292,7 +292,7 @@ public class CompanyController {
                     .headers(HeaderUtil.createFailureAlert(
                             Constants.EntityNames.USER,
                             HeaderUtil.ERROR_CODE_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP,
-                            HeaderUtil.ERROR_MSG_NO_PERMISSON_TO_RESOLVE_MEMBERSHIP))
+                            HeaderUtil.ERROR_MSG_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP))
                     .body(null);
 
         if (accepted)
