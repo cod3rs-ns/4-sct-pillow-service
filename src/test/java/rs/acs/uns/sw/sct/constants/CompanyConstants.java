@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 public interface CompanyConstants {
 
     int PAGE_SIZE = 2;
-    int DB_COUNT_COMPANIES = 3;
+    int DB_COUNT_COMPANIES = 5;
 
     Long ID = 1L;
     Long REMOVE_ID = 2L;

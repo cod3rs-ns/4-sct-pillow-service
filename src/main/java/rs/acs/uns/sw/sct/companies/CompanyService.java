@@ -1,16 +1,16 @@
 package rs.acs.uns.sw.sct.companies;
 
-import com.querydsl.core.types.Predicate;
-import org.apache.commons.collections.IteratorUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+        import com.querydsl.core.types.Predicate;
+        import org.apache.commons.collections.IteratorUtils;
+        import org.springframework.beans.factory.annotation.Autowired;
+        import org.springframework.data.domain.Page;
+        import org.springframework.data.domain.Pageable;
+        import org.springframework.stereotype.Service;
+        import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+        import java.util.List;
 
-import static rs.acs.uns.sw.sct.search.CompanyPredicates.search;
+        import static rs.acs.uns.sw.sct.search.CompanyPredicates.search;
 
 
 /**
@@ -71,6 +71,7 @@ public class CompanyService {
      * @param address     company address
      * @param phoneNumber company phone number
      * @param pageable    the pagination information
+     * @return list of companies that match search criteria
      */
     @Transactional(readOnly = true)
     public List<Company> findBySearchTerm(String name, String address, String phoneNumber, Pageable pageable) {

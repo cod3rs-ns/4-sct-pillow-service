@@ -1,7 +1,15 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
+-- noinspection SqlDialectInspectionForFile
 /* Insert new companies*/
 INSERT INTO `companies` (`id`, `address`, `name`, `phone_number`) VALUES ('1', 'Trg Dositeja Obradovića', 'company', '5461963');
 INSERT INTO `companies` (`id`, `address`, `name`, `phone_number`) VALUES ('2', 'Bulevar oslobođenja', 'company7', '1122335');
 INSERT INTO `companies` (`id`, `address`, `name`, `phone_number`) VALUES ('3', 'Bulevar Despota Stefana', 'company8', '5000963');
+
+/* USED as DEFAULT for TEST purposes */
+INSERT INTO `companies` (`id`, `address`, `name`, `phone_number`) VALUES ('4', 'Trg Dositeja Obradovića', 'TEST kompanija', '06000000');
+INSERT INTO `companies` (`id`, `address`, `name`, `phone_number`) VALUES ('5', 'Trg Dositeja Obradovića', 'Druga kompanija', '06000000');
+
 
 /* Insert new users */
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (1, 0, 'isco@gmail.com', 'Isco', 'Alarcon', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065066665', 'verifier', 'isco', '1', 'accepted');
@@ -15,6 +23,14 @@ INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `passw
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (9, 1, 'davies@gmail.com', 'Antony', 'Davies', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'verifier', 'eyebrow', '3', 'accepted');
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (10, 1, 'towns@gmail.com', 'Karl Anthony', 'Towns', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'advertiser', 'kat', '3', 'accepted');
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`) VALUES (11, 0, 'admin@admin.com', 'admin', 'admin', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'admin', 'admin');
+
+
+
+INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (12, 0, 'test_advertiser@gmail.com', 'Test', 'TAdvertiser', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '060000000', 'advertiser', 'test_advertiser_company_member', '4', 'accepted');
+INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (13, 0, 'test_advertiser_pending@gmail.com', 'Test', 'TAdvertiser', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '060000000', 'advertiser', 'test_advertiser_pending_membership', '4', 'pending');
+INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`) VALUES (14, 0, 'test_verifier_outside@gmail.com', 'Test', 'TVerifier', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '060000000', 'verifier', 'user_outside_company');
+INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (15, 0, 'test_advertiser_other@gmail.com', 'Test', 'TAdvertiser', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '060000000', 'advertiser', 'test_advertiser_other_company_member', '5', 'accepted');
+INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (16, 0, 'test_advertiser_same@gmail.com', 'Test', 'TAdvertiser', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '060000000', 'advertiser', 'test_advertiser_same_company_member', '4', 'accepted');
 
 INSERT INTO `locations` (`id`, `city`, `city_region`, `country`, `street`, `street_number`) VALUES (1, 'Novi Sad', 'Grbavica', 'Srbija', 'Trg Dositeja Obradovica', '15');
 

@@ -22,6 +22,10 @@ public final class HeaderUtil {
     public static final String ERROR_MSG_INVALID_DATE_FORMAT = "Date must be in format dd/MM/yyyy";
     public static final String ERROR_MSG_PAST_DATE = "Modified date must be after today";
     public static final String ERROR_MSG_ALREADY_VERIFIED = "Entity is already verified";
+    public static final String ERROR_MSG_NOT_MEMBER_OF_COMPANY = "You are not member of company which you are trying to update";
+    public static final String ERROR_MSG_ALREADY_REQUESTED_MEMBERSHIP = "Already requested company membership. Set request param confirmed=True to overwrite previous request";
+    public static final String ERROR_MSG_USER_DID_NOT_REQUEST_MEMBERSHIP = "User with this ID did not request membership";
+    public static final String ERROR_MSG_NO_PERMISSON_TO_RESOLVE_MEMBERSHIP = "You do not have permission to resolve membership status";
     // ================================================ Error codes ================================================= //
     /**
      * Error code representing situation in which user cannot perform action because he is not
@@ -60,6 +64,15 @@ public final class HeaderUtil {
     public static final Integer ERROR_CODE_PAST_DATE = 1008;
 
     public static final Integer ERROR_CODE_ALREADY_VERIFIED = 1009;
+
+    public static final Integer ERROR_CODE_NOT_MEMBER_OF_COMPANY = 1010;
+
+    public static final Integer ERROR_CODE_ALREADY_REQUESTED_MEMBERSHIP = 1011;
+
+    public static final Integer ERROR_CODE_USER_DID_NOT_REQUEST_MEMBERSHIP = 1012;
+
+    public static final Integer ERROR_CODE_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP = 1013;
+
     private HeaderUtil() {
     }
 
