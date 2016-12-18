@@ -55,7 +55,7 @@ public class CompanyController {
         if (company.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.COMPANY,
                             HeaderUtil.ERROR_CODE_CUSTOM_ID,
                             HeaderUtil.ERROR_MSG_CUSTOM_ID))
@@ -95,7 +95,7 @@ public class CompanyController {
                     !companyMember.getCompany().getId().equals(company.getId()))
                 return ResponseEntity
                         .badRequest()
-                        .headers(HeaderUtil.createFailureAlert(
+                        .headers(HeaderUtil.failure(
                                 Constants.EntityNames.COMPANY,
                                 HeaderUtil.ERROR_CODE_NOT_MEMBER_OF_COMPANY,
                                 HeaderUtil.ERROR_MSG_NOT_MEMBER_OF_COMPANY
@@ -182,7 +182,7 @@ public class CompanyController {
         if (company == null)
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.COMPANY,
                             HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
                             HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
@@ -192,7 +192,7 @@ public class CompanyController {
         if (user.getCompany() != null && (confirmed == null || !confirmed)) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.COMPANY,
                             HeaderUtil.ERROR_CODE_ALREADY_REQUESTED_MEMBERSHIP,
                             HeaderUtil.ERROR_MSG_ALREADY_REQUESTED_MEMBERSHIP))
@@ -230,7 +230,7 @@ public class CompanyController {
         if (user.getCompany() == null || !Constants.CompanyStatus.ACCEPTED.equals(user.getCompanyVerified())) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.COMPANY,
                             HeaderUtil.ERROR_CODE_NOT_MEMBER_OF_COMPANY,
                             HeaderUtil.ERROR_MSG_NOT_MEMBER_OF_COMPANY
@@ -266,7 +266,7 @@ public class CompanyController {
         if (userToResolve == null)
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.USER,
                             HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
                             HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
@@ -276,7 +276,7 @@ public class CompanyController {
         if (userToResolve.getCompany() == null || userToResolve.getCompanyVerified() == null || userToResolve.getCompanyVerified().equals(Constants.CompanyStatus.ACCEPTED))
             return ResponseEntity
                     .status(HttpStatus.NOT_ACCEPTABLE)
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.USER,
                             HeaderUtil.ERROR_CODE_USER_DID_NOT_REQUEST_MEMBERSHIP,
                             HeaderUtil.ERROR_MSG_USER_DID_NOT_REQUEST_MEMBERSHIP))
@@ -290,7 +290,7 @@ public class CompanyController {
                 !companyMember.getCompany().getId().equals(userToResolve.getCompany().getId()))
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.USER,
                             HeaderUtil.ERROR_CODE_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP,
                             HeaderUtil.ERROR_MSG_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP))

@@ -49,7 +49,7 @@ public class MarkController {
         if (mark.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.MARK,
                             HeaderUtil.ERROR_CODE_CUSTOM_ID,
                             HeaderUtil.ERROR_MSG_CUSTOM_ID))
@@ -63,7 +63,7 @@ public class MarkController {
                 user.getCompany().getId().equals(mark.getAnnouncement().getAuthor().getCompany().getId())) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.USER,
                             HeaderUtil.ERROR_CODE_CANNOT_RATE_OWN_COMPANY_ANNOUNCEMENT,
                             HeaderUtil.ERROR_MSG_CANNOT_RATE_OWN_COMPANY_ANNOUNCEMENT))
@@ -98,7 +98,7 @@ public class MarkController {
                 .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.MARK,
                             HeaderUtil.ERROR_CODE_NOT_OWNER,
                             HeaderUtil.ERROR_MSG_NOT_OWNER))
@@ -176,7 +176,7 @@ public class MarkController {
                 .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.MARK,
                             HeaderUtil.ERROR_CODE_NOT_OWNER,
                             HeaderUtil.ERROR_MSG_NOT_OWNER))

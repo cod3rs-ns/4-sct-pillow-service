@@ -132,7 +132,7 @@ public class UserController {
         if (user.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.USER,
                             HeaderUtil.ERROR_CODE_CUSTOM_ID,
                             HeaderUtil.ERROR_MSG_CUSTOM_ID))
@@ -143,7 +143,7 @@ public class UserController {
         if (userService.getUserByEmail(user.getEmail()) != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.USER,
                             HeaderUtil.ERROR_CODE_EMAIL_ALREADY_IN_USE,
                             HeaderUtil.ERROR_MSG_EMAIL_ALREADY_IN_USE))
@@ -154,7 +154,7 @@ public class UserController {
         if (userService.getUserByUsername(user.getUsername()) != null) {
             return ResponseEntity.
                     badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.USER,
                             HeaderUtil.ERROR_CODE_USERNAME_ALREADY_IN_USE,
                             HeaderUtil.ERROR_MSG_USERNAME_ALREADY_IN_USE))

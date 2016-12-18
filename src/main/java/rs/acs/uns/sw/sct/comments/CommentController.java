@@ -48,7 +48,7 @@ public class CommentController {
         if (comment.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.COMMENT,
                             HeaderUtil.ERROR_CODE_CUSTOM_ID,
                             HeaderUtil.ERROR_MSG_CUSTOM_ID))
@@ -83,7 +83,7 @@ public class CommentController {
                         .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.COMMENT,
                             HeaderUtil.ERROR_CODE_NOT_OWNER,
                             HeaderUtil.ERROR_MSG_NOT_OWNER))
@@ -167,7 +167,7 @@ public class CommentController {
                         .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.COMMENT,
                             HeaderUtil.ERROR_CODE_NOT_OWNER,
                             HeaderUtil.ERROR_MSG_NOT_OWNER))

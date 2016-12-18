@@ -43,7 +43,7 @@ public class RealEstateController {
         if (realEstate.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.REAL_ESTATE,
                             HeaderUtil.ERROR_CODE_CUSTOM_ID,
                             HeaderUtil.ERROR_MSG_CUSTOM_ID))

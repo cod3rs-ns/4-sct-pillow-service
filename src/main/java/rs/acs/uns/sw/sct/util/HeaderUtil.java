@@ -154,7 +154,7 @@ public final class HeaderUtil {
      * @param defaultMessage default message to be shown - value from the above <em>ERROR MESSAGES</em>
      * @return HttpHeader
      */
-    public static HttpHeaders createFailureAlert(String entityName, Integer errorKey, String defaultMessage) {
+    public static HttpHeaders failure(String entityName, Integer errorKey, String defaultMessage) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(SCT_HEADER_ALERT, defaultMessage);
         headers.add(SCT_HEADER_PARAMS, entityName);

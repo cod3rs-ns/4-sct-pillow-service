@@ -56,7 +56,7 @@ public class ReportController {
         if (report.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.REPORT,
                             HeaderUtil.ERROR_CODE_CUSTOM_ID,
                             HeaderUtil.ERROR_MSG_CUSTOM_ID))
@@ -76,7 +76,7 @@ public class ReportController {
         if (announcement == null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
                             HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
@@ -87,7 +87,7 @@ public class ReportController {
         if (announcement.getVerified().equals(Constants.VerifiedStatuses.VERIFIED))
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.REPORT,
                             HeaderUtil.ERROR_CODE_REPORT_VERIFIED_ANNOUNCEMENT,
                             HeaderUtil.ERROR_MSG_REPORT_VERIFIED_ANNOUNCEMENT))
@@ -100,7 +100,7 @@ public class ReportController {
         if (exists != null)
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.REPORT,
                             HeaderUtil.ERROR_CODE_CANNOT_POST_MULTIPLE_REPORTS,
                             HeaderUtil.ERROR_MSG_CANNOT_POST_MULTIPLE_REPORTS))
@@ -182,7 +182,7 @@ public class ReportController {
         if (report == null)
             return ResponseEntity
                     .notFound()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.REPORT,
                             HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
                             HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
@@ -242,7 +242,7 @@ public class ReportController {
         if (report == null)
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.REPORT,
                             HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
                             HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
@@ -252,7 +252,7 @@ public class ReportController {
         if (!Constants.ReportStatus.PENDING.equals(report.getStatus()))
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.REPORT,
                             HeaderUtil.ERROR_CODE_REPORT_ALREADY_RESOLVED,
                             HeaderUtil.ERROR_MSG_REPORT_ALREADY_RESOLVED))
@@ -269,7 +269,7 @@ public class ReportController {
         } else {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.REPORT,
                             HeaderUtil.ERROR_CODE_PROVIDED_UNKNOWN_REPORT_STATUS,
                             HeaderUtil.ERROR_MSG_PROVIDED_UNKNOWN_REPORT_STATUS))

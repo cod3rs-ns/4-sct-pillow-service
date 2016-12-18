@@ -62,7 +62,7 @@ public class AnnouncementController {
         if (annDTO.getId() != null) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_CUSTOM_ID,
                             HeaderUtil.ERROR_MSG_CUSTOM_ID))
@@ -107,7 +107,7 @@ public class AnnouncementController {
         if (!userSecurityUtil.checkPermission(authorUsername, AuthorityRoles.ADVERTISER)) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_NOT_OWNER,
                             HeaderUtil.ERROR_MSG_NOT_OWNER))
@@ -138,7 +138,7 @@ public class AnnouncementController {
         if (id == null || !data.containsKey("expirationDate"))
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_NO_EXPIRATION_DATE,
                             HeaderUtil.ERROR_MSG_NO_EXPIRATION_DATE))
@@ -148,7 +148,7 @@ public class AnnouncementController {
         if (persistedAnnouncement == null)
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
                             HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
@@ -161,7 +161,7 @@ public class AnnouncementController {
         } catch (ParseException e) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_INVALID_DATE_FORMAT,
                             HeaderUtil.ERROR_MSG_INVALID_DATE_FORMAT))
@@ -172,7 +172,7 @@ public class AnnouncementController {
         if (extendedDate.before(modified))
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_PAST_DATE,
                             HeaderUtil.ERROR_MSG_PAST_DATE))
@@ -184,7 +184,7 @@ public class AnnouncementController {
         if (!userSecurityUtil.checkPermission(authorUsername, AuthorityRoles.ADVERTISER)) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_NOT_OWNER,
                             HeaderUtil.ERROR_MSG_NOT_OWNER))
@@ -302,7 +302,7 @@ public class AnnouncementController {
             if (!userSecurityUtil.checkPermission(authorUsername, AuthorityRoles.ADVERTISER)) {
                 return ResponseEntity
                         .badRequest()
-                        .headers(HeaderUtil.createFailureAlert(
+                        .headers(HeaderUtil.failure(
                                 Constants.EntityNames.ANNOUNCEMENT,
                                 HeaderUtil.ERROR_CODE_NOT_OWNER,
                                 HeaderUtil.ERROR_MSG_NOT_OWNER))
@@ -372,7 +372,7 @@ public class AnnouncementController {
         if (announcement == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
                             HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY
@@ -383,7 +383,7 @@ public class AnnouncementController {
         if (announcement.getVerified().equals(Constants.VerifiedStatuses.VERIFIED)) {
             return ResponseEntity
                     .badRequest()
-                    .headers(HeaderUtil.createFailureAlert(
+                    .headers(HeaderUtil.failure(
                             Constants.EntityNames.ANNOUNCEMENT,
                             HeaderUtil.ERROR_CODE_ALREADY_VERIFIED,
                             HeaderUtil.ERROR_MSG_ALREADY_VERIFIED
