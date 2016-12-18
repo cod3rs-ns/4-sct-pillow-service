@@ -171,4 +171,31 @@ public class RealEstateServiceTest {
         // rollback previous heating type
         newRealEstate.setHeatingType(NEW_HEATING_TYPE);
     }
+
+    @Test
+    public void testFindAllByStatusDeletedTrue() {
+        final Boolean status = true;
+
+        final Page<RealEstate> realEstates = realEstateService.findAllByStatus(status, PAGEABLE);
+
+        assertThat(realEstates.getTotalElements()).isEqualTo(DB_COUNT_REAL_ESTATES_DELETED_TRUE);
+
+        for (final RealEstate realEstate: realEstates) {
+            assertThat(realEstate.isDeleted()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    public void testFindAllByStatusDeletedFalse() {
+        final Boolean status = false;
+
+        final Page<RealEstate> realEstates = realEstateService.findAllByStatus(status, PAGEABLE);
+
+        assertThat(realEstates.getTotalElements()).isEqualTo(DB_COUNT_REAL_ESTATES_DELETED_FALSE);
+
+        for (final RealEstate realEstate: realEstates) {
+            assertThat(realEstate.isDeleted()).isEqualTo(status);
+        }
+    }
+
 }

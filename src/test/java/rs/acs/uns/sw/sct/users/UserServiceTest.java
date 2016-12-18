@@ -6,10 +6,16 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.companies.Company;
+import rs.acs.uns.sw.sct.companies.CompanyService;
+import rs.acs.uns.sw.sct.constants.CompanyConstants;
+import rs.acs.uns.sw.sct.util.Constants;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -17,6 +23,7 @@ import java.util.List;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static rs.acs.uns.sw.sct.constants.UserConstants.*;
+import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
@@ -25,6 +32,11 @@ public class UserServiceTest {
     @Autowired
     private UserService userService;
 
+
+    @Autowired
+    private CompanyService companyService;
+
+
     @Autowired
     private UserRepository userRepository;
 
@@ -32,7 +44,7 @@ public class UserServiceTest {
     private User updatedUser;
     private User existingUser;
 
-    private void compareUsers(User user1, User user2, boolean checkPassword){
+    private void compareUsers(User user1, User user2, boolean checkPassword) {
         if (user1.getId() != null && user2.getId() != null)
             assertThat(user1.getId()).isEqualTo(user2.getId());
         assertThat(user1.getFirstName()).isEqualTo(user2.getFirstName());
@@ -78,7 +90,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testFindOne(){
+    public void testFindOne() {
         User user = userService.findOne(USER_ID);
         assertThat(user).isNotNull();
 
@@ -114,6 +126,12 @@ public class UserServiceTest {
     }
 
     @Test
+    public void testFindAllUsersByCompany() {
+        Page<User> users = userService.findAllByCompany(CompanyConstants.ID, PAGEABLE);
+        assertThat(users.getContent()).hasSize(USERS_IN_COMPANY);
+    }
+
+    @Test
     @Transactional
     public void testUpdate() {
         User dbUser = userService.findOne(USER_ID);
@@ -138,7 +156,7 @@ public class UserServiceTest {
     }
 
     /*
-	 * Negative tests
+     * Negative tests
 	 */
 
     @Test(expected = DataIntegrityViolationException.class)
@@ -197,5 +215,115 @@ public class UserServiceTest {
         userService.save(newUser);
         // rollback previous password
         newUser.setPassword(NEW_USER_PASSWORD);
+    }
+
+    @Test
+    @Transactional
+    public void testFindAllByStatusDeletedTrue() {
+        final Boolean status = true;
+
+        final Page<User> users = userService.findAllByStatus(status, PAGEABLE);
+
+        assertThat(users.getTotalElements()).isEqualTo(DB_COUNT_USERS_DELETED_TRUE);
+
+        for (final User user : users) {
+            assertThat(user.isDeleted()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testFindAllByStatusDeletedFalse() {
+        final Boolean status = false;
+
+        final Page<User> users = userService.findAllByStatus(status, PAGEABLE);
+
+        assertThat(users.getTotalElements()).isEqualTo(DB_COUNT_USERS_DELETED_FALSE);
+
+        for (final User user : users) {
+            assertThat(user.isDeleted()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testFindAllByCompanyMembershipStatusAccepted() {
+        final String status = "accepted";
+
+        final Page<User> users = userService.findAllByCompanyMembershipStatus(USER_COMPANY_ID, status, PAGEABLE);
+
+        assertThat(users.getTotalElements()).isEqualTo(USER_COMPANY_3_ACCEPTED);
+
+        for (final User user : users) {
+            assertThat(user.getCompanyVerified()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testFindAllByCompanyMembershipStatusPending() {
+        final String status = "pending";
+
+        final Page<User> users = userService.findAllByCompanyMembershipStatus(USER_COMPANY_ID, status, PAGEABLE);
+
+        assertThat(users.getTotalElements()).isEqualTo(USER_COMPANY_3_PENDING);
+
+        for (final User user : users) {
+            assertThat(user.getCompanyVerified()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void searchUsersWithoutAnyAttribute() throws Exception {
+        final int dbSize = userService.findAllByStatus(false, null).getContent().size();
+        final int requiredSize = dbSize < PAGEABLE.getPageSize() ? dbSize : PAGEABLE.getPageSize();
+
+        List<User> result = userService.findBySearchTerm(null, null, null, null, null, null, PAGEABLE);
+        assertThat(result).hasSize(requiredSize);
+    }
+
+    @Test
+    @Transactional
+    public void searchDeletedUsers() throws Exception {
+        User persisted = userRepository.saveAndFlush(
+                newUser.deleted(true));
+
+        List<User> result = userService.findBySearchTerm(null, null, null, null, null, null, PAGEABLE);
+
+        for (User user : result) {
+            assertThat(user.getId()).isNotEqualTo(persisted.getId());
+        }
+    }
+
+
+    @Test
+    @Transactional
+    public void searchUsersByUsernameAndEmailAndNameAndSurname() throws Exception {
+        userRepository.saveAndFlush(newUser);
+
+
+        Company company = companyService.findOne(CompanyConstants.ID);
+        newUser.setCompany(company);
+        newUser.setCompanyVerified(Constants.CompanyStatus.ACCEPTED);
+        userRepository.saveAndFlush(newUser);
+
+        final String randomUsername = getRandomCaseInsensitiveSubstring(newUser.getUsername());
+        final String randomEmail = getRandomCaseInsensitiveSubstring(newUser.getEmail());
+        final String randomFN = getRandomCaseInsensitiveSubstring(newUser.getFirstName());
+        final String randomLN = getRandomCaseInsensitiveSubstring(newUser.getLastName());
+        final String randomPhoneNumber = getRandomCaseInsensitiveSubstring(newUser.getPhoneNumber());
+        final String randomCompanyName = getRandomCaseInsensitiveSubstring(newUser.getCompany().getName());
+
+        List<User> result = userService.findBySearchTerm(randomUsername, randomEmail, randomFN, randomLN, randomPhoneNumber, randomCompanyName, PAGEABLE);
+
+        for (User user : result){
+            assertThat(user.getUsername()).containsIgnoringCase(randomUsername);
+            assertThat(user.getEmail()).containsIgnoringCase(randomEmail);
+            assertThat(user.getFirstName()).containsIgnoringCase(randomFN);
+            assertThat(user.getLastName()).containsIgnoringCase(randomLN);
+            assertThat(user.getPhoneNumber()).containsIgnoringCase(randomPhoneNumber);
+            assertThat(user.getCompany().getName()).containsIgnoringCase(randomCompanyName);
+        }
     }
 }

@@ -38,6 +38,18 @@ public class MarkService {
     }
 
     /**
+     * Get all the marks by announcement id.
+     *
+     * @param pageable       the pagination information
+     * @param announcementId id of one announcement
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Mark> findAllByAnnouncement(Long announcementId, Pageable pageable) {
+        return markRepository.findByAnnouncement_Id(announcementId, pageable);
+    }
+
+    /**
      * Get one mark by id.
      *
      * @param id the id of the entity

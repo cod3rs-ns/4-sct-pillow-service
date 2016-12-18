@@ -1,6 +1,5 @@
 package rs.acs.uns.sw.sct.users;
 
-
 import rs.acs.uns.sw.sct.companies.Company;
 
 import javax.persistence.*;
@@ -57,6 +56,9 @@ public class User implements Serializable {
 
     @Column
     private String imagePath;
+
+    @Column(nullable = false)
+    private Boolean verified = false;
 
     @Column(nullable = false)
     private Boolean deleted = false;
@@ -289,6 +291,25 @@ public class User implements Serializable {
         return this;
     }
 
+    public Boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param verified represents user email verification
+     * @return User (this)
+     */
+    public User verified(Boolean verified) {
+        this.verified = verified;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -299,7 +320,6 @@ public class User implements Serializable {
                 ", lastName='" + lastName + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", type='" + type + '\'' +
-                ", company=" + company +
                 ", companyVerified='" + companyVerified + '\'' +
                 ", imagePath='" + imagePath + '\'' +
                 ", deleted=" + deleted +

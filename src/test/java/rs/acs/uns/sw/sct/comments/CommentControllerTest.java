@@ -6,15 +6,21 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.constants.CommentConstants;
+import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
+import rs.acs.uns.sw.sct.util.DBUserMocker;
 import rs.acs.uns.sw.sct.util.DateUtil;
 import rs.acs.uns.sw.sct.util.TestUtil;
 
@@ -26,6 +32,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -46,16 +54,12 @@ public class CommentControllerTest {
 
     @Autowired
     private CommentRepository commentRepository;
-
     @Autowired
     private CommentService commentService;
-
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
+    private WebApplicationContext context;
     @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
+    private UserService userService;
 
     private MockMvc restCommentMockMvc;
 
@@ -78,9 +82,11 @@ public class CommentControllerTest {
         MockitoAnnotations.initMocks(this);
         CommentController commentCtrl = new CommentController();
         ReflectionTestUtils.setField(commentCtrl, "commentService", commentService);
-        this.restCommentMockMvc = MockMvcBuilders.standaloneSetup(commentCtrl)
-                .setCustomArgumentResolvers(pageableArgumentResolver)
-                .setMessageConverters(jacksonMessageConverter).build();
+        this.restCommentMockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+
     }
 
     @Before
@@ -90,17 +96,17 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void createComment() throws Exception {
         int databaseSizeBeforeCreate = commentRepository.findAll().size();
 
-        // Create the Comment
-
+        // create the Comment
         restCommentMockMvc.perform(post("/api/comments")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(comment)))
                 .andExpect(status().isCreated());
 
-        // Validate the Comment in the database
+        // validate the Comment in the database
         List<Comment> comments = commentRepository.findAll();
         assertThat(comments).hasSize(databaseSizeBeforeCreate + 1);
         Comment testComment = comments.get(comments.size() - 1);
@@ -115,7 +121,7 @@ public class CommentControllerTest {
         // set the field null
         comment.setContent(null);
 
-        // Create the Comment, which fails.
+        // create the Comment, which fails.
 
         restCommentMockMvc.perform(post("/api/comments")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -133,7 +139,7 @@ public class CommentControllerTest {
         // set the field null
         comment.setDate(null);
 
-        // Create the Comment, which fails.
+        // create the Comment, which fails.
 
         restCommentMockMvc.perform(post("/api/comments")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -146,11 +152,12 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
-    public void getAllComments() throws Exception {
-        // Initialize the database
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void getAllCommentsAsAdmin() throws Exception {
+        // initialize the database
         commentRepository.saveAndFlush(comment);
 
-        // Get all the comments
+        // get all the comments
         restCommentMockMvc.perform(get("/api/comments?sort=id,desc"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
@@ -161,11 +168,29 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
-    public void getComment() throws Exception {
-        // Initialize the database
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllCommentsAsAdvertiser() throws Exception {
+        // Get all the comments
+        restCommentMockMvc.perform(get("/api/comments?sort=id,desc"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    public void getAllCommentsAsGuest() throws Exception {
+        // get all the comments
+        restCommentMockMvc.perform(get("/api/comments?sort=id,desc"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void getCommentAsVerifier() throws Exception {
+        // initialize the database
         commentRepository.saveAndFlush(comment);
 
-        // Get the comment
+        // get the comment
         restCommentMockMvc.perform(get("/api/comments/{id}", comment.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
@@ -176,21 +201,36 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
-    public void getNonExistingComment() throws Exception {
+    public void getCommentAsGuest() throws Exception {
+        // initialize the database
+        commentRepository.saveAndFlush(comment);
+
         // Get the comment
+        restCommentMockMvc.perform(get("/api/comments/{id}", comment.getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void getNonExistingComment() throws Exception {
+        // get the comment
         restCommentMockMvc.perform(get("/api/comments/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
     public void updateComment() throws Exception {
-        // Initialize the database
+        comment.author(DBUserMocker.ADVERTISER);
+
+        // initialize the database
         commentService.save(comment);
 
         int databaseSizeBeforeUpdate = commentRepository.findAll().size();
 
-        // Update the comment
+        // update the comment
         Comment updatedComment = commentRepository.findOne(comment.getId());
         updatedComment
                 .content(UPDATED_CONTENT)
@@ -201,7 +241,7 @@ public class CommentControllerTest {
                 .content(TestUtil.convertObjectToJsonBytes(updatedComment)))
                 .andExpect(status().isOk());
 
-        // Validate the Comment in the database
+        // validate the Comment in the database
         List<Comment> comments = commentRepository.findAll();
         assertThat(comments).hasSize(databaseSizeBeforeUpdate);
         Comment testComment = comments.get(comments.size() - 1);
@@ -211,19 +251,178 @@ public class CommentControllerTest {
 
     @Test
     @Transactional
-    public void deleteComment() throws Exception {
-        // Initialize the database
+    @WithMockUser(authorities = AuthorityRoles.ADMIN, username = DBUserMocker.ADMIN_USERNAME)
+    public void updateCommentAsAdmin() throws Exception {
+        comment.author(DBUserMocker.ADVERTISER);
+
+        // initialize the database
+        commentService.save(comment);
+
+        // update the comment
+        Comment updatedComment = commentRepository.findOne(comment.getId());
+        updatedComment
+                .content(UPDATED_CONTENT)
+                .date(UPDATED_DATE);
+
+        int databaseSizeBeforeUpdate = commentRepository.findAll().size();
+
+        restCommentMockMvc.perform(put("/api/comments")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(updatedComment)))
+                .andExpect(status().isOk());
+
+        // validate the Comment in the database
+        List<Comment> comments = commentRepository.findAll();
+        assertThat(comments).hasSize(databaseSizeBeforeUpdate);
+        Comment testComment = comments.get(comments.size() - 1);
+        assertThat(testComment.getContent()).isEqualTo(UPDATED_CONTENT);
+        assertThat(testComment.getDate()).isEqualTo(UPDATED_DATE);
+    }
+
+    @Test
+    @Rollback
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = "not_owner_username")
+    public void updateCommentNotOwner() throws Exception {
+        comment.author(DBUserMocker.VERIFIER);
+        // initialize the database
+        commentService.save(comment);
+
+        int databaseSizeBeforeUpdate = commentRepository.findAll().size();
+
+        // update the comment
+        Comment updatedComment = commentRepository.findOne(comment.getId());
+        updatedComment
+                .content(UPDATED_CONTENT)
+                .date(UPDATED_DATE);
+
+        restCommentMockMvc.perform(put("/api/comments")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(updatedComment)))
+                .andExpect(status().isBadRequest());
+
+        // validate the Comment in the database
+        List<Comment> comments = commentRepository.findAll();
+        assertThat(comments).hasSize(databaseSizeBeforeUpdate);
+        Comment testComment = comments.get(comments.size() - 1);
+        assertThat(testComment.getContent()).isNotEqualTo(UPDATED_CONTENT);
+        assertThat(testComment.getDate()).isNotEqualTo(UPDATED_DATE);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = DBUserMocker.VERIFIER_USERNAME)
+    public void deleteCommentAsVerifier() throws Exception {
+        comment.author(DBUserMocker.VERIFIER);
+
+        // initialize the database
         commentService.save(comment);
 
         int databaseSizeBeforeDelete = commentRepository.findAll().size();
 
-        // Get the comment
+        // get the comment
         restCommentMockMvc.perform(delete("/api/comments/{id}", comment.getId())
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
 
-        // Validate the database is empty
+        // validate the database is empty
         List<Comment> comments = commentRepository.findAll();
         assertThat(comments).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void deleteCommentAsGuest() throws Exception {
+        comment.author(DBUserMocker.VERIFIER);
+
+        // initialize the database
+        commentService.save(comment);
+
+        final int databaseSizeBeforeDelete = commentRepository.findAll().size();
+
+        // get the comment
+        restCommentMockMvc.perform(delete("/api/comments/{id}", comment.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+
+        // validate the database is empty
+        final List<Comment> comments = commentRepository.findAll();
+        assertThat(comments).hasSize(databaseSizeBeforeDelete);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN, username = DBUserMocker.ADMIN_USERNAME)
+    public void deleteCommentAsAdmin() throws Exception {
+        comment.author(DBUserMocker.VERIFIER);
+
+        // initialize the database
+        commentService.save(comment);
+        commentRepository.flush();
+
+        int databaseSizeBeforeDelete = commentRepository.findAll().size();
+
+        // get the comment
+        restCommentMockMvc.perform(delete("/api/comments/{id}", comment.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
+
+        // validate the database is empty
+        List<Comment> comments = commentRepository.findAll();
+        assertThat(comments).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = "not_owner")
+    public void deleteCommentNotOwner() throws Exception {
+        comment.author(DBUserMocker.VERIFIER);
+
+        // initialize the database
+        commentService.save(comment);
+
+        int databaseSizeBeforeDelete = commentRepository.findAll().size();
+
+        // get the comment
+        restCommentMockMvc.perform(delete("/api/comments/{id}", comment.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isBadRequest());
+
+        // validate the database is empty
+        List<Comment> comments = commentRepository.findAll();
+        assertThat(comments).hasSize(databaseSizeBeforeDelete);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCommentsForAnnouncementAsGuest() throws Exception {
+        // initialize the database
+        long announcementId = 1L;
+
+        comment.announcement(new Announcement().id(announcementId));
+        commentService.save(comment);
+
+        final Long commentsCount = commentRepository.findByAnnouncement_Id(announcementId, CommentConstants.PAGEABLE).getTotalElements();
+
+        // get the comment
+        restCommentMockMvc.perform(get("/api//comments/announcement/{announcementId}", announcementId)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(commentsCount))))
+                .andExpect(jsonPath("$.[*].id").value(comment.getId().intValue()))
+                .andExpect(jsonPath("$.[*].content").value(DEFAULT_CONTENT))
+                .andExpect(jsonPath("$.[*].date").value((int) DEFAULT_DATE.getTime()));
+    }
+
+    @Test
+    @Transactional
+    public void getAllCommentsForNonExistingAnnouncementAsGuest() throws Exception {
+        // Initialize the database
+        final Long announcementId = Long.MAX_VALUE;
+
+        // Get the comment
+        restCommentMockMvc.perform(get("/api/comments/announcement/{announcementId}", announcementId)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(0))))
+                .andExpect(status().isOk());
     }
 }

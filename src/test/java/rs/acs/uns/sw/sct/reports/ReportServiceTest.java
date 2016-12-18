@@ -58,7 +58,7 @@ public class ReportServiceTest {
                 .content(CONTENT)
                 .status(STATUS)
                 .reporter(REPORTER)
-                .announcement(DEAFULT_ANNOUNCEMENT);
+                .announcement(DEFAULT_ANNOUNCEMENT);
         newReport = new Report()
                 .id(null)
                 .email(NEW_EMAIL)
@@ -66,7 +66,7 @@ public class ReportServiceTest {
                 .content(NEW_CONTENT)
                 .status(NEW_STATUS)
                 .reporter(NEW_REPORTER)
-                .announcement(DEAFULT_ANNOUNCEMENT);
+                .announcement(DEFAULT_ANNOUNCEMENT);
         updatedReport = new Report()
                 .id(null)
                 .email(UPDATED_EMAIL)
@@ -74,7 +74,7 @@ public class ReportServiceTest {
                 .content(UPDATED_CONTENT)
                 .status(UPDATED_STATUS)
                 .reporter(UPDATED_REPORTER)
-                .announcement(DEAFULT_ANNOUNCEMENT);
+                .announcement(DEFAULT_ANNOUNCEMENT);
     }
 
     @Test
@@ -97,7 +97,6 @@ public class ReportServiceTest {
     public void testFindOne() {
         Report report = reportService.findOne(ID);
         assertThat(report).isNotNull();
-        System.out.println(report);
 
         compareReports(report, existingReport);
     }
@@ -147,6 +146,24 @@ public class ReportServiceTest {
         assertThat(dbReport).isNull();
     }
 
+    @Test
+    public void testFindByStatus() {
+        Page<Report> reports = reportService.findByStatus(FIND_STATUS, PAGEABLE);
+
+        for (Report report : reports.getContent()) {
+            assertThat(report.getStatus()).isEqualTo(FIND_STATUS);
+        }
+    }
+
+    @Test
+    public void testFindByAuthorEmail() {
+        Page<Report> reports = reportService.findByAuthorEmail(FIND_AUTHOR_EMAIL, PAGEABLE);
+
+        for (Report report : reports.getContent()) {
+            assertThat(report.getEmail()).isEqualTo(FIND_AUTHOR_EMAIL);
+        }
+    }
+
     /*
      * Negative tests
 	 */
@@ -185,5 +202,17 @@ public class ReportServiceTest {
         reportService.save(newReport);
         // rollback previous status
         newReport.setStatus(NEW_STATUS);
+    }
+
+
+    @Test
+    @Transactional
+    public void findSameReports() {
+        Report savedReport = reportService.save(newReport);
+
+        Report same = reportService.findByReporterEmailAndStatusAndAnnouncementId(
+                savedReport.getEmail(), savedReport.getStatus(), savedReport.getAnnouncement().getId());
+
+        assertThat(same).isNotNull();
     }
 }

@@ -1,6 +1,8 @@
 package rs.acs.uns.sw.sct.constants;
 
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.DateUtil;
@@ -29,4 +31,9 @@ public interface CommentConstants {
     Date UPDATED_DATE = DateUtil.date("05-10-2017");
     Announcement UPDATED_ANNOUNCEMENT = new Announcement().id(2L);
     User UPDATED_AUTHOR = new User().id(1L);
+
+    Pageable PAGEABLE = new PageRequest(0, 10);
+
+    Long COMMENTED_ANNOUNCEMENT_ID = 2L;
+    Integer COMMENTED_ANNOUNCEMENT_RECORDS = 3;
 }

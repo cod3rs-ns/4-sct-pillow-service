@@ -1,5 +1,7 @@
 package rs.acs.uns.sw.sct.constants;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.users.User;
 
@@ -24,4 +26,9 @@ public interface MarkConstants {
     Long UPDATED_GRADER_ID = 4L;
     User UPDATED_GRADED_ANNOUNCER = null;
     Announcement UPDATED_ANNOUNCEMENT = new Announcement().id(2L);
+
+    Pageable PAGEABLE = new PageRequest(0, 10);
+
+    Long MARKED_ANNOUNCEMENT_ID = 2L;
+    Integer MARKED_ANNOUNCEMENT_RECORDS = 3;
 }

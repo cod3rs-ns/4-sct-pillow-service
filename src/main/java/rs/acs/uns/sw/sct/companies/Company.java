@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.sct.companies;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import rs.acs.uns.sw.sct.users.User;
 
 import javax.persistence.*;
@@ -33,6 +34,7 @@ public class Company implements Serializable {
     @Column(nullable = false)
     private String phoneNumber;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>(0);
 
@@ -138,7 +140,6 @@ public class Company implements Serializable {
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", users=" + users +
                 '}';
     }
 }

@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static rs.acs.uns.sw.sct.constants.CompanyConstants.*;
+import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
@@ -153,5 +154,35 @@ public class CompanyServiceTest {
         companyService.save(newCompany);
         // rollback previous telephone no
         newCompany.setPhoneNumber(NEW_PHONE_NUMBER);
+    }
+
+
+    @Test
+    @Transactional
+    public void searchCompaniesWithoutAnyQuery() throws Exception {
+        final int dbSize = companyRepository.findAll().size();
+        final int requiredSize = dbSize < PAGEABLE.getPageSize() ? dbSize : PAGEABLE.getPageSize();
+
+        List<Company> result = companyService.findBySearchTerm(null, null, null, PAGEABLE);
+        assertThat(result.size()).isEqualTo(requiredSize);
+    }
+
+    @Test
+    @Transactional
+    public void searchCompaniesByNameAndAddressAndPhoneNumber() throws Exception {
+        // prepare db data
+        companyRepository.save(newCompany);
+
+        final String randomName = getRandomCaseInsensitiveSubstring(newCompany.getName());
+        final String randomAddress = getRandomCaseInsensitiveSubstring(newCompany.getAddress());
+        final String randomPhoneNumber = getRandomCaseInsensitiveSubstring(newCompany.getPhoneNumber());
+
+        List<Company> result = companyService.findBySearchTerm(randomName, randomAddress, randomPhoneNumber, PAGEABLE);
+
+        for (Company company : result) {
+            assertThat(company.getName()).containsIgnoringCase(randomName);
+            assertThat(company.getAddress()).containsIgnoringCase(randomAddress);
+            assertThat(company.getPhoneNumber()).containsIgnoringCase(randomPhoneNumber);
+        }
     }
 }
