@@ -27,6 +27,9 @@ public final class HeaderUtil {
     public static final String ERROR_MSG_USER_DID_NOT_REQUEST_MEMBERSHIP = "User with this ID did not request membership";
     public static final String ERROR_MSG_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP = "You do not have permission to resolve membership status";
     public static final String ERROR_MSG_CANNOT_RATE_OWN_COMPANY_ANNOUNCEMENT = "You cannot rate your own company's announcement";
+    public static final String ERROR_MSG_CANNOT_POST_MULTIPLE_REPORTS = "You cannot post multiple reports for the same advertisement";
+    public static final String ERROR_MSG_REPORT_ALREADY_RESOLVED = "Cannot modify status of resolved report";
+    public static final String ERROR_MSG_PROVIDED_UNKNOWN_REPORT_STATUS = "You have specified unknown report status.";
     // ================================================ Error codes ================================================= //
     /**
      * Error code representing situation in which user cannot perform action because he is not
@@ -74,7 +77,13 @@ public final class HeaderUtil {
 
     public static final Integer ERROR_CODE_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP = 1013;
 
-    public static final Integer ERROR_CODE_CANNOT_RATE_OWN_COMPANY_ANNOUNCEMENT= 1014;
+    public static final Integer ERROR_CODE_CANNOT_RATE_OWN_COMPANY_ANNOUNCEMENT = 1014;
+
+    public static final Integer ERROR_CODE_CANNOT_POST_MULTIPLE_REPORTS = 1015;
+
+    public static final Integer ERROR_CODE_REPORT_ALREADY_RESOLVED = 1016;
+
+    public static final Integer ERROR_CODE_PROVIDED_UNKNOWN_REPORT_STATUS = 1017;
 
     private HeaderUtil() {
     }
