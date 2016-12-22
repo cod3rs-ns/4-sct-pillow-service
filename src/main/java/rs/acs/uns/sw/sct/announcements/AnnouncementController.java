@@ -139,7 +139,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements/{id}")
-    public ResponseEntity<Announcement> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException {
+    public ResponseEntity<Announcement> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException { // NOSONAR
         if (id == null || !data.containsKey("expirationDate"))
             return ResponseEntity
                     .badRequest()

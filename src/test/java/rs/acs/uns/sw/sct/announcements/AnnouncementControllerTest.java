@@ -42,6 +42,7 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.COMPANY_ID;
 import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.FILE_TO_BE_UPLOAD;
 import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.NEW_BASE_DIR;
 import static rs.acs.uns.sw.sct.util.ContainsIgnoreCase.containsIgnoringCase;
@@ -195,6 +196,7 @@ public class AnnouncementControllerTest {
      * It then proceeds to check whether the Announcement object was added successfully,
      * by comparing the number of objects in the database before and after the addition,
      * as well as the default Announcement's attributes to the Announcement in the database.
+     *
      * @throws Exception
      */
     @Test
@@ -225,6 +227,7 @@ public class AnnouncementControllerTest {
      * <p>
      * This test attempts to add an Announcement object to the database using the Verifier role,
      * which is forbidden.
+     *
      * @throws Exception
      */
     @Test
@@ -243,6 +246,7 @@ public class AnnouncementControllerTest {
      * This test attempts to add an Announcement object with a null "Price" value to the database,
      * this is forbidden as the "Price" field is non-nullable. Other than expecting a "Bad request" status,
      * the test compares the number of objects in database before and after the attempted addition.
+     *
      * @throws Exception
      */
     @Test
@@ -269,6 +273,7 @@ public class AnnouncementControllerTest {
      * This test attempts to add an Announcement object with a null "Expiration date" value to the database,
      * this is forbidden as the "Expiration date" field is non-nullable. Other than expecting a "Bad request" status,
      * the test compares the number of objects in database before and after the attempted addition.
+     *
      * @throws Exception
      */
     @Test
@@ -295,6 +300,7 @@ public class AnnouncementControllerTest {
      * This test attempts to add an Announcement object with a null "Phone number" value to the database,
      * this is forbidden as the "Phone number" field is non-nullable. Other than expecting a "Bad request" status,
      * the test compares the number of objects in database before and after the attempted addition.
+     *
      * @throws Exception
      */
     @Test
@@ -321,6 +327,7 @@ public class AnnouncementControllerTest {
      * This test attempts to add an Announcement object with a null "Type" value to the database,
      * this is forbidden as the "Type" field is non-nullable. Other than expecting a "Bad request" status,
      * the test compares the number of objects in database before and after the attempted addition.
+     *
      * @throws Exception
      */
     @Test
@@ -347,6 +354,7 @@ public class AnnouncementControllerTest {
      * This test retrieves all Announcement objects from the database
      * using an Admin's authority. It then checks whether the objects'
      * attributes have valid values.
+     *
      * @throws Exception
      */
     @Test
@@ -376,6 +384,7 @@ public class AnnouncementControllerTest {
      * <p>
      * This test retrieves all Announcement objects from the database
      * using an Advertiser's authority.
+     *
      * @throws Exception
      */
     @Test
@@ -395,6 +404,7 @@ public class AnnouncementControllerTest {
      * <p>
      * This test retrieves an Announcement object from the database using its ID.
      * It then checks whether the object's attributes have valid values.
+     *
      * @throws Exception
      */
     @Test
@@ -423,6 +433,7 @@ public class AnnouncementControllerTest {
      * <p>
      * This tests attempts to retrieve an Announcement object which is not in the database
      * by searching for a non-existent id.
+     *
      * @throws Exception
      */
     @Test
@@ -441,6 +452,7 @@ public class AnnouncementControllerTest {
      * Then it compares the original number of objects in the database to the new one
      * and the updated values of our modified Announcement with the ones found in
      * the database.
+     *
      * @throws Exception
      */
     @Test
@@ -487,6 +499,7 @@ public class AnnouncementControllerTest {
      * Then it compares the original number of objects in the database to the new one
      * and the updated values of our modified Announcement with the ones found in
      * the database.
+     *
      * @throws Exception
      */
     @Test
@@ -532,6 +545,7 @@ public class AnnouncementControllerTest {
      * then updates the values of its attributes and uses PUT to save the object
      * using a mocked User with a different username to the Announcement's owner,
      * which is not allowed.
+     *
      * @throws Exception
      */
     @Test
@@ -559,18 +573,6 @@ public class AnnouncementControllerTest {
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(updatedAnnouncement)))
                 .andExpect(status().isBadRequest());
-
-        // TODO Should this be checked when we get badRequest earlier? if it should user @Rollback
-        // Validate the Announcement in the database
-//        List<Announcement> announcements = announcementRepository.findAll();
-//        assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
-//        Announcement testAnnouncement = announcements.get(announcements.size() - 1);
-//        assertThat(testAnnouncement.getPrice()).isNotEqualTo(UPDATED_PRICE);
-//        assertThat(testAnnouncement.getDateAnnounced()).isNotEqualTo(UPDATED_DATE_ANNOUNCED);
-//        assertThat(testAnnouncement.getDateModified()).isNotEqualTo(UPDATED_DATE_MODIFIED);
-//        assertThat(testAnnouncement.getExpirationDate()).isNotEqualTo(UPDATED_EXPIRATION_DATE);
-//        assertThat(testAnnouncement.getPhoneNumber()).isNotEqualTo(UPDATED_PHONE_NUMBER);
-//        assertThat(testAnnouncement.getType()).isNotEqualTo(UPDATED_TYPE);
     }
 
     /**
@@ -579,6 +581,7 @@ public class AnnouncementControllerTest {
      * This test deletes an object on the database,
      * then compares the number of objects on the database
      * before and after this action.
+     *
      * @throws Exception
      */
     @Test
@@ -608,6 +611,7 @@ public class AnnouncementControllerTest {
      * delete an object on the database,
      * then compares the number of objects on the database
      * before and after this action.
+     *
      * @throws Exception
      */
     @Test
@@ -644,6 +648,7 @@ public class AnnouncementControllerTest {
      * on the database, which is not allowed.
      * It then compares the number of objects on the database
      * before and after this action.
+     *
      * @throws Exception
      */
     @Test
@@ -675,6 +680,7 @@ public class AnnouncementControllerTest {
      * on the database, which is not allowed.
      * It then compares the number of objects on the database
      * before and after this action.
+     *
      * @throws Exception
      */
     @Test
@@ -703,6 +709,7 @@ public class AnnouncementControllerTest {
      * on the database, which returns a "Not found" status.
      * It then compares the number of objects on the database
      * before and after this action.
+     *
      * @throws Exception
      */
     @Test
@@ -729,6 +736,7 @@ public class AnnouncementControllerTest {
      * on the database, which is not allowed.
      * It then compares the number of objects on the database
      * before and after this action.
+     *
      * @throws Exception
      */
     @Test
@@ -752,6 +760,7 @@ public class AnnouncementControllerTest {
      * <p>
      * This test uploads a file to the database and then finds its location
      * and checks whether or not the file exists, then deletes it.
+     *
      * @throws Exception
      */
     @Test
@@ -786,6 +795,7 @@ public class AnnouncementControllerTest {
      * does not exist, then proceeeds to upload it and check whether or not
      * the file exists or not.
      * It then deletes the file and its directory.
+     *
      * @throws Exception
      */
     @Test
@@ -819,6 +829,7 @@ public class AnnouncementControllerTest {
      * send the modified Announcement to the database, then asserts that the number
      * of Announcements in the database hasn't changed and that the edited
      * Announcement's expiration date has changed.
+     *
      * @throws Exception
      */
     @Test
@@ -853,6 +864,7 @@ public class AnnouncementControllerTest {
      * are unauthorized to edit Announcements, then asserts that the number
      * of Announcements in the database hasn't changed and that the edited
      * Announcement's expiration date has not changed.
+     *
      * @throws Exception
      */
     @Test
@@ -885,6 +897,7 @@ public class AnnouncementControllerTest {
      * are unauthorized to edit Announcements, then asserts that the number
      * of Announcements in the database hasn't changed and that the edited
      * Announcement's expiration date has not changed.
+     *
      * @throws Exception
      */
     @Test
@@ -919,6 +932,7 @@ public class AnnouncementControllerTest {
      * the error code for no expiration date and finally asserts that the number
      * of Announcements in the database hasn't changed and that the edited
      * Announcement's expiration date has not changed.
+     *
      * @throws Exception
      */
     @Test
@@ -959,6 +973,7 @@ public class AnnouncementControllerTest {
      * returned matches the error code for a non-existing entity and
      * finally asserts that the number of Announcements in the database
      * hasn't changed.
+     *
      * @throws Exception
      */
     @Test
@@ -993,6 +1008,7 @@ public class AnnouncementControllerTest {
      * the error code for an invalid date format and finally asserts that the number
      * of Announcements in the database hasn't changed and that the edited
      * Announcement's expiration date has not changed.
+     *
      * @throws Exception
      */
     @Test
@@ -1032,6 +1048,7 @@ public class AnnouncementControllerTest {
      * the error code for an invalid Date and finally asserts that the number
      * of Announcements in the database hasn't changed and that the edited
      * Announcement's expiration date has not changed.
+     *
      * @throws Exception
      */
     @Test
@@ -1066,6 +1083,7 @@ public class AnnouncementControllerTest {
      * This test retrieves all undeleted Announcement objects from the database
      * using a Guest's authority. It then checks whether the objects'
      * attributes have valid values.
+     *
      * @throws Exception
      */
     @Test
@@ -1099,6 +1117,7 @@ public class AnnouncementControllerTest {
      * This test retrieves all deleted Announcement objects from the database
      * using an Admin's authority. It then checks whether the objects'
      * attributes have valid values.
+     *
      * @throws Exception
      */
     @Test
@@ -1173,9 +1192,50 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
     }
 
-    // TODO Get announcements by company
 
-    // TODO Get top announcements by company
+    /**
+     * Tests getting all Announcements from same company as an Verifier
+     * <p>
+     * This test retrieves all Announcement objects from the database whose
+     * authors are members of the same company using an Verifier's authority.
+     * It then checks whether the objects' company ids are equals to path
+     * param that was passed.
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void getAllAnnouncementsByCompanyId() throws Exception {
+
+        // Get all announcements from same company
+        restAnnouncementMockMvc.perform(get("/api/announcements/company/{companyId}", COMPANY_ID))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].author.company.id").value(everyItem(comparesEqualTo(Integer.valueOf(COMPANY_ID.intValue())))))
+                .andReturn();
+    }
+
+    /**
+     * Tests getting top three Announcements from same company as an Admin
+     * <p>
+     * This test retrieves all Announcement objects from the database whose
+     * authors are members of the same company and their prices are in top three
+     * using an Verifier's authority. It then checks whether the objects' company
+     * ids are equals to path param that was passed.
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    public void getTopThreeAnnouncementsByCompanyId() throws Exception {
+        // Get top three announcements from same company
+        restAnnouncementMockMvc.perform(get("/api/announcements/top/company/{companyId}", COMPANY_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(lessThanOrEqualTo(3))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].author.company.id").value(everyItem(comparesEqualTo(Integer.valueOf(COMPANY_ID.intValue())))))
+                .andReturn();
+    }
 
     /**
      * Tests Verification of Announcements as a Verifier.
@@ -1184,6 +1244,7 @@ public class AnnouncementControllerTest {
      * then uses a Verifier's authority to verify it.
      * Then it compares the original number of objects in the database to the new one
      * and the expected value of the "Verified" attribute to the one found in the database.
+     *
      * @throws Exception
      */
     @Test
@@ -1211,6 +1272,7 @@ public class AnnouncementControllerTest {
      * <p>
      * This test saves an Announcement object to the database,
      * then uses a Guests's authority to verify it, which fails.
+     *
      * @throws Exception
      */
     @Test
@@ -1229,6 +1291,7 @@ public class AnnouncementControllerTest {
      * then uses an Admin's authority to verify it, which fails.
      * Then it compares the original number of objects in the database to the new one
      * and the expected value of the "Verified" attribute to the one found in the database.
+     *
      * @throws Exception
      */
     @Test
@@ -1254,6 +1317,7 @@ public class AnnouncementControllerTest {
      * This test uses a Verifier's authority to verify a Announcement that does not exist, which fails.
      * Then it asserts that the error code returned matches the one for a non-existing object
      * and that the size of the database has not changed.
+     *
      * @throws Exception
      */
     @Test
@@ -1281,6 +1345,7 @@ public class AnnouncementControllerTest {
      * are returned when searching using no arguments matches the number
      * of Announcements in the database or the number of Announcements
      * per page of search results, whichever is smaller.
+     *
      * @throws Exception
      */
     @Test
@@ -1304,6 +1369,7 @@ public class AnnouncementControllerTest {
      * This test asserts that all Announcements returned when
      * searching with a specified price range have a price value
      * that matches that price range.
+     *
      * @throws Exception
      */
     @Test
@@ -1329,6 +1395,7 @@ public class AnnouncementControllerTest {
      * searching with a specified price range have a price value
      * that matches that price range or is equal to the limits of
      * the price range.
+     *
      * @throws Exception
      */
     @Test
@@ -1357,6 +1424,7 @@ public class AnnouncementControllerTest {
      * from the author's name, the announcement's type and phone number and does a search
      * using these arguments. It then checks whether all of the results that are returned
      * contain these values.
+     *
      * @throws Exception
      */
     @Test
@@ -1397,6 +1465,7 @@ public class AnnouncementControllerTest {
      * from the RealEstates's Location's country, city,region and street and does a search
      * using these arguments. It then checks whether all of the results that are returned
      * contain these values.
+     *
      * @throws Exception
      */
     @Test
@@ -1444,6 +1513,7 @@ public class AnnouncementControllerTest {
      * number of returned results matches the number of Announcements on the database
      * or the number of results per page, whichever is smaller. A search with an
      * invalid key should return all undeleted Announcements.
+     *
      * @throws Exception
      */
     @Test
@@ -1470,6 +1540,7 @@ public class AnnouncementControllerTest {
      * using the deleted Announcement's values and asserts that the deleted
      * Announcement is not on of the returned results by comparing the
      * results' ids to its id.
+     *
      * @throws Exception
      */
     @Test
