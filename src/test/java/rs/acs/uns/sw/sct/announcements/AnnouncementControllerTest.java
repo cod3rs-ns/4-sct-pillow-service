@@ -175,7 +175,11 @@ public class AnnouncementControllerTest {
         return file;
     }
 
-
+    /**
+     * Initializes all objects needed for further testing.
+     * <p>
+     * This method is called before testing starts.
+     */
     @Before
     public void initTest() {
         announcement = createEntity();
@@ -183,6 +187,16 @@ public class AnnouncementControllerTest {
         fileToBeUpload = createFile();
     }
 
+    /**
+     * Tests addition of Announcement objects to the database.
+     * <p>
+     * This test uses a mock User with authority to
+     * add a default Announcement object to the database using a POST method.
+     * It then proceeds to check whether the Announcement object was added successfully,
+     * by comparing the number of objects in the database before and after the addition,
+     * as well as the default Announcement's attributes to the Announcement in the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.USER_USERNAME)
@@ -206,6 +220,13 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.isDeleted()).isEqualTo(DEFAULT_DELETED);
     }
 
+    /**
+     * Tests whether Verifiers can add Announcement objects
+     * <p>
+     * This test attempts to add an Announcement object to the database using the Verifier role,
+     * which is forbidden.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -216,6 +237,14 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests whether the "Price" field is nullable
+     * <p>
+     * This test attempts to add an Announcement object with a null "Price" value to the database,
+     * this is forbidden as the "Price" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkPriceIsRequired() throws Exception {
@@ -234,6 +263,14 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Expiration date" field is nullable
+     * <p>
+     * This test attempts to add an Announcement object with a null "Expiration date" value to the database,
+     * this is forbidden as the "Expiration date" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkExpirationDateIsRequired() throws Exception {
@@ -252,6 +289,14 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Phone number" field is nullable
+     * <p>
+     * This test attempts to add an Announcement object with a null "Phone number" value to the database,
+     * this is forbidden as the "Phone number" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkTelephoneNoIsRequired() throws Exception {
@@ -270,6 +315,14 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Type" field is nullable
+     * <p>
+     * This test attempts to add an Announcement object with a null "Type" value to the database,
+     * this is forbidden as the "Type" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkTypeIsRequired() throws Exception {
@@ -288,6 +341,14 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests getting Announcements as an Admin
+     * <p>
+     * This test retrieves all Announcement objects from the database
+     * using an Admin's authority. It then checks whether the objects'
+     * attributes have valid values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -310,6 +371,13 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)));
     }
 
+    /**
+     * Tests getting Announcements as an Advertiser
+     * <p>
+     * This test retrieves all Announcement objects from the database
+     * using an Advertiser's authority.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -322,6 +390,13 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * Tests getting a single Announcement by id
+     * <p>
+     * This test retrieves an Announcement object from the database using its ID.
+     * It then checks whether the object's attributes have valid values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAnnouncement() throws Exception {
@@ -343,6 +418,13 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.deleted").value(DEFAULT_DELETED));
     }
 
+    /**
+     * Tests invalid retrieval attempts
+     * <p>
+     * This tests attempts to retrieve an Announcement object which is not in the database
+     * by searching for a non-existent id.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getNonExistingAnnouncement() throws Exception {
@@ -351,6 +433,16 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests Announcement updating.
+     * <p>
+     * This test saves an Announcement object to the database,
+     * then updates the values of its attributes and uses PUT to save the object.
+     * Then it compares the original number of objects in the database to the new one
+     * and the updated values of our modified Announcement with the ones found in
+     * the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
@@ -387,6 +479,16 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getType()).isEqualTo(UPDATED_TYPE);
     }
 
+    /**
+     * Tests Announcement updating as an Admin.
+     * <p>
+     * This test uses the Admin role to save an Announcement object to the database,
+     * then updates the values of its attributes and uses PUT to save the object.
+     * Then it compares the original number of objects in the database to the new one
+     * and the updated values of our modified Announcement with the ones found in
+     * the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN, username = DBUserMocker.ADMIN_USERNAME)
@@ -423,6 +525,15 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getType()).isEqualTo(UPDATED_TYPE);
     }
 
+    /**
+     * Tests Announcement updating as someone other than the Announcement's owner.
+     * <p>
+     * This test saves an Announcement object to the database,
+     * then updates the values of its attributes and uses PUT to save the object
+     * using a mocked User with a different username to the Announcement's owner,
+     * which is not allowed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "not_owner_username")
@@ -462,6 +573,14 @@ public class AnnouncementControllerTest {
 //        assertThat(testAnnouncement.getType()).isNotEqualTo(UPDATED_TYPE);
     }
 
+    /**
+     * Tests Announcement deletion
+     * <p>
+     * This test deletes an object on the database,
+     * then compares the number of objects on the database
+     * before and after this action.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
@@ -482,6 +601,15 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeDelete - 1);
     }
 
+    /**
+     * Tests Announcement deletion as Admin
+     * <p>
+     * This test uses a mocked Admin authority to
+     * delete an object on the database,
+     * then compares the number of objects on the database
+     * before and after this action.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN, username = "admin")
@@ -507,6 +635,17 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeDelete - 1);
     }
 
+    /**
+     * Tests Announcement deletion as someone other than the Announcement's owner
+     * <p>
+     * This test uses a mocked Advertiser authority with a username that
+     * does not match an Announcement's owner's username
+     * to attempt to delete an object
+     * on the database, which is not allowed.
+     * It then compares the number of objects on the database
+     * before and after this action.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "not_owner_username")
@@ -528,6 +667,16 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests Announcement deletion as Verifier
+     * <p>
+     * This test uses a mocked Verifier authority
+     * to attempt to delete an object
+     * on the database, which is not allowed.
+     * It then compares the number of objects on the database
+     * before and after this action.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = DBUserMocker.VERIFIER_USERNAME)
@@ -546,6 +695,16 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests Announcement deletion of non-existent Announcements
+     * <p>
+     * This test uses a mocked Admin authority
+     * to attempt to delete an object that is not
+     * on the database, which returns a "Not found" status.
+     * It then compares the number of objects on the database
+     * before and after this action.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -562,6 +721,16 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests Announcement deletion as Guest
+     * <p>
+     * This test uses a mocked Guest authority
+     * to attempt to delete an object
+     * on the database, which is not allowed.
+     * It then compares the number of objects on the database
+     * before and after this action.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void deleteAnnouncementAsGuest() throws Exception {
@@ -578,6 +747,13 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests file upload.
+     * <p>
+     * This test uploads a file to the database and then finds its location
+     * and checks whether or not the file exists, then deletes it.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -603,6 +779,15 @@ public class AnnouncementControllerTest {
         FileUtils.deleteDirectory(new File(NEW_BASE_DIR));
     }
 
+    /**
+     * Tests uploading into a folder that does not exist.
+     * <p>
+     * This test makes sure the intended directory of the file to be uploaded
+     * does not exist, then proceeeds to upload it and check whether or not
+     * the file exists or not.
+     * It then deletes the file and its directory.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -626,6 +811,16 @@ public class AnnouncementControllerTest {
         FileUtils.deleteDirectory(f);
     }
 
+    /**
+     * Tests the extension of expiration dates as an Announcement's author
+     * <p>
+     * This test uses a mocked-up Advertiser User to extend the expiration date
+     * of an Announcement. The test initializes the database and uses PUT to
+     * send the modified Announcement to the database, then asserts that the number
+     * of Announcements in the database hasn't changed and that the edited
+     * Announcement's expiration date has changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
@@ -649,6 +844,17 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(EXTENDED_DATE_AS_STRING);
     }
 
+    /**
+     * Tests the extension of expiration dates as Guest
+     * <p>
+     * This test uses a mocked-up Guest User to extend the expiration date
+     * of an Announcement. The test initializes the database and uses PUT to
+     * send the modified Announcement to the database, which fails because Guests
+     * are unauthorized to edit Announcements, then asserts that the number
+     * of Announcements in the database hasn't changed and that the edited
+     * Announcement's expiration date has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void extendExpirationDateAsGuest() throws Exception {
@@ -670,6 +876,17 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
     }
 
+    /**
+     * Tests the extension of expiration dates as Verifier
+     * <p>
+     * This test uses a mocked-up Verifier User to extend the expiration date
+     * of an Announcement. The test initializes the database and uses PUT to
+     * send the modified Announcement to the database, which fails because Verifiers
+     * are unauthorized to edit Announcements, then asserts that the number
+     * of Announcements in the database hasn't changed and that the edited
+     * Announcement's expiration date has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -692,6 +909,18 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
     }
 
+    /**
+     * Tests the extension of expiration dates using an incorrectly named Date
+     * <p>
+     * This test uses a mocked-up Advertiser User to extend the expiration date
+     * of an Announcement using an incorrectly named Date. The test initializes the database
+     * and uses PUT to send the modified Announcement to the database,
+     * which fails. It then asserts that the error code that was returned matches
+     * the error code for no expiration date and finally asserts that the number
+     * of Announcements in the database hasn't changed and that the edited
+     * Announcement's expiration date has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -719,6 +948,19 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
     }
 
+    /**
+     * Tests the extension of expiration dates on non-existing Announcements
+     * <p>
+     * This test uses a mocked-up Advertiser User to extend the expiration date
+     * of an Announcement which does not exist on the database.
+     * The test initializes the database and uses PUT to
+     * send an Announcement to the database, which fails because
+     * there is no original Announcement. It then asserts that the error code that was
+     * returned matches the error code for a non-existing entity and
+     * finally asserts that the number of Announcements in the database
+     * hasn't changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -741,6 +983,18 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
     }
 
+    /**
+     * Tests the extension of expiration dates using an incorrectly formatted Date
+     * <p>
+     * This test uses a mocked-up Advertiser User to extend the expiration date
+     * of an Announcement using an invalid Date. The test initializes the database
+     * and uses PUT to send the modified Announcement to the database.
+     * It then asserts that the error code that was returned matches
+     * the error code for an invalid date format and finally asserts that the number
+     * of Announcements in the database hasn't changed and that the edited
+     * Announcement's expiration date has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -768,6 +1022,18 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
     }
 
+    /**
+     * Tests the extension of expiration dates using an invalid Date
+     * <p>
+     * This test uses a mocked-up Advertiser User to extend the expiration date
+     * of an Announcement using a Date that is in the past. The test initializes the database
+     * and uses PUT to send the modified Announcement to the database,
+     * which fails. It then asserts that the error code that was returned matches
+     * the error code for an invalid Date and finally asserts that the number
+     * of Announcements in the database hasn't changed and that the edited
+     * Announcement's expiration date has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -794,6 +1060,14 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_DATE_ANNOUNCED);
     }
 
+    /**
+     * Tests getting Announcements as a Guest
+     * <p>
+     * This test retrieves all undeleted Announcement objects from the database
+     * using a Guest's authority. It then checks whether the objects'
+     * attributes have valid values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllNonDeletedAnnouncementsAsGuest() throws Exception {
@@ -819,6 +1093,14 @@ public class AnnouncementControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests getting deleted Announcements as an Admin
+     * <p>
+     * This test retrieves all deleted Announcement objects from the database
+     * using an Admin's authority. It then checks whether the objects'
+     * attributes have valid values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -895,6 +1177,15 @@ public class AnnouncementControllerTest {
 
     // TODO Get top announcements by company
 
+    /**
+     * Tests Verification of Announcements as a Verifier.
+     * <p>
+     * This test saves an Announcement object to the database,
+     * then uses a Verifier's authority to verify it.
+     * Then it compares the original number of objects in the database to the new one
+     * and the expected value of the "Verified" attribute to the one found in the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
@@ -915,6 +1206,13 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getVerified()).isEqualTo(UPDATED_VERIFIED);
     }
 
+    /**
+     * Tests Verification of Announcements as a Guest.
+     * <p>
+     * This test saves an Announcement object to the database,
+     * then uses a Guests's authority to verify it, which fails.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void verifyAnnouncementAsGuest() throws Exception {
@@ -924,6 +1222,15 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests Verification of Announcements as an Admin.
+     * <p>
+     * This test saves an Announcement object to the database,
+     * then uses an Admin's authority to verify it, which fails.
+     * Then it compares the original number of objects in the database to the new one
+     * and the expected value of the "Verified" attribute to the one found in the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.NEW_USER_USERNAME)
@@ -941,6 +1248,14 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getVerified()).isEqualTo(DEFAULT_VERIFIED);
     }
 
+    /**
+     * Tests Verification of a non-existing Announcements as a Verifier.
+     * <p>
+     * This test uses a Verifier's authority to verify a Announcement that does not exist, which fails.
+     * Then it asserts that the error code returned matches the one for a non-existing object
+     * and that the size of the database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = UserConstants.USER_USERNAME)
@@ -959,6 +1274,15 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(dbSize);
     }
 
+    /**
+     * Tests searching Announcements using no arguments
+     * <p>
+     * This test asserts that the number of undeleted Announcements that
+     * are returned when searching using no arguments matches the number
+     * of Announcements in the database or the number of Announcements
+     * per page of search results, whichever is smaller.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchAnnouncementsWithoutAnyAttribute() throws Exception {
@@ -974,6 +1298,14 @@ public class AnnouncementControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests searching Announcements by price
+     * <p>
+     * This test asserts that all Announcements returned when
+     * searching with a specified price range have a price value
+     * that matches that price range.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchAnnouncementsByPrice() throws Exception {
@@ -990,6 +1322,15 @@ public class AnnouncementControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests searching Announcements by price
+     * <p>
+     * This test asserts that all Announcements returned when
+     * searching with a specified price range have a price value
+     * that matches that price range or is equal to the limits of
+     * the price range.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchAnnouncementsByLimitPriceInclude() throws Exception {
@@ -1008,6 +1349,16 @@ public class AnnouncementControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests searching Announcements using multiple arguments
+     * <p>
+     * This test gets a User from the User database, sets it as an Announcement's author
+     * and then saves the Announcement to the database. Then it takes a random substring
+     * from the author's name, the announcement's type and phone number and does a search
+     * using these arguments. It then checks whether all of the results that are returned
+     * contain these values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchAnnouncementsByAuthorNameAndTypeAndPhoneNumber() throws Exception {
@@ -1037,6 +1388,17 @@ public class AnnouncementControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests searching Announcements by location
+     * <p>
+     * This test gets a User from the User database and a RealEstate object from the RealEstate
+     * database, sets them as an Announcement's author and RealEstate, respectively.
+     * and then saves the Announcement to the database. Then it takes a random substring
+     * from the RealEstates's Location's country, city,region and street and does a search
+     * using these arguments. It then checks whether all of the results that are returned
+     * contain these values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchAnnouncementsByLocation() throws Exception {
@@ -1075,6 +1437,15 @@ public class AnnouncementControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests searching Announcements with a wrong query key
+     * <p>
+     * This test performs a search using an invalid key and checks whether the
+     * number of returned results matches the number of Announcements on the database
+     * or the number of results per page, whichever is smaller. A search with an
+     * invalid key should return all undeleted Announcements.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchAnnouncementsWithWrongNameQueryKey() throws Exception {
@@ -1091,7 +1462,16 @@ public class AnnouncementControllerTest {
                 .andReturn();
     }
 
-
+    /**
+     * Tests searching for Announcements that were deleted
+     * <p>
+     * This test saves an Announcement that with a true Deleted value into
+     * the database, checks that it was saved, then searches for an Announcement
+     * using the deleted Announcement's values and asserts that the deleted
+     * Announcement is not on of the returned results by comparing the
+     * results' ids to its id.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchDeletedAnnouncements() throws Exception {
