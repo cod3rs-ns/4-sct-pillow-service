@@ -82,11 +82,25 @@ public class MarkControllerTest {
                 .build();
     }
 
+    /**
+     * Initializes all objects needed for further testing.
+     * <p>
+     * This method is called before testing starts.
+     */
     @Before
     public void initTest() {
         mark = createEntity();
     }
 
+    /**
+     * Tests Mark creation as an Advertiser.
+     * <p>
+     * This test uses a mock Advertiser user to create a new Mark object
+     * on the database. It then asserts that the number of objects on the
+     * database has increased by one and that the last Mark added matches
+     * the mark we created.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
@@ -107,6 +121,14 @@ public class MarkControllerTest {
         assertThat(testMark.getValue()).isEqualTo(DEFAULT_VALUE);
     }
 
+    /**
+     * Tests Mark creation as a Guest.
+     * <p>
+     * This test uses no authorization to create a new Mark object
+     * on the database, which is forbidden. It then asserts that the number
+     * of objects on the database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void createMarkAsGuest() throws Exception {
@@ -124,6 +146,14 @@ public class MarkControllerTest {
         assertThat(marks).hasSize(databaseSizeBeforeCreate);
     }
 
+    /**
+     * Tests whether the "Value" field is nullable
+     * <p>
+     * This test attempts to add a Mark object with a null "Value" value to the database,
+     * this is forbidden as the "Value" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in the database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkValueIsRequired() throws Exception {
@@ -142,6 +172,14 @@ public class MarkControllerTest {
         assertThat(marks).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests getting all Marks as an Admin
+     * <p>
+     * This test uses a mocked Admin user to request all Marks
+     * from the database. It then asserts that the received results
+     * match what was expected.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -157,6 +195,13 @@ public class MarkControllerTest {
                 .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
     }
 
+    /**
+     * Tests getting all Marks as an Admin
+     * <p>
+     * This test uses a mocked Admin user to request all Marks
+     * from the database, which fails and returns a Forbidden status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -169,6 +214,13 @@ public class MarkControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests getting all Marks as a Guest
+     * <p>
+     * This test uses a mocked Guest user to request all Marks
+     * from the database, which fails and returns an Unauthorized status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllMarksAsGuest() throws Exception {
@@ -180,6 +232,14 @@ public class MarkControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests getting a single Mark by id as an Advertiser
+     * <p>
+     * This test uses a mocked Advertiser user to retrieve a
+     * Mark object from the database using its ID.
+     * It then checks whether the object's attributes have valid values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -195,6 +255,14 @@ public class MarkControllerTest {
                 .andExpect(jsonPath("$.value").value(DEFAULT_VALUE));
     }
 
+    /**
+     * Tests getting a single Mark by id as a Guest
+     * <p>
+     * This test uses a mocked Guest user to attempt to retrieve an
+     * Mark object from the database using its ID.
+     * This fails and returns an Unauthorized status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getMarkAsGuest() throws Exception {
@@ -206,6 +274,13 @@ public class MarkControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests invalid retrieval attempts
+     * <p>
+     * This tests attempts to retrieve a Mark object which is not in the database
+     * by searching for a non-existent id. This returns an "Is not found" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -215,6 +290,17 @@ public class MarkControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests Mark updating.
+     * <p>
+     * This test saves a Mark object to the database,
+     * then updates the values of its attributes and uses PUT to save the object.
+     * Then it uses a mocked Advertiser user to
+     * compare the original number of objects in the database to the new one
+     * and the updated values of our modified Mark with the ones found in
+     * the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
@@ -242,6 +328,16 @@ public class MarkControllerTest {
         assertThat(testMark.getValue()).isEqualTo(UPDATED_VALUE);
     }
 
+    /**
+     * Tests Mark deletion as the Mark's author
+     * <p>
+     * This tests sets a Mark's author to a mocked Verifier
+     * user that it then uses to delete it
+     * on the database. It then asserts
+     * that the number of objects on the database
+     * after this action has been reduced by one.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = DBUserMocker.VERIFIER_USERNAME)
@@ -262,6 +358,17 @@ public class MarkControllerTest {
         assertThat(marks).hasSize(databaseSizeBeforeDelete - 1);
     }
 
+    /**
+     * Tests Mark deletion as a Guest
+     * <p>
+     * This tests sets a Mark's author to a mocked Guest
+     * user and then attempts to delete it on the database
+     * with no authorization, which is not allowed.
+     * It then asserts that the number of
+     * Marks on the database has not
+     * changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void deleteMarkAsGuest() throws Exception {
@@ -279,6 +386,15 @@ public class MarkControllerTest {
         assertThat(marks).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests getting all Marks for an Announcement
+     * <p>
+     * This test sets an Announcement as a Mark's announcement,
+     * then saves it to the database. It then then finds all Marks
+     * tied to that Announcement on that database and asserts that
+     * the number of Marks matches the expected number.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)

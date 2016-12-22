@@ -31,6 +31,12 @@ public class CompanyServiceTest {
     private Company updatedCompany;
     private Company existingCompany;
 
+    /**
+     * Asserts equality of two Comments.
+     *
+     * @param company1 One of the Comments to be compared
+     * @param company2 The other Comments to be compared
+     */
     private void compareCompanies(Company company1, Company company2) {
         if (company1.getId() != null && company2.getId() != null)
             assertThat(company1.getId()).isEqualTo(company2.getId());
@@ -39,7 +45,9 @@ public class CompanyServiceTest {
         assertThat(company1.getPhoneNumber()).isEqualTo(company2.getPhoneNumber());
     }
 
-
+    /**
+     * Initializes all objects required for testing
+     */
     @Before
     public void initTest() {
         existingCompany = new Company()
@@ -59,6 +67,14 @@ public class CompanyServiceTest {
                 .phoneNumber(UPDATED_PHONE_NUMBER);
     }
 
+    /**
+     * Tests pageable retrieval of Companies
+     * <p>
+     * This test uses a PageRequest object to specify the number
+     * of results it wants to receive when it requests Companies,
+     * then asserts that the number of returned results matches
+     * the page size in our request.
+     */
     @Test
     public void testFindAllPageable() {
         PageRequest pageRequest = new PageRequest(0, PAGE_SIZE);
@@ -66,12 +82,26 @@ public class CompanyServiceTest {
         assertThat(companies).hasSize(PAGE_SIZE);
     }
 
+    /**
+     * Tests retrieval of all Companies
+     * <p>
+     * This test finds all Companies on the repository and asserts
+     * that the number of returned results is equal to the number of
+     * Companies on the database
+     */
     @Test
     public void testFindAll() {
         List<Company> companies = companyRepository.findAll();
         assertThat(companies).hasSize(DB_COUNT_COMPANIES);
     }
 
+    /**
+     * Tests retrieval of a single Company.
+     * <p>
+     * This test uses the id of an Company that is in the repository
+     * to search for it, then asserts that the returned value is not null
+     * and compares the returned Company to an existing Company.
+     */
     @Test
     public void testFindOne() {
         Company company = companyService.findOne(ID);
@@ -80,6 +110,14 @@ public class CompanyServiceTest {
         compareCompanies(company, existingCompany);
     }
 
+    /**
+     * Tests addition of Companies
+     * <p>
+     * This announcement saves a new Company using the CompanyService,
+     * then it finds all Companies and asserts that the size of the results
+     * has increased by one. It also asserts that the new Company that is on
+     * the database equals the Company we added.
+     */
     @Test
     @Transactional
     public void testAdd() {
@@ -95,6 +133,13 @@ public class CompanyServiceTest {
         compareCompanies(dbComment, newCompany);
     }
 
+    /**
+     * Tests updating of Companies.
+     * <p>
+     * This test retrieves a Company using the service, then changes
+     * its attributes and saves it to the database. Then it asserts that
+     * the object on the database is not null and equals our updated Company.
+     */
     @Test
     @Transactional
     public void testUpdate() {
@@ -110,6 +155,15 @@ public class CompanyServiceTest {
         compareCompanies(updatedDbCompany, updatedCompany);
     }
 
+    /**
+     * Tests removal of Company
+     * <p>
+     * This test deletes a Company using the service, then
+     * asserts that the number of Companies on the database
+     * has been reduced by one. It also asserts that an object
+     * with the deleted Company's id does not exists on the
+     * database.
+     */
     @Test
     @Transactional
     public void testRemove() {
@@ -128,6 +182,14 @@ public class CompanyServiceTest {
      * Negative tests
 	 */
 
+    /**
+     * Tests adding a Company with a null name value
+     * <p>
+     * This test sets a Company's name to null, then
+     * attempts to add it to the database. As name is a
+     * non-nullable field, the test receives a
+     * Constraint Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullName() {
@@ -137,7 +199,14 @@ public class CompanyServiceTest {
         newCompany.setName(NEW_NAME);
     }
 
-
+    /**
+     * Tests adding a Company with a null address value
+     * <p>
+     * This test sets a Company's address to null, then
+     * attempts to add it to the database. As address is a
+     * non-nullable field, the test receives a
+     * Constraint Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullAddress() {
@@ -147,6 +216,14 @@ public class CompanyServiceTest {
         newCompany.setAddress(NEW_ADDRESS);
     }
 
+    /**
+     * Tests adding a Company with a null telephone number value
+     * <p>
+     * This test sets a Company's telephone number to null, then
+     * attempts to add it to the database. As telephone number is a
+     * non-nullable field, the test receives a
+     * Constraint Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullTelephoneNo() {
@@ -156,7 +233,14 @@ public class CompanyServiceTest {
         newCompany.setPhoneNumber(NEW_PHONE_NUMBER);
     }
 
-
+    /**
+     * Tests search using no arguments
+     * <p>
+     * This test searches for Companies using no arguments. It then asserts that
+     * the number of returned results is equal to the number of Companies on the
+     * database or the number of results per page, whichever is smaller.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchCompaniesWithoutAnyQuery() throws Exception {
@@ -167,6 +251,15 @@ public class CompanyServiceTest {
         assertThat(result.size()).isEqualTo(requiredSize);
     }
 
+    /**
+     * Tests search using arguments
+     * <p>
+     * This test takes random substrings of a Company's name, address and
+     * phone number and uses them as arguments to perform a search.
+     * It then asserts that all of the returned results have
+     * values which contain these substrings.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchCompaniesByNameAndAddressAndPhoneNumber() throws Exception {

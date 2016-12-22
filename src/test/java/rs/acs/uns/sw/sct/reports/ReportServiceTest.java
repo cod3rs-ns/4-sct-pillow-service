@@ -32,7 +32,12 @@ public class ReportServiceTest {
     private Report updatedReport;
     private Report existingReport;
 
-
+    /**
+     * Asserts equality of two Reports.
+     *
+     * @param report1 One of the Reports to be compared
+     * @param report2 The other Reports to be compared
+     */
     private void compareReports(Report report1, Report report2) {
         if (report1.getId() != null && report2.getId() != null)
             assertThat(report1.getId()).isEqualTo(report2.getId());
@@ -48,7 +53,9 @@ public class ReportServiceTest {
         assertThat(report1.getStatus()).isEqualTo(report2.getStatus());
     }
 
-
+    /**
+     * Initializes all objects required for testing
+     */
     @Before
     public void initTest() {
         existingReport = new Report()
@@ -77,6 +84,14 @@ public class ReportServiceTest {
                 .announcement(DEFAULT_ANNOUNCEMENT);
     }
 
+    /**
+     * Tests pageable retrieval of Reports
+     * <p>
+     * This test uses a PageRequest object to specify the number
+     * of results it wants to receive when it requests Reports,
+     * then asserts that the number of returned results matches
+     * the page size in our request.
+     */
     @Test
     @Transactional(readOnly = true)
     public void testFindAllPageable() {
@@ -85,6 +100,13 @@ public class ReportServiceTest {
         assertThat(reports).hasSize(PAGE_SIZE);
     }
 
+    /**
+     * Tests retrieval of all Reports
+     * <p>
+     * This test finds all Reports on the repository and asserts
+     * that the number of returned results is equal to the number of
+     * Reports on the database
+     */
     @Test
     @Transactional(readOnly = true)
     public void testFindAll() {
@@ -92,6 +114,13 @@ public class ReportServiceTest {
         assertThat(reports).hasSize(DB_COUNT_REPORTS);
     }
 
+    /**
+     * Tests retrieval of a single Report.
+     * <p>
+     * This test uses the id of an Report that is in the repository
+     * to search for it, then asserts that the returned value is not null
+     * and compares the returned Report to an existing Report.
+     */
     @Test
     @Transactional(readOnly = true)
     public void testFindOne() {
@@ -101,6 +130,14 @@ public class ReportServiceTest {
         compareReports(report, existingReport);
     }
 
+    /**
+     * Tests addition of Reports
+     * <p>
+     * This test saves a new Report using the ReportService,
+     * then it finds all Reports and asserts that the size of the results
+     * has increased by one. It also asserts that the new Report that is on
+     * the database equals the Report we added.
+     */
     @Test
     @Transactional
     public void testAdd() {
@@ -116,6 +153,13 @@ public class ReportServiceTest {
         compareReports(dbReport, newReport);
     }
 
+    /**
+     * Tests updating of Reports.
+     * <p>
+     * This test retrieves a Report using the service, then changes
+     * its attributes and saves it to the database. Then it asserts that
+     * the object on the database is not null and equals our updated Report.
+     */
     @Test
     @Transactional
     public void testUpdate() {
@@ -133,6 +177,15 @@ public class ReportServiceTest {
         compareReports(updatedDbReport, updatedReport);
     }
 
+    /**
+     * Tests removal of Reports
+     * <p>
+     * This test deletes a Report using the service, then
+     * asserts that the number of Reports on the database
+     * has been reduced by one. It also asserts that an object
+     * with the deleted Report's id does not exists on the
+     * database.
+     */
     @Test
     @Transactional
     public void testRemove() {
@@ -146,6 +199,12 @@ public class ReportServiceTest {
         assertThat(dbReport).isNull();
     }
 
+    /**
+     * Tests searching for Reports by their status
+     * <p>
+     * This test finds all Reports that have a certain status,
+     * asserts that every one of the results has that status
+     */
     @Test
     public void testFindByStatus() {
         Page<Report> reports = reportService.findByStatus(FIND_STATUS, PAGEABLE);
@@ -155,6 +214,12 @@ public class ReportServiceTest {
         }
     }
 
+    /**
+     * Tests searching for Reports by their author's e-mail
+     * <p>
+     * This test finds all Reports that have a certain author's email,
+     * asserts that every one of the results has that author's email.
+     */
     @Test
     public void testFindByAuthorEmail() {
         Page<Report> reports = reportService.findByAuthorEmail(FIND_AUTHOR_EMAIL, PAGEABLE);
@@ -168,6 +233,14 @@ public class ReportServiceTest {
      * Negative tests
 	 */
 
+    /**
+     * Tests adding an Report with a null emial value
+     * <p>
+     * This test sets an Report's emial to null, then
+     * attempts to add it to the database. As emial is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullEmail() {
@@ -177,6 +250,14 @@ public class ReportServiceTest {
         newReport.setEmail(NEW_EMAIL);
     }
 
+    /**
+     * Tests adding an Report with a null type value
+     * <p>
+     * This test sets an Report's type to null, then
+     * attempts to add it to the database. As type is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullType() {
@@ -186,6 +267,14 @@ public class ReportServiceTest {
         newReport.setType(NEW_TYPE);
     }
 
+    /**
+     * Tests adding an Report with a null content value
+     * <p>
+     * This test sets an Report's content to null, then
+     * attempts to add it to the database. As content is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullContent() {
@@ -195,6 +284,14 @@ public class ReportServiceTest {
         newReport.setContent(NEW_CONTENT);
     }
 
+    /**
+     * Tests adding an Report with a null status value
+     * <p>
+     * This test sets an Report's status to null, then
+     * attempts to add it to the database. As status is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullStatus() {
@@ -204,7 +301,12 @@ public class ReportServiceTest {
         newReport.setStatus(NEW_STATUS);
     }
 
-
+    /**
+     * Tests searching for Reports by specific arguments
+     * <p>
+     * This test saves a Report to the database, then searches for
+     * it using all the same arguments, then asserts that the returned value is not null.
+     */
     @Test
     @Transactional
     public void findSameReports() {
