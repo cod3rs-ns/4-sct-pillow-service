@@ -99,16 +99,13 @@ public class UserService {
      * @return the persisted user
      */
     public User save(User newUser) {
-        // FIXME @bblagojevic Not sure if we need this
+        // Check if password is already hashed
         User user = userRepository.findOneByUsername(newUser.getUsername());
-        if (user == null || !newUser.getPassword().equals(user.getPassword())) {
-            if (newUser != null && newUser.getPassword() != null) {
-                BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-                String hashedPassword = passwordEncoder.encode(newUser.getPassword());
-                newUser.setPassword(hashedPassword);
-            }
+        if (newUser.getPassword() != null && (user == null || !newUser.getPassword().equals(user.getPassword()))) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String hashedPassword = passwordEncoder.encode(newUser.getPassword());
+            newUser.setPassword(hashedPassword);
         }
-        // TODO 8 line 105 - always evaluates to true, these two IF statements should be merged into one - by SONAR from @keky to @bblagojevic :)
 
         return userRepository.save(newUser);
     }

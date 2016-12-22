@@ -1,6 +1,7 @@
 package rs.acs.uns.sw.sct.announcements;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +48,10 @@ public class AnnouncementController {
 
     @Autowired
     private UserSecurityUtil userSecurityUtil;
+
+    @Value("${sct.file_upload.path}")
+    public static String uploadPath;  // NOSONAR
+
 
     /**
      * POST  /announcements : Create a new announcement.
@@ -339,7 +344,7 @@ public class AnnouncementController {
                 String newFilename = originalFileName + UUID.randomUUID().toString() + originalFileExtension;
 
                 // transfer to upload folder
-                File dir = new File(Constants.FilePaths.BASE + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator);
+                File dir = new File(uploadPath + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator);
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
