@@ -309,6 +309,43 @@ public class UserControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getUsersByStatusDeletedTrueAsAdvertiser() throws Exception {
+
+        final String status = "true";
+
+        advertiser.deleted(true);
+        userService.save(advertiser);
+
+        mockMvc.perform(get("/api/users/deleted/{status}", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getUsersByStatusDeletedFalseAsAdvertiser() throws Exception {
+
+        final String status = "false";
+
+        userService.save(advertiser);
+
+        final Long usersDeletedCount = userRepository.findAllByDeleted(false, UserConstants.PAGEABLE).getTotalElements();
+
+        mockMvc.perform(get("/api/users/deleted/{status}", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(usersDeletedCount))))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(advertiser.getId().intValue())))
+                .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME)))
+                .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(Constants.Roles.ADVERTISER)))
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)));
+    }
+
+    @Test
+    @Transactional
     public void getUsersByStatusDeletedAsGuest() throws Exception {
 
         final String status = "false";

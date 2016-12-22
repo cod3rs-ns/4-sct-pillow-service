@@ -485,6 +485,18 @@ public class RealEstateControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllDeletedRealEstatesAsAdvertiser() throws Exception {
+
+        final boolean REAL_ESTATE_DELETED = true;
+
+        // Get all non deleted announcements
+        restRealEstateMockMvc.perform(get("/api/real-estates/deleted/{status}", REAL_ESTATE_DELETED))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void getAllSimilarRealEstatesAsAdvertiser() throws Exception {
 
         Location location = new Location()
