@@ -129,6 +129,44 @@ public class RealEstateController {
     }
 
     /**
+     * GET  /real-estates/similar
+     *
+     * @param area     Real estate area
+     * @param country  Real estate Location country
+     * @param city     Real estate Location city
+     * @param region   Real estate Location region
+     * @param street   Real estate Location street
+     * @param number   Real estate Location number
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of all similar real estates in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/real-estates/similar")
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
+    public ResponseEntity<List<RealEstate>> getSimilarRealEstates(@RequestParam(value = "area") Double area,
+                                                                  @RequestParam(value = "country") String country,
+                                                                  @RequestParam(value = "city") String city,
+                                                                  @RequestParam(value = "region") String region,
+                                                                  @RequestParam(value = "street") String street,
+                                                                  @RequestParam(value = "number") String number,
+                                                                  Pageable pageable)
+            throws URISyntaxException {
+
+        Location location = new Location()
+                .country(country)
+                .city(city)
+                .cityRegion(region)
+                .street(street)
+                .streetNumber(number);
+
+        RealEstateSimilarDTO realEstate = new RealEstateSimilarDTO(location, area);
+        Page<RealEstate> page = realEstateService.findAllSimilar(realEstate, pageable);
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/real-estates/similar");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
      * DELETE  /real-estates/:id : delete the "id" realEstate.
      *
      * @param id the id of the realEstate to delete

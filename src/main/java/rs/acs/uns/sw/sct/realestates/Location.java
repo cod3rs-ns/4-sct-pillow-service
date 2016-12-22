@@ -36,6 +36,21 @@ public class Location implements Serializable {
     @Column(nullable = false)
     private String streetNumber;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Location)) return false;
+
+        Location location = (Location) o;
+
+        if (country != null ? !country.equals(location.country) : location.country != null) return false;
+        if (city != null ? !city.equals(location.city) : location.city != null) return false;
+        if (cityRegion != null ? !cityRegion.equals(location.cityRegion) : location.cityRegion != null) return false;
+        if (street != null ? !street.equals(location.street) : location.street != null) return false;
+        return streetNumber != null ? streetNumber.equals(location.streetNumber) : location.streetNumber == null;
+
+    }
+
     public Long getId() {
         return id;
     }

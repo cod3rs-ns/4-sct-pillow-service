@@ -18,6 +18,10 @@ public class RealEstate implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    // ±5% of area constants
+    private static final double LOWER_LIMIT = 0.95;
+    private static final double UPPER_LIMIT = 1.05;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -51,6 +55,56 @@ public class RealEstate implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "realEstate", fetch = FetchType.LAZY)
     private Set<Announcement> announcements = new HashSet<>(0);
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RealEstate)) return false;
+
+        RealEstate that = (RealEstate) o;
+
+        if (area != null ? !area.equals(that.area) : that.area != null) return false;
+        if (location != null ? !location.equals(that.location) : that.location != null) return false;
+
+        return true;
+
+    }
+
+    /**
+     * Method that checks if two Real Estates are similar
+     *
+     * @param that Real Estate that needs to be checked for
+     * @return boolean - true if real estates are similar, false otherwise
+     */
+    public boolean similar(RealEstateSimilarDTO that) {
+
+        if (equals(that)) {
+            return true;
+        }
+
+        return isLocationSimilar(that) && isAreaSimilar(that);
+    }
+
+    /**
+     * Method that checks if two Real Estates' locations are similar
+     *
+     * @param that Real Estate that location needs to be checked for
+     * @return boolean - true if real estates are on similar location, false otherwise
+     */
+    public boolean isLocationSimilar(RealEstateSimilarDTO that) {
+        return this.getLocation().equals(that.getLocation());
+    }
+
+    /**
+     * Method that checks if two Real Estates' area are similar
+     *
+     * @param that Real Estate that area needs to be checked for
+     * @return boolean - true if real estates have similar area, false otherwise
+     */
+    public boolean isAreaSimilar(RealEstateSimilarDTO that) {
+        return (LOWER_LIMIT * this.getArea() <= that.getArea() && that.getArea() <= UPPER_LIMIT * this.getArea())
+                || (LOWER_LIMIT * that.getArea() <= this.getArea() && this.getArea() <= UPPER_LIMIT * that.getArea());
+    }
 
     public Long getId() {
         return id;
