@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -105,6 +106,9 @@ public class AnnouncementControllerTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired
+    private ConfigurableEnvironment env;
+
     private MockMvc restAnnouncementMockMvc;
 
     private Announcement announcement;
@@ -148,8 +152,8 @@ public class AnnouncementControllerTest {
         AnnouncementController announcementCtrl = new AnnouncementController();
         ReflectionTestUtils.setField(announcementCtrl, "announcementService", announcementService);
         ReflectionTestUtils.setField(announcementCtrl, "userService", userService);
-        // change base dir for file upload
-        ReflectionTestUtils.setField(Constants.FilePaths.class, "BASE", NEW_BASE_DIR);
+
+        ReflectionTestUtils.setField(AnnouncementController.class, "uploadPath", NEW_BASE_DIR);
 
         this.restAnnouncementMockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -584,21 +588,26 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
+        System.out.println(context.getEnvironment().getProperty("sct.file_upload.path"));
+
+
         String newFileName = result.getResponse().getContentAsString();
-        String filePath = Constants.FilePaths.BASE + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + newFileName;
+        String filePath = NEW_BASE_DIR + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + newFileName;
         File newFile = new File(filePath);
+
+        System.out.println(newFile.getAbsolutePath());
 
         assertThat(newFile.exists()).isTrue();
 
         // Delete created folder
-        FileUtils.deleteDirectory(new File(Constants.FilePaths.BASE));
+        FileUtils.deleteDirectory(new File(NEW_BASE_DIR));
     }
 
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void uploadFolderDoesNotExist() throws Exception {
-        File f = new File(Constants.FilePaths.BASE);
+        File f = new File(NEW_BASE_DIR);
         if (f.exists()) {
             FileUtils.deleteDirectory(f);
         }
