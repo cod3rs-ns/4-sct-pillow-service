@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.constants.RealEstateConstants;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
@@ -195,6 +196,26 @@ public class RealEstateServiceTest {
 
         for (final RealEstate realEstate: realEstates) {
             assertThat(realEstate.isDeleted()).isEqualTo(status);
+        }
+    }
+
+    @Test
+    public void testFindAllSimilar() {
+        Location location = new Location()
+                .country(RealEstateConstants.SIMILAR_COUNTRY)
+                .city(RealEstateConstants.SIMILAR_CITY)
+                .cityRegion(RealEstateConstants.SIMILAR_REGION)
+                .street(RealEstateConstants.SIMILAR_STREET)
+                .streetNumber(RealEstateConstants.SIMILAR_STREET_NO);
+
+        final RealEstateSimilarDTO similar = new RealEstateSimilarDTO(location, Double.parseDouble(RealEstateConstants.SIMILAR_AREA));
+
+        final Page<RealEstate> realEstates = realEstateService.findAllSimilar(similar, RealEstateConstants.PAGEABLE);
+
+        assertThat(realEstates.getTotalElements()).isEqualTo(DB_COUNT_REAL_ESTATES_SIMILAR_NON_DELETED);
+
+        for (final RealEstate realEstate: realEstates) {
+            assertThat(realEstate.similar(similar)).isEqualTo(true);
         }
     }
 

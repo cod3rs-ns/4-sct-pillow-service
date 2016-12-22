@@ -481,4 +481,127 @@ public class RealEstateControllerTest {
                 .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE)))
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(REAL_ESTATE_DELETED)));
     }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllSimilarRealEstatesAsAdvertiser() throws Exception {
+
+        Location location = new Location()
+                .country(RealEstateConstants.SIMILAR_COUNTRY)
+                .city(RealEstateConstants.SIMILAR_CITY)
+                .cityRegion(RealEstateConstants.SIMILAR_REGION)
+                .street(RealEstateConstants.SIMILAR_STREET)
+                .streetNumber(RealEstateConstants.SIMILAR_STREET_NO);
+
+        final RealEstateSimilarDTO similar = new RealEstateSimilarDTO(location, Double.parseDouble(RealEstateConstants.SIMILAR_AREA));
+
+        final Long count = realEstateService.findAllSimilar(similar, RealEstateConstants.PAGEABLE).getTotalElements();
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", RealEstateConstants.SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", RealEstateConstants.SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllSimilarRealEstatesAsAdvertiserGoodAddressWrongArea() throws Exception {
+
+        final String NOT_SIMILAR_AREA = "2110994";
+
+        Location location = new Location()
+                .country(RealEstateConstants.SIMILAR_COUNTRY)
+                .city(RealEstateConstants.SIMILAR_CITY)
+                .cityRegion(RealEstateConstants.SIMILAR_REGION)
+                .street(RealEstateConstants.SIMILAR_STREET)
+                .streetNumber(RealEstateConstants.SIMILAR_STREET_NO);
+
+        final RealEstateSimilarDTO similar = new RealEstateSimilarDTO(location, Double.parseDouble(NOT_SIMILAR_AREA));
+
+        final Long count = realEstateService.findAllSimilar(similar, RealEstateConstants.PAGEABLE).getTotalElements();
+
+        // We wanted empty result
+        assertThat(count).isEqualTo(0);
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", NOT_SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", RealEstateConstants.SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllSimilarRealEstatesAsAdvertiserGoodAreaWrongAddress() throws Exception {
+
+        final String NOT_SIMILAR_CITY = "Bijeljina";
+
+        Location location = new Location()
+                .country(RealEstateConstants.SIMILAR_COUNTRY)
+                .city(NOT_SIMILAR_CITY)
+                .cityRegion(RealEstateConstants.SIMILAR_REGION)
+                .street(RealEstateConstants.SIMILAR_STREET)
+                .streetNumber(RealEstateConstants.SIMILAR_STREET_NO);
+
+        final RealEstateSimilarDTO similar = new RealEstateSimilarDTO(location, Double.parseDouble(RealEstateConstants.SIMILAR_AREA));
+
+        final Long count = realEstateService.findAllSimilar(similar, RealEstateConstants.PAGEABLE).getTotalElements();
+
+        // We wanted empty result
+        assertThat(count).isEqualTo(0);
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", RealEstateConstants.SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", NOT_SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void getAllSimilarRealEstatesAsVerifier() throws Exception {
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", RealEstateConstants.SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", RealEstateConstants.SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    public void getAllSimilarRealEstatesAsGuest() throws Exception {
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", RealEstateConstants.SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", RealEstateConstants.SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isUnauthorized());
+    }
 }
