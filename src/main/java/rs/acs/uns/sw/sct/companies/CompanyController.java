@@ -88,11 +88,9 @@ public class CompanyController {
         final User companyMember = userSecurityUtil.getLoggedUser();
 
         // OPTION 1 - user doesn't have permission to update company
-        // TODO 2 - simplify or merge conditions
-        if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN)) {
-            if (companyMember.getCompany() == null ||
-                    !companyMember.getCompanyVerified().equals(Constants.CompanyStatus.ACCEPTED) ||
-                    !companyMember.getCompany().getId().equals(company.getId()))
+        if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && (companyMember.getCompany() == null ||
+                !companyMember.getCompanyVerified().equals(Constants.CompanyStatus.ACCEPTED) ||
+                !companyMember.getCompany().getId().equals(company.getId()))) {
                 return ResponseEntity
                         .badRequest()
                         .headers(HeaderUtil.failure(
@@ -258,7 +256,7 @@ public class CompanyController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/companies/resolve-request/user/{userId}")
-    public ResponseEntity<User> resolveMembershipRequest(@PathVariable Long userId, @RequestParam(value = "accepted") Boolean accepted) throws URISyntaxException {
+    public ResponseEntity<User> resolveMembershipRequest(@PathVariable Long userId, @RequestParam(value = "accepted") Boolean accepted) throws URISyntaxException { // NOSONAR
         final User companyMember = userSecurityUtil.getLoggedUser();
         final User userToResolve = userService.getUserById(userId);
 

@@ -21,7 +21,7 @@ public final class AnnouncementPredicates {
      * @param searchWrapper announcement wrapper which contains announcement fields used as search criteria
      * @return search predicate
      */
-    public static Predicate search(AnnouncementSearchWrapper searchWrapper) {
+    public static Predicate search(AnnouncementSearchWrapper searchWrapper) { // NOSONAR
         BooleanBuilder where = new BooleanBuilder();
 
         QAnnouncement announcement = QAnnouncement.announcement;
