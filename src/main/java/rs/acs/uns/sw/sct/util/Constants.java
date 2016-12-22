@@ -79,10 +79,6 @@ public final class Constants {
         public static final String ANNOUNCEMENTS = "announcements";
         public static final String COMPANIES = "companies";
         public static final String USERS = "users";
-        // need not to be final because of reflection
-        public static String BASE = new String("C:\\uploads"); // NOSONAR - explained in comment
-        // TODO 9 - I think that this is not good solution because partition C doesn't need to exists, also this maybe
-        // wont work on MAC or Linux because of line separators by @keky
         private FilePaths() {
         }
     }

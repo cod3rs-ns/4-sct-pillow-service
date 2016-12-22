@@ -29,8 +29,8 @@ public class CorsFilter implements Filter {
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
         response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, " + tokenHeader);
-        response.setHeader("Access-Control-Expose-Headers", "Link, X-Total-Count");
+        response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-SCT-Alert, X-SCT-Params, X-SCT-Error-Key, " + tokenHeader);
+        response.setHeader("Access-Control-Expose-Headers", "Link, X-Total-Count, X-SCT-Alert, X-SCT-Params, X-SCT-Error-Key");
         chain.doFilter(req, res);
     }
 

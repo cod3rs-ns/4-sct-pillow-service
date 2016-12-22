@@ -537,9 +537,7 @@ public class ReportControllerTest {
     @Test
     @Transactional
     public void getReportsByAuthor() throws Exception {
-
-        // FIXME @bblagojevic94
-
+        
         // Initialize the database
         Report persistReport = reportRepository.saveAndFlush(report);
 
