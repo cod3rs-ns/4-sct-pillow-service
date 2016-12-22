@@ -849,6 +849,48 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
     }
 
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void getAllDeletedAnnouncementsAsVerifier() throws Exception {
+
+        final boolean ANNOUNCEMENT_DELETED = true;
+
+        // Get all non deleted announcements
+        restAnnouncementMockMvc.perform(get("/api/announcements/deleted/{status}", ANNOUNCEMENT_DELETED))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void getAllNonDeletedAnnouncementsAsVerifier() throws Exception {
+
+        final boolean ANNOUNCEMENT_DELETED = false;
+
+        announcement.deleted(ANNOUNCEMENT_DELETED);
+
+        // Add Deleted Announcement
+        announcementRepository.saveAndFlush(announcement);
+
+        final Long announcementsDeletedCount = announcementRepository.findAllByDeleted(ANNOUNCEMENT_DELETED, null).getTotalElements();
+
+        // Get all non deleted announcements
+        restAnnouncementMockMvc.perform(get("/api/announcements/deleted/{status}", ANNOUNCEMENT_DELETED))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(announcementsDeletedCount))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
+                .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
+                .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
+                .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
+                .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
+                .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
+    }
+
     // TODO Get announcements by company
 
     // TODO Get top announcements by company

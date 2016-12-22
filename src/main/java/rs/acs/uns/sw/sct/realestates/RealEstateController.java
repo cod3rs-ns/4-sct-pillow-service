@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
@@ -28,6 +30,9 @@ public class RealEstateController {
 
     @Autowired
     private RealEstateService realEstateService;
+
+    @Autowired
+    private UserSecurityUtil userSecurityUtil;
 
     /**
      * POST  /real-estates : Create a new realEstate.
@@ -106,6 +111,11 @@ public class RealEstateController {
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     public ResponseEntity<List<RealEstate>> getAllRealEstatesByStatus(@PathVariable Boolean status, Pageable pageable)
             throws URISyntaxException {
+
+        // If User is not ADMIN and want to get DELETED real estates
+        if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && status)
+            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+
         Page<RealEstate> page = realEstateService.findAllByStatus(status, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/real-estates/deleted");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);

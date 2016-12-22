@@ -236,6 +236,11 @@ public class AnnouncementController {
     @GetMapping("/announcements/deleted/{status}")
     public ResponseEntity<List<Announcement>> getAllAnnouncementsByStatus(Pageable pageable, @PathVariable Boolean status)
             throws URISyntaxException {
+
+        // If User is not ADMIN and want to get DELETED announcements
+        if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && status)
+            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+
         Page<Announcement> page = announcementService.findAllByStatus(status, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/deleted");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
