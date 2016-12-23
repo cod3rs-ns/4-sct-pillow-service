@@ -17,10 +17,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.companies.CompanyService;
 import rs.acs.uns.sw.sct.security.TokenUtils;
-import rs.acs.uns.sw.sct.util.Constants;
-import rs.acs.uns.sw.sct.util.HeaderUtil;
-import rs.acs.uns.sw.sct.util.MailSender;
-import rs.acs.uns.sw.sct.util.PaginationUtil;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
+import rs.acs.uns.sw.sct.util.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -53,6 +51,9 @@ public class UserController {
 
     @Autowired
     MailSender mailSender;
+
+    @Autowired
+    UserSecurityUtil userSecurityUtil;
 
     /**
      * POST  /users/auth : Authenticate user.
@@ -183,6 +184,11 @@ public class UserController {
     @GetMapping("/users/deleted/{status}")
     public ResponseEntity<List<User>> getUsersByStatus(@PathVariable Boolean status, Pageable pageable)
             throws URISyntaxException {
+
+        // If User is not ADMIN and want to get DELETED users
+        if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && status)
+            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+
         Page<User> page = userService.findAllByStatus(status, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users/deleted");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);

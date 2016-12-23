@@ -119,11 +119,24 @@ public class UserControllerTest {
                 .build();
     }
 
+    /**
+     * Initializes all objects needed for further testing.
+     * <p>
+     * This method is called before testing starts.
+     */
     @Before
     public void initTest() {
         advertiser = createEntity(Constants.Roles.ADVERTISER);
     }
 
+    /**
+     * Test user registration
+     * <p>
+     * This test creates a new User object, then asserts that the number
+     * of objects in the database has increased and that the newest User
+     * in the database matches the one that was added.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void registerUser() throws Exception {
@@ -148,6 +161,14 @@ public class UserControllerTest {
         assertThat(testUser.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
     }
 
+    /**
+     * Test registration of a User whose name already exists on database
+     * <p>
+     * This test attempts to add a User with an already existing username to
+     * the database, which results in a "Bad request" status. It then asserts that the number
+     * of objects in the database has not changed and that the received error code is correct.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void registerUserWithExistingUsername() throws Exception {
@@ -169,6 +190,14 @@ public class UserControllerTest {
         assertThat(users).hasSize(beforeDbSize);
     }
 
+    /**
+     * Test registration of a User whose email already exists on database
+     * <p>
+     * This test attempts to add a User with an already existing email to
+     * the database, which results in a "Bad request" status. It then asserts that the number
+     * of objects in the database has not changed and that the received error code is correct.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void registerUserWithExistingEmail() throws Exception {
@@ -190,6 +219,14 @@ public class UserControllerTest {
         assertThat(users).hasSize(beforeDbSize);
     }
 
+    /**
+     * Test registration of a User with a null email adress
+     * <p>
+     * This test attempts to add a User whose email address is null to
+     * the database, which results in a "Bad request" status. It then asserts that the number
+     * of objects in the database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkValueIsRequired() throws Exception {
@@ -208,6 +245,13 @@ public class UserControllerTest {
 
     }
 
+    /**
+     * Tests successful login
+     * <p>
+     * This test attempts to log in using a username and
+     * password that are in the database. This results in a success.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void authUserSuccess() throws Exception {
@@ -221,6 +265,14 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * Tests unsuccessful login
+     * <p>
+     * This test attempts to log in using a username and
+     * password that are in not the database. This results in an
+     * "Unauthorized" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void authUserFailed() throws Exception {
@@ -232,6 +284,14 @@ public class UserControllerTest {
                 .andDo(print());
     }
 
+    /**
+     * Tests retrieval of Users by id as a Guest
+     * <p>
+     * This test saves a User to the database, then searches for it
+     * by id with no authorization. It then asserts that the object
+     * the search returned matches the saved User.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getExistingUserAsGuest() throws Exception {
@@ -248,6 +308,14 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER));
     }
 
+    /**
+     * Tests retrieval of Users by id as an Advertiser
+     * <p>
+     * This test saves a User to the database, then searches for it
+     * by id using a mocked Advertiser user. It then asserts that the object
+     * the search returned matches the saved User.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -265,6 +333,14 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER));
     }
 
+    /**
+     * Tests retrieval of Users by their Company's id as a Guest
+     * <p>
+     * This test saves a User to the database, then searches for it
+     * by its Company's id with no authorization. It then asserts that the object
+     * the search returned has the same id as the User we saved.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getUsersByCompanyId() throws Exception {
@@ -277,6 +353,13 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.[?(@.id == " + advertiser.getId() + ")]").exists());
     }
 
+    /**
+     * Tests retrieval of a non-existing User
+     * <p>
+     * This test attempts to find a User with a non-existing id,
+     * resulting in a "Not found" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getNonExistingUser() throws Exception {
@@ -284,6 +367,17 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests retrieval of Users by deleted status as an Admin
+     * <p>
+     * This test sets a User's "deleted" value to true and saves it to the database.
+     * It then uses a mocked Admin user to search for all Users whose "deleted"
+     * value is true.
+     * Then it asserts that the number of returned objects is the same as the expected number
+     * of objects and that their values match the expected values.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -307,6 +401,77 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)));
     }
 
+    /**
+     * Tests retrieval of Users by deleted status as an Advertiser
+     * <p>
+     * This test sets a User's "deleted" value to true and saves it to the database.
+     * It then uses a mocked Advertiser user to search for all Users whose "deleted"
+     * value is true.
+     *
+     * Method is not allowed for any user role expect ADMIN and it results with
+     * Method Not Allowed HTTP Status.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getUsersByStatusDeletedTrueAsAdvertiser() throws Exception {
+
+        final String status = "true";
+
+        advertiser.deleted(true);
+        userService.save(advertiser);
+
+        mockMvc.perform(get("/api/users/deleted/{status}", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    /**
+     * Tests retrieval of Users by deleted status as an Advertiser
+     * <p>
+     * This test sets a User's "deleted" value to false and saves it to the database.
+     * It then uses a mocked Advertiser user to search for all Users whose "deleted"
+     * value is false.
+     *
+     * Then it asserts that the number of returned objects is the same as the expected number
+     * of objects and that their values match the expected values.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getUsersByStatusDeletedFalseAsAdvertiser() throws Exception {
+
+        final String status = "false";
+
+        userService.save(advertiser);
+
+        final Long usersDeletedCount = userRepository.findAllByDeleted(false, UserConstants.PAGEABLE).getTotalElements();
+
+        mockMvc.perform(get("/api/users/deleted/{status}", status)
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(usersDeletedCount))))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(advertiser.getId().intValue())))
+                .andExpect(jsonPath("$.[*].username").value(hasItem(DEFAULT_USERNAME)))
+                .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(Constants.Roles.ADVERTISER)))
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)));
+    }
+
+    /**
+     * Tests retrieval of Users by deleted status as a Guest
+     * <p>
+     * This test sets a User's "deleted" value to false and saves it to the database.
+     * It then uses a mocked Admin user to search for all Users whose "deleted"
+     * value is false.
+     * Then it asserts that the number of returned objects is the same as the expected number
+     * of objects and that their values match the expected values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getUsersByStatusDeletedAsGuest() throws Exception {
@@ -329,6 +494,13 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)));
     }
 
+    /**
+     * Tests retrieval of Users by deleted status as Guest
+     * <p>
+     * This test uses no authorization to attempt to retrieve all Users from the database.
+     * This results in an "Unauthorized" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchUsersWithoutAuthority() throws Exception {
@@ -340,7 +512,16 @@ public class UserControllerTest {
                 .andReturn();
     }
 
-
+    /**
+     * Tests searching Users using no arguments
+     * <p>
+     * This test asserts that the number of Users that
+     * are returned when searching using no arguments and Advertiser authorization
+     * matches the number of Announcements in the
+     * database or the number of Companies
+     * per page of search results, whichever is smaller.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -357,6 +538,15 @@ public class UserControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests searching Users using arguments
+     * <p>
+     * This test takes random substrings of a User's username, email,
+     * first name and last name and uses them as arguments to perform a search.
+     * It then asserts that all of the returned results have
+     * values which contain these substrings.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -388,6 +578,15 @@ public class UserControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests searching for deleted Users
+     * <p>
+     * This test saves a User object whose "deleted" value is true, then
+     * asserts that there are more than zero deleted users and then uses
+     * a mocked Verifier user to search without arguments and asserts that none
+     * of the returned objects' ids match the deleted object's id.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -406,7 +605,16 @@ public class UserControllerTest {
                 .andReturn();
     }
 
-
+    /**
+     * Tests searching Users using arguments
+     * <p>
+     * This test makes a User verified in a Company, then
+     * takes random substrings of that User's Company's id and phone number,
+     * and uses them as arguments to perform a search.
+     * It then asserts that all of the returned results have
+     * values which contain these substrings.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -434,6 +642,14 @@ public class UserControllerTest {
 
     }
 
+    /**
+     * Tests searching Users using arguments
+     * <p>
+     * This test a User unverified in a Company, then
+     * performs a search for all User who are part of that Company.
+     * It then asserts that none of the returned values match that User.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -453,6 +669,12 @@ public class UserControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests username availability
+     * <p>
+     * This test asserts that an unused username is available for use on the site.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void isUsernameAvailableTrue() throws Exception {
@@ -467,6 +689,13 @@ public class UserControllerTest {
         assertThat(response).isEqualTo(true);
     }
 
+    /**
+     * Tests username availability
+     * <p>
+     * This test saves a User to the database, then
+     * asserts that his username is not available for use on the site.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void isUsernameAvailableFalse() throws Exception {
@@ -482,6 +711,12 @@ public class UserControllerTest {
         assertThat(response).isEqualTo(false);
     }
 
+    /**
+     * Test email availability
+     * <p>
+     * This test asserts that an unused email is available for use on the site.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void isEmailAvailableTrue() throws Exception {
@@ -496,6 +731,13 @@ public class UserControllerTest {
         assertThat(response).isEqualTo(true);
     }
 
+    /**
+     * Tests email availability
+     * <p>
+     * This test saves a User to the database, then
+     * asserts that his email is not available for use on the site.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void isEmailAvailableFalse() throws Exception {
@@ -511,6 +753,14 @@ public class UserControllerTest {
         assertThat(response).isEqualTo(false);
     }
 
+    /**
+     * Tests manually editing the verified field
+     * <p>
+     * This test adds a User with a verified value of true to the database
+     * and asserts that the User object created on the database has a false
+     * verified value because he was not verified via email.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void tryToSetVerificationToTrueWhenRegister() throws Exception {
@@ -526,6 +776,13 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.verified", is(false)));
     }
 
+    /**
+     * Tests logging in when unverified
+     * <p>
+     * This test sets a User's verified value to false and adds it to the database.
+     * It then attempts to log in using his username in password, for which he is unauthorized.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void tryAuthenticateWhenEmailVerificationIsNotConfirmed() throws Exception {

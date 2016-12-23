@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.security.UserSecurityUtil;
+import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
@@ -28,6 +30,9 @@ public class RealEstateController {
 
     @Autowired
     private RealEstateService realEstateService;
+
+    @Autowired
+    private UserSecurityUtil userSecurityUtil;
 
     /**
      * POST  /real-estates : Create a new realEstate.
@@ -106,6 +111,11 @@ public class RealEstateController {
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     public ResponseEntity<List<RealEstate>> getAllRealEstatesByStatus(@PathVariable Boolean status, Pageable pageable)
             throws URISyntaxException {
+
+        // If User is not ADMIN and want to get DELETED real estates
+        if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && status)
+            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+
         Page<RealEstate> page = realEstateService.findAllByStatus(status, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/real-estates/deleted");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -126,6 +136,44 @@ public class RealEstateController {
                         result,
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET  /real-estates/similar
+     *
+     * @param area     Real estate area
+     * @param country  Real estate Location country
+     * @param city     Real estate Location city
+     * @param region   Real estate Location region
+     * @param street   Real estate Location street
+     * @param number   Real estate Location number
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of all similar real estates in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/real-estates/similar")
+    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
+    public ResponseEntity<List<RealEstate>> getSimilarRealEstates(@RequestParam(value = "area") Double area,
+                                                                  @RequestParam(value = "country") String country,
+                                                                  @RequestParam(value = "city") String city,
+                                                                  @RequestParam(value = "region") String region,
+                                                                  @RequestParam(value = "street") String street,
+                                                                  @RequestParam(value = "number") String number,
+                                                                  Pageable pageable)
+            throws URISyntaxException {
+
+        Location location = new Location()
+                .country(country)
+                .city(city)
+                .cityRegion(region)
+                .street(street)
+                .streetNumber(number);
+
+        RealEstateSimilarDTO realEstate = new RealEstateSimilarDTO(location, area);
+        Page<RealEstate> page = realEstateService.findAllSimilar(realEstate, pageable);
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/real-estates/similar");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**

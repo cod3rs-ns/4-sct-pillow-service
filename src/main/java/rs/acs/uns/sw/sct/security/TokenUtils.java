@@ -136,7 +136,9 @@ public class TokenUtils {
      */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("sub", userDetails.getUsername());
+        claims.put("user", userDetails.getUsername());
+        // Set Role of User to token. Our user has only one role.
+        claims.put("role", userDetails.getAuthorities().toArray()[0]);
         claims.put(CREATED, this.generateCurrentDate());
         return this.generateToken(claims);
     }

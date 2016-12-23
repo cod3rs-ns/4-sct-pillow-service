@@ -1,6 +1,7 @@
 package rs.acs.uns.sw.sct.announcements;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +48,10 @@ public class AnnouncementController {
 
     @Autowired
     private UserSecurityUtil userSecurityUtil;
+
+    @Value("${sct.file_upload.path}")
+    public static String uploadPath;  // NOSONAR
+
 
     /**
      * POST  /announcements : Create a new announcement.
@@ -134,7 +139,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements/{id}")
-    public ResponseEntity<Announcement> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException {
+    public ResponseEntity<Announcement> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException { // NOSONAR
         if (id == null || !data.containsKey("expirationDate"))
             return ResponseEntity
                     .badRequest()
@@ -231,6 +236,11 @@ public class AnnouncementController {
     @GetMapping("/announcements/deleted/{status}")
     public ResponseEntity<List<Announcement>> getAllAnnouncementsByStatus(Pageable pageable, @PathVariable Boolean status)
             throws URISyntaxException {
+
+        // If User is not ADMIN and want to get DELETED announcements
+        if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && status)
+            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+
         Page<Announcement> page = announcementService.findAllByStatus(status, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/deleted");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -339,7 +349,7 @@ public class AnnouncementController {
                 String newFilename = originalFileName + UUID.randomUUID().toString() + originalFileExtension;
 
                 // transfer to upload folder
-                File dir = new File(Constants.FilePaths.BASE + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator);
+                File dir = new File(uploadPath + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator);
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }

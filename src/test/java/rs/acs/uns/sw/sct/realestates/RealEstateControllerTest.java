@@ -92,11 +92,26 @@ public class RealEstateControllerTest {
                 .build();
     }
 
+    /**
+     * Initializes all objects needed for further testing.
+     * <p>
+     * This method is called before testing starts.
+     */
     @Before
     public void initTest() {
         realEstate = createEntity();
     }
 
+    /**
+     * Tests addition of RealEstate objects as an Advertiser.
+     * <p>
+     * This test uses a mock Advertiser user to add a default RealEstate
+     * object to the database using a POST method.
+     * It then proceeds to check whether the RealEstate object was added successfully,
+     * by comparing the number of objects in the database before and after the addition,
+     * as well as the default RealEstate's attributes to the RealEstate in the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -121,6 +136,15 @@ public class RealEstateControllerTest {
         assertThat(testRealEstate.isDeleted()).isEqualTo(DEFAULT_DELETED);
     }
 
+    /**
+     * Tests addition of RealEstate objects as an Admin
+     * <p>
+     * This test uses a mock Admin user to
+     * add a default RealEstate object to the database using a POST method, which
+     * is forbidden. It then asserts that the number of objects in the database
+     * has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -137,6 +161,15 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeCreate);
     }
 
+    /**
+     * Tests addition of RealEstate objects as a Guest
+     * <p>
+     * This test uses a mock Guest user to
+     * add a default RealEstate object to the database using a POST method, for which
+     * this user is unauthorized. It then asserts that the number of objects in the
+     * database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void createRealEstateAsGuest() throws Exception {
@@ -152,6 +185,14 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeCreate);
     }
 
+    /**
+     * Tests whether the "Name" field is nullable
+     * <p>
+     * This test attempts to add a RealEstate object with a null "Name" value to the database,
+     * this is forbidden as the "Name" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkNameIsRequired() throws Exception {
@@ -170,6 +211,14 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Type" field is nullable
+     * <p>
+     * This test attempts to add a RealEstate object with a null "Type" value to the database,
+     * this is forbidden as the "Type" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkTypeIsRequired() throws Exception {
@@ -188,6 +237,14 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Area" field is nullable
+     * <p>
+     * This test attempts to add a RealEstate object with a null "Area" value to the database,
+     * this is forbidden as the "Area" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkAreaIsRequired() throws Exception {
@@ -206,6 +263,14 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "HeatingType" field is nullable
+     * <p>
+     * This test attempts to add a RealEstate object with a null "HeatingType" value to the database,
+     * this is forbidden as the "HeatingType" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkHeatingTypeIsRequired() throws Exception {
@@ -224,6 +289,14 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Deleted" field is nullable
+     * <p>
+     * This test attempts to add a RealEstate object with a null "Deleted" value to the database,
+     * this is forbidden as the "Deleted" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkDeletedIsRequired() throws Exception {
@@ -242,6 +315,14 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests getting all RealEstates as an Admin
+     * <p>
+     * This test uses a mocked Admin user to request all RealEstates
+     * from the database. It then asserts that the received results
+     * match what was expected.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -261,6 +342,13 @@ public class RealEstateControllerTest {
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)));
     }
 
+    /**
+     * Tests getting all RealEstates as an Advertiser
+     * <p>
+     * This test uses a mocked Advertiser user to request all RealEstates
+     * from the database, which fails and returns a Forbidden status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -273,6 +361,13 @@ public class RealEstateControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests getting all RealEstates as a Guest
+     * <p>
+     * This test uses a mocked Guest user to request all RealEstates
+     * from the database, which fails and returns an Unauthorized status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllRealEstatesAsGuest() throws Exception {
@@ -284,6 +379,13 @@ public class RealEstateControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests getting a single RealEstate by id
+     * <p>
+     * This test retrieves a RealEstate object from the database using its ID.
+     * It then checks whether the object's attributes have valid values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -303,6 +405,13 @@ public class RealEstateControllerTest {
                 .andExpect(jsonPath("$.deleted").value(DEFAULT_DELETED));
     }
 
+    /**
+     * Tests invalid retrieval attempts
+     * <p>
+     * This tests attempts to retrieve an RealEstate object which is not in the database
+     * by searching for a non-existent id.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -312,6 +421,16 @@ public class RealEstateControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests RealEstate updating.
+     * <p>
+     * This test uses a mocked Advertiser user to save a RealEstate object to the database,
+     * then updates the values of its attributes and uses PUT to save the object.
+     * Then it compares the original number of objects in the database to the new one
+     * and the updated values of our modified RealEstate with the ones found in
+     * the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -346,6 +465,15 @@ public class RealEstateControllerTest {
         assertThat(testRealEstate.isDeleted()).isEqualTo(UPDATED_DELETED);
     }
 
+    /**
+     * Tests RealEstate updating as Guest.
+     * <p>
+     * This test saves a RealEstate object to the database,
+     * then updates the values of its attributes and uses no authorization to
+     * attempt to use PUT to save the object, which fails because the user is unauthorized.
+     * The test then asserts that the number of objects in the database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void updateRealEstateAsGuest() throws Exception {
@@ -373,6 +501,15 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeUpdate);
     }
 
+    /**
+     * Tests RealEstate deletion as Admin
+     * <p>
+     * This test uses a mocked Admin user
+     * to delete an object on the database. It then asserts
+     * that the number of objects on the database
+     * after this action has been reduced by one.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -392,6 +529,15 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeDelete - 1);
     }
 
+    /**
+     * Tests RealEstate deletion as a Verifier
+     * <p>
+     * This tests uses a mocked Verifier user to attempt
+     * to delete a RealEstate on the database, which is not allowed.
+     * It then asserts that the number of RealEstates on the database
+     * has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -411,7 +557,16 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeDelete);
     }
 
-
+    /**
+     * Tests RealEstate deletion as a Guest
+     * <p>
+     * This tests attempts to delete a RealEstate
+     * on the database with no authorization,
+     * which is not allowed. It then asserts
+     * that the number of RealEstates on the
+     * database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void deleteRealEstateAsGuest() throws Exception {
@@ -430,6 +585,13 @@ public class RealEstateControllerTest {
         assertThat(realEstates).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests getting deleted RealEstates as an Admin
+     * <p>
+     * This test retrieves all deleted RealEstate objects from the database
+     * using an Admin's authority.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -457,6 +619,13 @@ public class RealEstateControllerTest {
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(REAL_ESTATE_DELETED)));
     }
 
+    /**
+     * Tests getting non-deleted RealEstates as an Advertiser
+     * <p>
+     * This test retrieves all undeleted RealEstate objects from the database
+     * using an Advertiser's authority.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -480,5 +649,189 @@ public class RealEstateControllerTest {
                 .andExpect(jsonPath("$.[*].area").value(hasItem(DEFAULT_AREA)))
                 .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE)))
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(REAL_ESTATE_DELETED)));
+    }
+
+    /**
+     * Tests getting deleted RealEstates as an Advertiser
+     * <p>
+     * This test tries to retrieve all deleted RealEstate objects from the database
+     * using an Advertiser's authority. Because only Admin can get all deleted real estates
+     * this test results with Method Not Allowed HTTP Status.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllDeletedRealEstatesAsAdvertiser() throws Exception {
+
+        final boolean REAL_ESTATE_DELETED = true;
+
+        // Get all non deleted announcements
+        restRealEstateMockMvc.perform(get("/api/real-estates/deleted/{status}", REAL_ESTATE_DELETED))
+                .andExpect(status().isMethodNotAllowed());
+    }
+
+    /**
+     * Tests getting similar RealEstates as an Advertiser
+     * <p>
+     * This test tries to retrieve all similar RealEstate objects from the database
+     * based on custom implemented algorithm using an Advertiser's authority.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllSimilarRealEstatesAsAdvertiser() throws Exception {
+
+        Location location = new Location()
+                .country(RealEstateConstants.SIMILAR_COUNTRY)
+                .city(RealEstateConstants.SIMILAR_CITY)
+                .cityRegion(RealEstateConstants.SIMILAR_REGION)
+                .street(RealEstateConstants.SIMILAR_STREET)
+                .streetNumber(RealEstateConstants.SIMILAR_STREET_NO);
+
+        final RealEstateSimilarDTO similar = new RealEstateSimilarDTO(location, Double.parseDouble(RealEstateConstants.SIMILAR_AREA));
+
+        final Long count = realEstateService.findAllSimilar(similar, RealEstateConstants.PAGEABLE).getTotalElements();
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", RealEstateConstants.SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", RealEstateConstants.SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
+    /**
+     * Tests getting similar RealEstates as an Advertiser with wrong Area
+     * <p>
+     * This tests shows that number of retrieved results is 0 when there's no
+     * similar area for any non-deleted real estate in database.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllSimilarRealEstatesAsAdvertiserGoodAddressWrongArea() throws Exception {
+
+        final String NOT_SIMILAR_AREA = "2110994";
+
+        Location location = new Location()
+                .country(RealEstateConstants.SIMILAR_COUNTRY)
+                .city(RealEstateConstants.SIMILAR_CITY)
+                .cityRegion(RealEstateConstants.SIMILAR_REGION)
+                .street(RealEstateConstants.SIMILAR_STREET)
+                .streetNumber(RealEstateConstants.SIMILAR_STREET_NO);
+
+        final RealEstateSimilarDTO similar = new RealEstateSimilarDTO(location, Double.parseDouble(NOT_SIMILAR_AREA));
+
+        final Long count = realEstateService.findAllSimilar(similar, RealEstateConstants.PAGEABLE).getTotalElements();
+
+        // We wanted empty result
+        assertThat(count).isEqualTo(0);
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", NOT_SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", RealEstateConstants.SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
+    /**
+     * Tests getting similar RealEstates as an Advertiser with wrong Location
+     * <p>
+     * This tests shows that number of retrieved results is 0 when there's no
+     * same location for any provided and database's real estate.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
+    public void getAllSimilarRealEstatesAsAdvertiserGoodAreaWrongAddress() throws Exception {
+
+        final String NOT_SIMILAR_CITY = "Bijeljina";
+
+        Location location = new Location()
+                .country(RealEstateConstants.SIMILAR_COUNTRY)
+                .city(NOT_SIMILAR_CITY)
+                .cityRegion(RealEstateConstants.SIMILAR_REGION)
+                .street(RealEstateConstants.SIMILAR_STREET)
+                .streetNumber(RealEstateConstants.SIMILAR_STREET_NO);
+
+        final RealEstateSimilarDTO similar = new RealEstateSimilarDTO(location, Double.parseDouble(RealEstateConstants.SIMILAR_AREA));
+
+        final Long count = realEstateService.findAllSimilar(similar, RealEstateConstants.PAGEABLE).getTotalElements();
+
+        // We wanted empty result
+        assertThat(count).isEqualTo(0);
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", RealEstateConstants.SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", NOT_SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
+    }
+
+    /**
+     * Tests tries to get similar RealEstates as a Verifier
+     * <p>
+     * Tries to find similar real estates, but because ADVERTISER has this privilege
+     * it results with Forbidden HTTP status.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.VERIFIER)
+    public void getAllSimilarRealEstatesAsVerifier() throws Exception {
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", RealEstateConstants.SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", RealEstateConstants.SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isForbidden());
+    }
+
+    /**
+     * Tests tries to get similar RealEstates as a Guest
+     * <p>
+     * Tries to find similar real estates, but because ADVERTISER has this privilege
+     * it results with Unauthorized HTTP status.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    public void getAllSimilarRealEstatesAsGuest() throws Exception {
+
+        restRealEstateMockMvc.perform(get("/api/real-estates/similar")
+                .param("area", RealEstateConstants.SIMILAR_AREA)
+                .param("country", RealEstateConstants.SIMILAR_COUNTRY)
+                .param("city", RealEstateConstants.SIMILAR_CITY)
+                .param("region", RealEstateConstants.SIMILAR_REGION)
+                .param("street", RealEstateConstants.SIMILAR_STREET)
+                .param("number", RealEstateConstants.SIMILAR_STREET_NO))
+                .andExpect(status().isUnauthorized());
     }
 }

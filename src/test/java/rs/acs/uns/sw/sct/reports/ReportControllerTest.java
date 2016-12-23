@@ -129,12 +129,27 @@ public class ReportControllerTest {
                 .build();
     }
 
+    /**
+     * Initializes all objects needed for further testing.
+     * <p>
+     * This method is called before testing starts.
+     */
     @Before
     public void initTest() {
         report = createEntity();
         anotherReport = createAnotherEntity();
     }
 
+    /**
+     * Tests addition of Report objects as registered user.
+     * <p>
+     * This test uses a mock user to add a default Report
+     * object to the database using a POST method.
+     * It then proceeds to check whether the Report object was added successfully,
+     * by comparing the number of objects in the database before and after the addition,
+     * as well as the default Report's attributes to the Report in the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(username = UserConstants.USER_USERNAME)
@@ -158,7 +173,15 @@ public class ReportControllerTest {
         assertThat(testReport.getContent()).isEqualTo(DEFAULT_CONTENT);
     }
 
-
+    /**
+     * Tests addition of Report which is already in database
+     * <p>
+     * This test saves a default Report to the database,
+     * then attempts to add the same one again, which results in a bad request.
+     * Then it asserts that the number of Reports on the database has not changed
+     * and that the error message that was received is correct.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void createReportSameReportTwoTimesAsSameUser() throws Exception {
@@ -187,6 +210,15 @@ public class ReportControllerTest {
         assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_CANNOT_POST_MULTIPLE_REPORTS);
     }
 
+    /**
+     * Tests addition of Report of a verified Announcement
+     * <p>
+     * This test attempts to add a Report of a verified Announcement to the database,
+     * which results in a bad request.
+     * Then it asserts that the number of Reports on the database has not changed
+     * and that the error message that was received is correct.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void createReportAsGuestToVerifiedAnnouncement() throws Exception {
@@ -210,6 +242,15 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
     }
 
+    /**
+     * Tests addition of Report of a non-existing Announcement
+     * <p>
+     * This test attempts to add a Report of a non-existing Announcement to the database,
+     * which results in a bad request.
+     * Then it asserts that the number of Reports on the database has not changed
+     * and that the error message that was received is correct.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void createReportAsGuestToWrongAnnouncement() throws Exception {
@@ -233,6 +274,16 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
     }
 
+    /**
+     * Tests addition of Report with id that is already in the database
+     * <p>
+     * This test attempts to add a Report whose id matches an already existing
+     * Report's id to the database,
+     * which results in a bad request.
+     * Then it asserts that the number of Reports on the database has not changed
+     * and that the error message that was received is correct.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void createReportAsGuestWithSameReportId() throws Exception {
@@ -256,6 +307,17 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeCreate);
     }
 
+
+    /**
+     * Tests addition of Report objects as unregistered user.
+     * <p>
+     * This test uses no authorization to add a default Report
+     * object to the database using a POST method.
+     * It then proceeds to check whether the Report object was added successfully,
+     * by comparing the number of objects in the database before and after the addition,
+     * as well as the default Report's attributes to the Report in the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void createReportAsGuest() throws Exception {
@@ -301,6 +363,14 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Type" field is nullable
+     * <p>
+     * This test attempts to add a Report object with a null "Type" value to the database,
+     * this is forbidden as the "Type" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkTypeIsRequired() throws Exception {
@@ -318,6 +388,14 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Status" field is nullable
+     * <p>
+     * This test attempts to add a Report object with a null "Status" value to the database,
+     * this is forbidden as the "Status" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkStatusIsRequired() throws Exception {
@@ -336,6 +414,14 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Content" field is nullable
+     * <p>
+     * This test attempts to add a Report object with a null "Content" value to the database,
+     * this is forbidden as the "Content" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkContentIsRequired() throws Exception {
@@ -354,6 +440,14 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests getting all Reports as an Admin
+     * <p>
+     * This test uses a mocked Admin user to request all Reports
+     * from the database. It then asserts that the received results
+     * match what was expected.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -372,6 +466,13 @@ public class ReportControllerTest {
                 .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)));
     }
 
+    /**
+     * Tests getting all RealEstates as a Guest
+     * <p>
+     * This test uses a mocked Guest user to request all RealEstates
+     * from the database, which fails and returns an Unauthorized status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllReportsWithoutAuthority() throws Exception {
@@ -383,6 +484,13 @@ public class ReportControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests getting a single Report by id as an Admin
+     * <p>
+     * This test uses a mocked Admin to retrieve a Report object from the database
+     * using its ID. It then checks whether the object's attributes have valid values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -401,6 +509,13 @@ public class ReportControllerTest {
                 .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT));
     }
 
+    /**
+     * Tests getting single Report by id as an Advertiser
+     * <p>
+     * This test uses a mocked Advertiser user to retrieve a Report object from the database
+     * using its ID, which fails and returns a Forbidden status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -413,6 +528,13 @@ public class ReportControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests getting single Report by id as a Guest
+     * <p>
+     * This test uses a mocked Guest user to retrieve a Report object from the database
+     * using its ID, which fails and returns an Unauthorized status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getReportAsGuest() throws Exception {
@@ -424,6 +546,13 @@ public class ReportControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests invalid retrieval attempts
+     * <p>
+     * This tests attempts to retrieve an Report object which is not in the database
+     * by searching for a non-existent id.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -433,6 +562,15 @@ public class ReportControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests Report updating as Guest.
+     * <p>
+     * This test saves a Report object to the database,
+     * then updates the values of its attributes and uses no authorization to
+     * attempt to use PUT to save the object, which fails because the user is unauthorized.
+     * The test then asserts that the number of objects in the database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void updateReportAsGuest() throws Exception {
@@ -460,6 +598,16 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeUpdate);
     }
 
+    /**
+     * Tests Report deletion as a Guest
+     * <p>
+     * This tests attempts to delete a Report
+     * on the database with no authorization,
+     * which is not allowed. It then asserts
+     * that the number of Reports on the
+     * database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void deleteReportAsGuest() throws Exception {
@@ -479,6 +627,17 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests deletion of non-existing Reports
+     * <p>
+     * This tests uses a mocked Admin user to
+     * attempt to delete a RealEstate
+     * on the database,
+     * which is not allowed. It then asserts
+     * that the number of RealEstates on the
+     * database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -496,6 +655,17 @@ public class ReportControllerTest {
         assertThat(reports).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests changing a Report's status
+     * <p>
+     * This test saves a Report to the database, then performs a search for
+     * all reports with its status, asserting that it shows up in that list.
+     * Then it changes the Report's status and saves it again. Now, when the
+     * same search as before is done, the Report does not show up. Then
+     * we assert that the Report shows up in a search for all Reports with
+     * its status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -534,12 +704,17 @@ public class ReportControllerTest {
                 .andExpect(jsonPath("$.[?(@.id == " + persistReport.getId() + ")]").exists());
     }
 
+    /**
+     * Tests searching for Reports by a specific User
+     * <p>
+     * This test saves a Report then asserts that it can be found
+     * on the database by searching for Reports by its author.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getReportsByAuthor() throws Exception {
-
-        // FIXME @bblagojevic94
-
+        
         // Initialize the database
         Report persistReport = reportRepository.saveAndFlush(report);
 
@@ -550,6 +725,14 @@ public class ReportControllerTest {
                 .andExpect(jsonPath("$.[?(@.id == " + persistReport.getId() + ")]").exists());
     }
 
+    /**
+     * Tests getting all RealEstates as an Admin
+     * <p>
+     * This test uses a mocked Admin user to request all Reports that have a "pending" status
+     * from the database. It then asserts that the received results
+     * match what was expected.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -576,6 +759,13 @@ public class ReportControllerTest {
                 .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)));
     }
 
+    /**
+     * Tests getting all Report as an Advertiser
+     * <p>
+     * This test uses a mocked Advertiser user to request all Reports with a "true" status
+     * from the database, which fails and returns a Forbidden status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -591,6 +781,13 @@ public class ReportControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests getting all Report as a Guest
+     * <p>
+     * This test uses no authorization to request all Reports with a "true" status
+     * from the database, which fails and returns a Unauthorized status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllReportsByStatusAsGuest() throws Exception {
@@ -605,6 +802,13 @@ public class ReportControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests accepting Reports
+     * <p>
+     * This test saves a Report with "pending" status to the database,
+     * then uses a mocked Admin user to change its status to "accepted".
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -624,6 +828,13 @@ public class ReportControllerTest {
                 .andExpect(jsonPath("$.announcement.deleted").value(equalTo(true)));
     }
 
+    /**
+     * Tests rejecting Reports
+     * <p>
+     * This test saves a Report with "pending" status to the database,
+     * then uses a mocked Admin user to change its status to "rejected".
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -642,6 +853,13 @@ public class ReportControllerTest {
                 .andExpect(jsonPath("$.status").value(equalTo(status)));
     }
 
+    /**
+     * Tests resolving non-existing Reports
+     * <p>
+     * This test uses a mocked Admin user to attempt to change a non-existing
+     * Report's status, which returns a "Not found" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -659,6 +877,13 @@ public class ReportControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests resolving a Report without a status
+     * <p>
+     * This test uses a mocked Admin user to attempt to resolve a Report
+     * without using a status parameter, which results in a "Bad request" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -671,6 +896,14 @@ public class ReportControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Tests resolving a Report using an invalid status
+     * <p>
+     * This test uses a mocked Admin user to attempt to resolve a Report
+     * using an invalid status value, which results in a "Bad request" status.
+     * It then asserts that the error key that is returned is the correct one.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -687,6 +920,14 @@ public class ReportControllerTest {
         assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_PROVIDED_UNKNOWN_REPORT_STATUS);
     }
 
+    /**
+     * Tests resolving a Report which was already resolved.
+     * <p>
+     * This test uses a mocked Admin user to attempt to resolve a Report
+     * which was already resolved, which results in a "Bad request" status.
+     * It then asserts that the error key that is returned is the correct one.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -703,6 +944,14 @@ public class ReportControllerTest {
         assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_REPORT_ALREADY_RESOLVED);
     }
 
+    /**
+     * Tests resolving a Report as a Guest
+     * <p>
+     * This attempts to resolve a Report without any authorization,
+     * which results in a "Unauthorized" status.
+     * It then asserts that the error key that is returned is the correct one.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void resolveReportAsGuest() throws Exception {
@@ -718,6 +967,14 @@ public class ReportControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests resolving a Report as an Advertiser
+     * <p>
+     * This attempts to resolve a Report using a mocked Advertiser user,
+     * which results in a "Forbidden" status.
+     * It then asserts that the error key that is returned is the correct one.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)

@@ -2,9 +2,13 @@ package rs.acs.uns.sw.sct.realestates;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service Implementation for managing RealEstate.
@@ -36,6 +40,23 @@ public class RealEstateService {
     @Transactional(readOnly = true)
     public Page<RealEstate> findAllByStatus(Boolean status, Pageable pageable) {
         return realEstateRepository.findAllByDeleted(status, pageable);
+    }
+
+    /**
+     * Get all the similar real estates.
+     *
+     * @param realEstate   DTO which needs to be compared
+     * @param pageable the pagination information
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<RealEstate> findAllSimilar(RealEstateSimilarDTO realEstate, Pageable pageable) {
+
+        final List<RealEstate> similarRealEstates = realEstateRepository.findAll().stream()
+                .filter(re -> re.similar(realEstate) && !re.isDeleted())
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(similarRealEstates, pageable, similarRealEstates.size());
     }
 
     /**

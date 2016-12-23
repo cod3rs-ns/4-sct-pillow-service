@@ -77,6 +77,7 @@ public class CommentControllerTest {
                 .date(DEFAULT_DATE);
     }
 
+
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -89,11 +90,26 @@ public class CommentControllerTest {
 
     }
 
+    /**
+     * Initializes all objects needed for further testing.
+     * <p>
+     * This method is called before testing starts.
+     */
     @Before
     public void initTest() {
         comment = createEntity();
     }
 
+    /**
+     * Tests addition of Comment objects to the database.
+     * <p>
+     * This test uses a mock User with authority to
+     * add a default Comment object to the database using a POST method.
+     * It then proceeds to check whether the Comment object was added successfully,
+     * by comparing the number of objects in the database before and after the addition,
+     * as well as the default Comment's attributes to the Comment in the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -114,6 +130,14 @@ public class CommentControllerTest {
         assertThat(testComment.getDate()).isEqualTo(DEFAULT_DATE);
     }
 
+    /**
+     * Tests whether the "Content" field is nullable
+     * <p>
+     * This test attempts to add a Comment object with a null "Content" value to the database,
+     * this is forbidden as the "Content" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkContentIsRequired() throws Exception {
@@ -132,6 +156,14 @@ public class CommentControllerTest {
         assertThat(comments).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Date" field is nullable
+     * <p>
+     * This test attempts to add a Comment object with a null "Content" value to the database,
+     * this is forbidden as the "Date" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkDateIsRequired() throws Exception {
@@ -150,6 +182,14 @@ public class CommentControllerTest {
         assertThat(comments).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests getting all Comments as an Admin
+     * <p>
+     * This test uses a mocked Admin user to request all Comments
+     * from the database. It then asserts that the received results
+     * match what was expected.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -166,6 +206,13 @@ public class CommentControllerTest {
                 .andExpect(jsonPath("$.[*].date").value(hasItem((int) DEFAULT_DATE.getTime())));
     }
 
+    /**
+     * Tests getting all Comments as an Advertiser
+     * <p>
+     * This test uses a mocked Advertiser user to request all Comments
+     * from the database, which fails and returns a Forbidden status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -175,6 +222,13 @@ public class CommentControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests getting all Comments as a Guest
+     * <p>
+     * This test uses a mocked Guest user to request all Comments
+     * from the database, which fails and returns an Unauthorized status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllCommentsAsGuest() throws Exception {
@@ -183,6 +237,14 @@ public class CommentControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests getting a single Comment by id as a Verifier
+     * <p>
+     * This test uses a mocked Verifier user to retrieve a
+     * Comment object from the database using its ID.
+     * It then checks whether the object's attributes have valid values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -199,6 +261,14 @@ public class CommentControllerTest {
                 .andExpect(jsonPath("$.date").value((int) DEFAULT_DATE.getTime()));
     }
 
+    /**
+     * Tests getting a single Comment by id as a Guest
+     * <p>
+     * This test uses a mocked Guest user to attempt to retrieve a
+     * Comment object from the database using its ID.
+     * This fails and returns an Unauthorized status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getCommentAsGuest() throws Exception {
@@ -210,6 +280,13 @@ public class CommentControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests invalid retrieval attempts
+     * <p>
+     * This tests attempts to retrieve a Comment object which is not in the database
+     * by searching for a non-existent id. This returns an "Is not found" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -219,6 +296,17 @@ public class CommentControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests Comment updating.
+     * <p>
+     * This test saves a Comment object to the database,
+     * then updates the values of its attributes and uses PUT to save the object.
+     * Then it uses a mocked Advertiser user to
+     * compare the original number of objects in the database to the new one
+     * and the updated values of our modified Comment with the ones found in
+     * the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
@@ -249,6 +337,17 @@ public class CommentControllerTest {
         assertThat(testComment.getDate()).isEqualTo(UPDATED_DATE);
     }
 
+    /**
+     * Tests Comment updating as an Admin.
+     * <p>
+     * This test saves a Comment object to the database
+     * then it uses a mocked Admin user to
+     * update the values of its attributes and uses PUT to save the object.
+     * Then it compares the original number of objects in the database to the new one
+     * and the updated values of our modified Comment with the ones found in
+     * the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN, username = DBUserMocker.ADMIN_USERNAME)
@@ -279,6 +378,16 @@ public class CommentControllerTest {
         assertThat(testComment.getDate()).isEqualTo(UPDATED_DATE);
     }
 
+    /**
+     * Tests Comment updating as someone other than the Comment's owner.
+     * <p>
+     * This test saves a Comment object to the database,
+     * then updates the values of its attributes and uses PUT to save the object
+     * using a mocked User with a different username to the Comment's owner,
+     * which is not allowed. It then validates that the Comment's content and date
+     * have not been changed on the database.
+     * @throws Exception
+     */
     @Test
     @Rollback
     @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = "not_owner_username")
@@ -308,6 +417,16 @@ public class CommentControllerTest {
         assertThat(testComment.getDate()).isNotEqualTo(UPDATED_DATE);
     }
 
+    /**
+     * Tests Comment deletion as the Comment's author
+     * <p>
+     * This tests sets a Comment's author to a mocked Verifier
+     * user that it then uses to delete it
+     * on the database. It then asserts
+     * that the number of objects on the database
+     * after this action has been reduced by one.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = DBUserMocker.VERIFIER_USERNAME)
@@ -329,6 +448,17 @@ public class CommentControllerTest {
         assertThat(comments).hasSize(databaseSizeBeforeDelete - 1);
     }
 
+    /**
+     * Tests Comment deletion as a Guest
+     * <p>
+     * This tests sets a Comment's author to a mocked Guest
+     * user and then attempts to delete it on the database
+     * with no authorization, which is not allowed.
+     * It then asserts that the number of
+     * Comments on the database has not
+     * changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void deleteCommentAsGuest() throws Exception {
@@ -349,6 +479,15 @@ public class CommentControllerTest {
         assertThat(comments).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests Comment deletion as Admin
+     * <p>
+     * This test uses a mocked Admin user
+     * to delete an object on the database. It then asserts
+     * that the number of objects on the database
+     * after this action has been reduced by one.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN, username = DBUserMocker.ADMIN_USERNAME)
@@ -371,6 +510,15 @@ public class CommentControllerTest {
         assertThat(comments).hasSize(databaseSizeBeforeDelete - 1);
     }
 
+    /**
+     * Tests Comment deletion as someone other than the Comment's author
+     * <p>
+     * This tests sets a Comment's author to a mocked Verifier
+     * user and then uses another mocked Verifier user to attempt to delete
+     * it on the database, which is not allowed. It then asserts that the
+     * number of Comments on the database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER, username = "not_owner")
@@ -392,6 +540,15 @@ public class CommentControllerTest {
         assertThat(comments).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests getting all Comments for an Announcement
+     * <p>
+     * This test sets an Announcement as a Comment's announcement,
+     * then saves it to the database. It then then finds all Comments
+     * tied to that Announcement on that database and asserts that
+     * the number of Comments matches the expected number.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllCommentsForAnnouncementAsGuest() throws Exception {
@@ -413,6 +570,13 @@ public class CommentControllerTest {
                 .andExpect(jsonPath("$.[*].date").value((int) DEFAULT_DATE.getTime()));
     }
 
+    /**
+     * Tests getting all Comments for an Announcement that does not exist
+     * <p>
+     * Ths test attempts to retrieve all Comments tied to a non-existing Announcement
+     * from the database, then asserts that the number of returned results equals zero.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllCommentsForNonExistingAnnouncementAsGuest() throws Exception {

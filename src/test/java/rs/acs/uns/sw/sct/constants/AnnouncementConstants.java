@@ -82,5 +82,5 @@ public interface AnnouncementConstants {
     // file to be upload
     String FILE_TO_BE_UPLOAD = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "test_upload.jpg";
 
-    String NEW_BASE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "uploads";
+    public final String NEW_BASE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "uploads";
 }

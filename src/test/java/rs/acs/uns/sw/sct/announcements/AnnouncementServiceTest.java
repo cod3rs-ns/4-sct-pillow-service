@@ -36,6 +36,12 @@ public class AnnouncementServiceTest {
     private Announcement updatedAnnouncement;
     private Announcement existingAnnouncement;
 
+    /**
+     * Asserts equality of two Announcements.
+     *
+     * @param ann1 One of the Announcements to be compared
+     * @param ann2 The other Annoucement to be compared
+     */
     private void compareAnnouncements(Announcement ann1, Announcement ann2) {
         if (ann1.getId() != null && ann2.getId() != null)
             assertThat(ann1.getId()).isEqualTo(ann2.getId());
@@ -53,6 +59,9 @@ public class AnnouncementServiceTest {
         assertThat(ann1.getAuthor().getId()).isEqualTo(ann2.getAuthor().getId());
     }
 
+    /**
+     * Initializes all objects required for testing
+     */
     @Before
     public void initTest() {
         newAnnouncement = createNewEntity();
@@ -82,6 +91,10 @@ public class AnnouncementServiceTest {
                 .deleted(DEFAULT_DELETED);
     }
 
+    /**
+     * Creates an Announcement object
+     * @return a new Announcement object
+     */
     private Announcement createNewEntity() {
         Location LOCATION = new Location().id(null)
                 .city(CITY)
@@ -111,6 +124,14 @@ public class AnnouncementServiceTest {
                 .deleted(DEFAULT_DELETED);
     }
 
+    /**
+     * Tests pageable retrieval of Announcements
+     * <p>
+     * This test uses a PageRequest object to specify the number
+     * of results it wants to receive when it requests Announcements,
+     * then asserts that the number of returned results matches
+     * the page size in our request.
+     */
     @Test
     public void testFindAllPageable() {
         PageRequest pageRequest = new PageRequest(0, PAGE_SIZE);
@@ -118,12 +139,26 @@ public class AnnouncementServiceTest {
         assertThat(announcements).hasSize(PAGE_SIZE);
     }
 
+    /**
+     * Tests retrieval of all Announcements
+     * <p>
+     * This test finds all Announcements on the repository and asserts
+     * that the number of returned results is equal to the number of
+     * Announcements on the database
+     */
     @Test
     public void testFindAll() {
         List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(DB_COUNT_ANNOUNCEMENT);
     }
 
+    /**
+     * Tests retrieval of a single Announcement.
+     * <p>
+     * This test uses the id of an Announcement that is in the repository
+     * to search for it, then asserts that the returned value is not null
+     * and compares the returned Announcement to an existing Announcement.
+     */
     @Test
     public void testFindOne() {
         Announcement ann = announcementService.findOne(ID);
@@ -132,6 +167,14 @@ public class AnnouncementServiceTest {
         compareAnnouncements(ann, existingAnnouncement);
     }
 
+    /**
+     * Tests addition of Announcements
+     * <p>
+     * This test saves a new Announcement using the AnnouncementService,
+     * then it finds all Announcements and asserts that the size of the results
+     * has increased by one. It also asserts that the new Announcement that is on
+     * the database equals the Announcement we added.
+     */
     @Test
     @Transactional
     public void testAdd() {
@@ -147,7 +190,13 @@ public class AnnouncementServiceTest {
         compareAnnouncements(dbAnnouncement, newAnnouncement);
     }
 
-
+    /**
+     * Tests updating of Announcements.
+     * <p>
+     * This test retrieves an Announcement using the service, then changes
+     * its attributes and saves it to the database. Then it asserts that
+     * the object on the database is not null and equals our updated Announcement.
+     */
     @Test
     @Transactional
     public void testUpdate() {
@@ -168,6 +217,15 @@ public class AnnouncementServiceTest {
         compareAnnouncements(updatedDbAnnouncement, updatedAnnouncement);
     }
 
+    /**
+     * Tests removal of Announcements
+     * <p>
+     * This test deletes an Announcement using the service, then
+     * asserts that the number of Announcements on the database
+     * has been reduced by one. It also asserts that an object
+     * with the deleted Announcement's id does not exists on the
+     * database.
+     */
     @Test
     @Transactional
     public void testRemove() {
@@ -181,6 +239,15 @@ public class AnnouncementServiceTest {
         assertThat(dbAnnouncement).isNull();
     }
 
+    /**
+     * Tests searching Announcements by their company's id
+     * <p>
+     * This test searches for all Announcements by a Company.
+     * It then asserts that the company of every Announcement
+     * in the results matches the one we searched by and that
+     * the number of results matches the expected number of
+     * Announcements by the Company.
+     */
     @Test
     public void testAnnouncementsByAuthorId() {
         Page<Announcement> dbAnnouncements = announcementService.findAllByCompany(COMPANY_ID, PAGEABLE);
@@ -193,6 +260,14 @@ public class AnnouncementServiceTest {
         assertThat(content.size()).isEqualTo(COUNT_OF_COMPANY_ANN);
     }
 
+    /**
+     * Tests searching for the top Announcements by a company
+     * <p>
+     * This test searches for the top Announcements by a company.
+     * It asserts that the number of results matches the expected
+     * number of top Announcements and that the results are sorted
+     * by descending price.
+     */
     @Test
     public void testTopThreeAnnouncements() {
         List<Announcement> dbAnnouncements = announcementService.findTopByCompany(COMPANY_ID);
@@ -208,6 +283,15 @@ public class AnnouncementServiceTest {
     /*
      * Negative tests
      */
+
+    /**
+     * Tests adding an Announcement with a null price value
+     * <p>
+     * This test sets an Announcement's price to null, then
+     * attempts to add it to the database. As price is a
+     * non-nullable field, the test receives a
+     * Constraint Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullPrice() {
@@ -215,12 +299,29 @@ public class AnnouncementServiceTest {
         announcementService.save(newAnnouncement);
     }
 
-    @Test()
+    /**
+     * Tests adding an Announcement with a null date announced value
+     * <p>
+     * This test sets an Announcement's date announced to null, then
+     * attempts to add it to the database. As date announced is a
+     * non-nullable field, the test receives Constraint Violation
+     * exception.
+     */
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullDateAnnounced() {
+        newAnnouncement.dateAnnounced(null);
         announcementService.save(newAnnouncement);
     }
 
+    /**
+     * Tests adding an Announcement with a null expiration date value
+     * <p>
+     * This test sets an Announcement's expiration date to null, then
+     * attempts to add it to the database. As expiration date is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullExpirationDate() {
@@ -228,6 +329,14 @@ public class AnnouncementServiceTest {
         announcementService.save(newAnnouncement);
     }
 
+    /**
+     * Tests adding an Announcement with a null phone number value
+     * <p>
+     * This test sets an Announcement's phone number to null, then
+     * attempts to add it to the database. As phone number is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullTelephoneNo() {
@@ -235,6 +344,14 @@ public class AnnouncementServiceTest {
         announcementService.save(newAnnouncement);
     }
 
+    /**
+     * Tests adding an Announcement with a null type value
+     * <p>
+     * This test sets an Announcement's type to null, then
+     * attempts to add it to the database. As type is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullType() {
@@ -242,6 +359,14 @@ public class AnnouncementServiceTest {
         announcementService.save(newAnnouncement);
     }
 
+    /**
+     * Tests finding deleted Announcements
+     * <p>
+     * This test finds all Announcements that have been deleted, then
+     * asserts that the number of returned Announcements equals
+     * the expected number of deleted Announcements and that
+     * every one of the results has been deleted.
+     */
     @Test
     public void testFindAllByStatusDeletedTrue() {
         final Boolean status = true;
@@ -255,6 +380,14 @@ public class AnnouncementServiceTest {
         }
     }
 
+    /**
+     * Tests finding undeleted Announcements
+     * <p>
+     * This test finds all Announcements that have not been deleted,
+     * then asserts that the number of returned Announcements equals
+     * the expected number of undeleted Announcements and that
+     * every one of the results has not been deleted.
+     */
     @Test
     public void testFindAllByStatusDeletedFalse() {
         final Boolean status = false;
@@ -269,6 +402,16 @@ public class AnnouncementServiceTest {
     }
 
 
+    /**
+     * Tests search using no arguments
+     * <p>
+     * This test creates an empty Announcement Search Wrapper and uses
+     * it to search the database for Announcements. It then asserts that
+     * the number of returned results matches the number of undeleted
+     * Announcements on the database or the number of results on a page,
+     * whichever is smaller.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchAnnouncementsWithoutAnyAttribute() throws Exception {
@@ -279,6 +422,15 @@ public class AnnouncementServiceTest {
         assertThat(result).hasSize(requiredSize);
     }
 
+    /**
+     * Tests search using an Area argument
+     * <p>
+     * This test saves an Announcement to the database,
+     * then uses its Area value to search the database.
+     * Then it asserts that the Area of all results is equal
+     * to the area specified.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchAnnouncementsByAreaLimitInclude() throws Exception {
@@ -297,6 +449,15 @@ public class AnnouncementServiceTest {
         }
     }
 
+    /**
+     * Tests searching for a deleted Announcement
+     * <p>
+     * This tests sets an Announcement's deleted value to true,
+     * then saves it to the database. Then it searches the database
+     * with no arguments and asserts that none of the returned results
+     * match the deleted Announcement's id.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchDeletedAnnouncements() throws Exception {

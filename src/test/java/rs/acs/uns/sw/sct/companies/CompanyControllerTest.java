@@ -101,11 +101,26 @@ public class CompanyControllerTest {
                 .build();
     }
 
+    /**
+     * Initializes all objects needed for further testing.
+     * <p>
+     * This method is called before testing starts.
+     */
     @Before
     public void initTest() {
         company = createEntity();
     }
 
+    /**
+     * Tests addition of Company objects as Admin.
+     * <p>
+     * This test uses a mock Admin user to add a default Company
+     * object to the database using a POST method.
+     * It then proceeds to check whether the Company object was added successfully,
+     * by comparing the number of objects in the database before and after the addition,
+     * as well as the default Company's attributes to the Company in the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -128,6 +143,15 @@ public class CompanyControllerTest {
         assertThat(testCompany.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
     }
 
+    /**
+     * Tests addition of Company objects as an Advertiser
+     * <p>
+     * This test uses a mock Advertiser user to
+     * add a default Company object to the database using a POST method, which
+     * is forbidden. It then asserts that the number of objects in the database
+     * has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -146,6 +170,15 @@ public class CompanyControllerTest {
         assertThat(companies).hasSize(databaseSizeBeforeCreate);
     }
 
+    /**
+     * Tests addition of Company objects as a Guest
+     * <p>
+     * This test uses a mock Guest user to
+     * add a default Company object to the database using a POST method, for which
+     * this user is unauthorized. It then asserts that the number of objects in the
+     * database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void createCompanyAsGuest() throws Exception {
@@ -163,6 +196,14 @@ public class CompanyControllerTest {
         assertThat(companies).hasSize(databaseSizeBeforeCreate);
     }
 
+    /**
+     * Tests whether the "Name" field is nullable
+     * <p>
+     * This test attempts to add a Company object with a null "Name" value to the database,
+     * this is forbidden as the "Name" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkNameIsRequired() throws Exception {
@@ -181,6 +222,14 @@ public class CompanyControllerTest {
         assertThat(companies).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Address" field is nullable
+     * <p>
+     * This test attempts to add a Company object with a null "Address" value to the database,
+     * this is forbidden as the "Address" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkAddressIsRequired() throws Exception {
@@ -199,6 +248,14 @@ public class CompanyControllerTest {
         assertThat(companies).hasSize(databaseSizeBeforeTest);
     }
 
+    /**
+     * Tests whether the "Telephone number" field is nullable
+     * <p>
+     * This test attempts to add a Company object with a null "Telephone number" value to the database,
+     * this is forbidden as the "Telephone number" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test asserts that the number of objects in database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void checkTelephoneNoIsRequired() throws Exception {
@@ -217,6 +274,15 @@ public class CompanyControllerTest {
         assertThat(companies).hasSize(databaseSizeBeforeTest);
     }
 
+
+    /**
+     * Tests getting all Companies
+     * <p>
+     * This test requests all Companies from the database.
+     * It then asserts that the received results
+     * match what was expected.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllCompanies() throws Exception {
@@ -233,6 +299,13 @@ public class CompanyControllerTest {
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)));
     }
 
+    /**
+     * Tests getting a single Company
+     * <p>
+     * This test retrieves a Company object from the database using its ID.
+     * It then checks whether the object's attributes have valid values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getCompany() throws Exception {
@@ -249,6 +322,13 @@ public class CompanyControllerTest {
                 .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER));
     }
 
+    /**
+     * Tests invalid retrieval attempts
+     * <p>
+     * This tests attempts to retrieve a Company object which is not in the database
+     * by searching for a non-existent id. This returns an "Is not found" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getNonExistingCompany() throws Exception {
@@ -257,6 +337,17 @@ public class CompanyControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests Company updating as a member of that Company.
+     * <p>
+     * This test saves a Company object to the database,
+     * Then it uses a mocked Advertiser user, who is a member of the company, to
+     * update the values of its attributes and use PUT to save the object.
+     * Then it asserts that the number of objects in the database has not changed
+     * and that the updated values of our modified Company match the ones found in
+     * the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
@@ -287,6 +378,16 @@ public class CompanyControllerTest {
         assertThat(testCompany.getPhoneNumber()).isEqualTo(UPDATED_PHONE_NUMBER);
     }
 
+    /**
+     * Tests Company updating as a Guest.
+     * <p>
+     * This test saves a Company object to the database,
+     * then attempts to update the values of its attributes and uses PUT to save the object
+     * using a mocked Guest user, for which this user is not authorized.
+     * It then validates that the Comment's content and date
+     * have not been changed on the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void updateCompanyAsGuest() throws Exception {
@@ -313,6 +414,15 @@ public class CompanyControllerTest {
         assertThat(companies).hasSize(databaseSizeBeforeUpdate);
     }
 
+    /**
+     * Tests Company deletion as Admin
+     * <p>
+     * This test uses a mocked Admin user
+     * to delete an object on the database. It then asserts
+     * that the number of objects on the database
+     * after this action has been reduced by one.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -332,6 +442,15 @@ public class CompanyControllerTest {
         assertThat(companies).hasSize(databaseSizeBeforeDelete - 1);
     }
 
+    /**
+     * Tests Company deletion as an Advertiser
+     * <p>
+     * This tests uses a mocked Advertiser user to attempt
+     * to delete a Company on the database, which is not allowed.
+     * It then asserts that the number of Companies on the database
+     * has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -351,6 +470,16 @@ public class CompanyControllerTest {
         assertThat(companies).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests Company deletion as a Guest
+     * <p>
+     * This tests attempts to delete a Company
+     * on the database with no authorization,
+     * which is not allowed. It then asserts
+     * that the number of Companies on the
+     * database has not changed.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void deleteCompanyAsGuest() throws Exception {
@@ -369,6 +498,14 @@ public class CompanyControllerTest {
         assertThat(companies).hasSize(databaseSizeBeforeDelete);
     }
 
+    /**
+     * Tests making a request for a Company as an Advertiser
+     * <p>
+     * This test saves a company to the database then uses a
+     * mocked Advertiser user to send a request for joining
+     * the company and expects an "Ok" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_USERNAME)
@@ -382,6 +519,15 @@ public class CompanyControllerTest {
                 .andExpect(status().isOk());
     }
 
+
+    /**
+     * Tests making a request for a Company as an Admin
+     * <p>
+     * This test saves a company to the database then uses a
+     * mocked Admin user to send a request for joining
+     * the company and expects an "Forbidden" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN, username = UserConstants.ADVERTISER_USERNAME)
@@ -394,6 +540,15 @@ public class CompanyControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+
+    /**
+     * Tests making a request for a Company as a Guest
+     * <p>
+     * This test saves a company to the database then uses a
+     * mocked Guest user to send a request for joining
+     * the company and expects an "Is unauthorised" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void sendRequestForCompanyAsGuest() throws Exception {
@@ -405,6 +560,17 @@ public class CompanyControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+
+    /**
+     * Tests making a request for a Company as an Advertiser who has already requested membership
+     * <p>
+     * This test saves a company to the database then uses a
+     * mocked Advertiser user who has already requested to join the company
+     * to send a request for joining the company and expects a "Conflict" status.
+     * It then asserts that the received error key matches the one for
+     * someone already having made a request.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
@@ -422,6 +588,17 @@ public class CompanyControllerTest {
         assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_ALREADY_REQUESTED_MEMBERSHIP);
     }
 
+    /**
+     * Tests approval of request by an Advertiser who is already a member of the Company
+     * <p>
+     * This test saves a company to the database then uses a
+     * mocked Advertiser user who has already joined the Company
+     * to use PUT to modify a specific Request object tied to the
+     * Company, setting its "Confirmed" attribute to true.
+     * It then asserts that the Company whose Request was modified
+     * is still in the database.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_COMPANY_USERNAME)
@@ -436,6 +613,14 @@ public class CompanyControllerTest {
                 .andExpect(jsonPath("$.company.id").value(company.getId()));
     }
 
+    /**
+     * Tests retrieval of Requests tied to a Company as an Advertiser who is a member of the Company
+     * <p>
+     * This test uses a mocked Advertiser user who is a member of a Company to search
+     * for all accepted requests made to that company, then asserts that the number
+     * of received is as expected.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = UserConstants.ADVERTISER_COMPANY_USERNAME)
@@ -455,6 +640,15 @@ public class CompanyControllerTest {
                 .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))));
     }
 
+    /**
+     * Tests retrieval of Requests tied to a Company as an Advertiser who is not a member of the Company
+     * <p>
+     * This test uses a mocked Advertiser user who is not a member of a Company to search
+     * for all accepted requests made to that company, which results in a bad request.
+     * The test then asserts that the received error key matches the error key for
+     * requests made by Advertisers who are not a member of the company.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_pending_membership")
@@ -476,6 +670,13 @@ public class CompanyControllerTest {
         assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_NOT_MEMBER_OF_COMPANY);
     }
 
+    /**
+     * Tests retrieval of Requests tied to a Company as a Guest
+     * <p>
+     * This test searches for all accepted requests made to a company without any authorization,
+     * which results in a "Unauthorized" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getCompanyRequestsByStatusAsGuest() throws Exception {
@@ -491,6 +692,13 @@ public class CompanyControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests retrieval of Requests tied to a Company as an Admin
+     * <p>
+     * This test searches for all accepted requests made to a company without using a
+     * mocked Admin user, which is forbidden.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADMIN)
@@ -507,6 +715,14 @@ public class CompanyControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests resolution of Requests as a Guest
+     * <p>
+     * This test uses no authorization to attempt to change the "accepted"
+     * attribute of a Request on the database, which results in an
+     * "Unauthorized" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void resolveCompanyMembershipAsGuest() throws Exception {
@@ -522,6 +738,16 @@ public class CompanyControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    /**
+     * Tests resolution of Requests for a User that does not exist
+     * <p>
+     * This test uses a mocked Advertiser who is a member of the Company
+     * to attempt to change the "accepted" attribute of a Request belonging to
+     * a non-existing User, which results in an "Not found" status.
+     * The test then asserts that the received error code matches the one
+     * for requests for non-existing entities.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
@@ -542,6 +768,16 @@ public class CompanyControllerTest {
         assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY);
     }
 
+    /**
+     * Tests resolution of Requests for a User that has not made a Request
+     * <p>
+     * This test uses a mocked Advertiser who is a member of the Company
+     * to attempt to change the "accepted" attribute of a Request belonging to
+     * a User who has not made a request, which results in an "Not acceptable" status.
+     * The test then asserts that the received error code matches the one
+     * for users who did not request membership.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
@@ -562,6 +798,16 @@ public class CompanyControllerTest {
         assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_USER_DID_NOT_REQUEST_MEMBERSHIP);
     }
 
+    /**
+     * Tests resolution of Requests for a User that is already a member of the Company
+     * <p>
+     * This test uses a mocked Advertiser who is a member of the Company
+     * to attempt to change the "accepted" attribute of a Request belonging to
+     * a User who has already joined the same Company, which results in an
+     * "Not acceptable" status. The test then asserts that the received
+     * error code matches the one for users who did not request membership.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
@@ -583,6 +829,16 @@ public class CompanyControllerTest {
         assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_USER_DID_NOT_REQUEST_MEMBERSHIP);
     }
 
+    /**
+     * Tests resolution of Requests for a User that is already a member of another Company
+     * <p>
+     * This test uses a mocked Advertiser who is a member of the Company
+     * to attempt to change the "accepted" attribute of a Request belonging to
+     * a User who has already joined another Company, which results in an "Bad request" status.
+     * The test then asserts that the received error code matches the one
+     * for no permission to resolve memberships.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_other_company_member")
@@ -605,6 +861,14 @@ public class CompanyControllerTest {
         assertThat(errorKey).isEqualTo(HeaderUtil.ERROR_CODE_NO_PERMISSION_TO_RESOLVE_MEMBERSHIP);
     }
 
+    /**
+     * Tests resolution of Requests for a User who has requested membership in the Company
+     * <p>
+     * This test uses a mocked Advertiser who is a member of the Company
+     * to attempt to change the "accepted" attribute to "true" of a Request belonging to
+     * a User who has requested to join the Company, which results in an "Ok" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
@@ -625,6 +889,14 @@ public class CompanyControllerTest {
         // TODO Check for updated user
     }
 
+    /**
+     * Tests resolution of Requests for a User who has requested membership in the Company
+     * <p>
+     * This test uses a mocked Advertiser who is a member of the Company
+     * to attempt to change the "accepted" attribute to "false" of a Request belonging to
+     * a User who has requested to join the Company, which results in an "Ok" status.
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member")
@@ -646,7 +918,15 @@ public class CompanyControllerTest {
         // TODO Check for updated user
     }
 
-
+    /**
+     * Tests searching Companies using no arguments
+     * <p>
+     * This test asserts that the number of Companies that
+     * are returned when searching using no arguments matches the number
+     * of Announcements in the database or the number of Companies
+     * per page of search results, whichever is smaller.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchCompaniesWithoutAnyAttribute() throws Exception {
@@ -662,6 +942,15 @@ public class CompanyControllerTest {
                 .andReturn();
     }
 
+    /**
+     * Tests searching Companies using arguments
+     * <p>
+     * This test takes random substrings of a Company's name, address and
+     * phone number and uses them as arguments to perform a search.
+     * It then asserts that all of the returned results have
+     * values which contain these substrings.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void searchCompaniesByNameAndAddressAndPhoneNumber() throws Exception {

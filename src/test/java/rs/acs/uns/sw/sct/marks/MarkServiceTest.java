@@ -35,7 +35,12 @@ public class MarkServiceTest {
     private Mark updatedMark;
     private Mark existingMark;
 
-
+    /**
+     * Asserts equality of two Marks.
+     *
+     * @param mark1 One of the Marks to be compared
+     * @param mark2 The other Marks to be compared
+     */
     private void compareMarks(Mark mark1, Mark mark2) {
         if (mark1.getId() != null && mark2.getId() != null)
             assertThat(mark1.getId()).isEqualTo(mark2.getId());
@@ -47,7 +52,9 @@ public class MarkServiceTest {
             assertThat(mark1.getAnnouncement().getId()).isEqualTo(mark2.getAnnouncement().getId());
     }
 
-
+    /**
+     * Initializes all objects required for testing
+     */
     @Before
     public void initTest() {
         User grader = userService.findOne(GRADER_ID);
@@ -59,6 +66,14 @@ public class MarkServiceTest {
         updatedMark = new Mark().id(null).value(UPDATED_VALUE).grader(updatedGrader).gradedAnnouncer(UPDATED_GRADED_ANNOUNCER).announcement(NEW_ANNOUNCEMENT);
     }
 
+    /**
+     * Tests pageable retrieval of Marks
+     * <p>
+     * This test uses a PageRequest object to specify the number
+     * of results it wants to receive when it requests Marks,
+     * then asserts that the number of returned results matches
+     * the page size in our request.
+     */
     @Test
     public void testFindAllPageable() {
         PageRequest pageRequest = new PageRequest(0, PAGE_SIZE);
@@ -66,12 +81,26 @@ public class MarkServiceTest {
         assertThat(marks).hasSize(PAGE_SIZE);
     }
 
+    /**
+     * Tests retrieval of all Marks
+     * <p>
+     * This test finds all Marks on the repository and asserts
+     * that the number of returned results is equal to the number of
+     * Marks on the database
+     */
     @Test
     public void testFindAll() {
         List<Mark> marks = markRepository.findAll();
         assertThat(marks).hasSize(DB_COUNT_MARKS);
     }
 
+    /**
+     * Tests retrieval of a single Mark.
+     * <p>
+     * This test uses the id of an Mark that is in the repository
+     * to search for it, then asserts that the returned value is not null
+     * and compares the returned Mark to an existing Mark.
+     */
     @Test
     public void testFindOne() {
         Mark mark = markService.findOne(ID);
@@ -80,6 +109,14 @@ public class MarkServiceTest {
         compareMarks(mark, existingMark);
     }
 
+    /**
+     * Tests addition of Marks
+     * <p>
+     * This announcement saves a new Mark using the MarkService,
+     * then it finds all Marks and asserts that the size of the results
+     * has increased by one. It also asserts that the new Mark that is on
+     * the database equals the Mark we added.
+     */
     @Test
     @Transactional
     public void testAdd() {
@@ -95,6 +132,13 @@ public class MarkServiceTest {
         compareMarks(dbMark, newMark);
     }
 
+    /**
+     * Tests updating of Marks.
+     * <p>
+     * This test retrieves a Mark using the service, then changes
+     * its attributes and saves it to the database. Then it asserts that
+     * the object on the database is not null and equals our updated Mark.
+     */
     @Test
     @Transactional
     public void testUpdate() {
@@ -113,6 +157,15 @@ public class MarkServiceTest {
         compareMarks(updatedDbMark, updatedMark);
     }
 
+    /**
+     * Tests removal of Marks
+     * <p>
+     * This test deletes a Mark using the service, then
+     * asserts that the number of Marks on the database
+     * has been reduced by one. It also asserts that an object
+     * with the deleted Mark's id does not exists on the
+     * database.
+     */
     @Test
     @Transactional
     public void testRemove() {
@@ -130,6 +183,14 @@ public class MarkServiceTest {
      * Negative tests
 	 */
 
+    /**
+     * Tests adding a Mark with a null value value
+     * <p>
+     * This test sets a Mark's value to null, then
+     * attempts to add it to the database. As value is a
+     * non-nullable field, the test receives a
+     * Constraint Violation exception.
+     */
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testAddNullValue() {
@@ -139,6 +200,15 @@ public class MarkServiceTest {
         newMark.setValue(NEW_VALUE);
     }
 
+    /**
+     * Tests searching for Marks by their Announcement's id
+     * <p>
+     * This test finds all Marks tied to a Announcement's id,
+     * then asserts that the number of returned results matches
+     * the expected number and asserts that every one of the
+     * results matches the Mark that is retrieved by searching
+     * for its id.
+     */
     @Test
     @Transactional
     public void testFindAllByAnnouncementId() {
