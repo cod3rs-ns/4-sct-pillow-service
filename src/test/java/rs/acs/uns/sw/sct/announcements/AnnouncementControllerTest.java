@@ -1150,6 +1150,15 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
     }
 
+    /**
+     * Tests getting deleted Announcements as an Verifier
+     * <p>
+     * This test tries retrieves all deleted Announcement objects from the database
+     * using an Verifier's authority. As verifier can't get deleted announcements it
+     * results with Method Not Allowed Status.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -1162,6 +1171,15 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isMethodNotAllowed());
     }
 
+    /**
+     * Tests getting deleted Announcements as an Verifier
+     * <p>
+     * This test retrieves all non deleted Announcement objects from the database
+     * using an Verifier's authority. It then checks whether the objects'
+     * attributes have valid values.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)

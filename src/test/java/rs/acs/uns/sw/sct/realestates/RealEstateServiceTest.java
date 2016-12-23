@@ -302,6 +302,18 @@ public class RealEstateServiceTest {
         }
     }
 
+    /**
+     * Tests searching for a similar RealEstates
+     * <p>
+     * This tests sets referent Real Estate parameters for comparing with other
+     * database entries.
+     *
+     * Then we get all similar real estates using our service and assert it
+     * with expected number of matches.
+     *
+     * After that we check if all returned values are similar with referent Real Estate
+     * using custom implemented algorithm of similarity.
+     */
     @Test
     public void testFindAllSimilar() {
         Location location = new Location()

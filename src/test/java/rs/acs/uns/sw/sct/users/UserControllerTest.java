@@ -375,6 +375,7 @@ public class UserControllerTest {
      * value is true.
      * Then it asserts that the number of returned objects is the same as the expected number
      * of objects and that their values match the expected values.
+     *
      * @throws Exception
      */
     @Test
@@ -401,13 +402,15 @@ public class UserControllerTest {
     }
 
     /**
-     * Tests retrieval of Users by deleted status as a Guest
+     * Tests retrieval of Users by deleted status as an Advertiser
      * <p>
-     * This test sets a User's "deleted" value to false and saves it to the database.
-     * It then uses a mocked Admin user to search for all Users whose "deleted"
-     * value is false.
-     * Then it asserts that the number of returned objects is the same as the expected number
-     * of objects and that their values match the expected values.
+     * This test sets a User's "deleted" value to true and saves it to the database.
+     * It then uses a mocked Advertiser user to search for all Users whose "deleted"
+     * value is true.
+     *
+     * Method is not allowed for any user role expect ADMIN and it results with
+     * Method Not Allowed HTTP Status.
+     *
      * @throws Exception
      */
     @Test
@@ -425,6 +428,18 @@ public class UserControllerTest {
                 .andExpect(status().isMethodNotAllowed());
     }
 
+    /**
+     * Tests retrieval of Users by deleted status as an Advertiser
+     * <p>
+     * This test sets a User's "deleted" value to false and saves it to the database.
+     * It then uses a mocked Advertiser user to search for all Users whose "deleted"
+     * value is false.
+     *
+     * Then it asserts that the number of returned objects is the same as the expected number
+     * of objects and that their values match the expected values.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -447,6 +462,16 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)));
     }
 
+    /**
+     * Tests retrieval of Users by deleted status as a Guest
+     * <p>
+     * This test sets a User's "deleted" value to false and saves it to the database.
+     * It then uses a mocked Admin user to search for all Users whose "deleted"
+     * value is false.
+     * Then it asserts that the number of returned objects is the same as the expected number
+     * of objects and that their values match the expected values.
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getUsersByStatusDeletedAsGuest() throws Exception {
