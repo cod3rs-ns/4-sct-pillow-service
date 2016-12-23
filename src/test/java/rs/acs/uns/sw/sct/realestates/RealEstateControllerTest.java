@@ -620,7 +620,7 @@ public class RealEstateControllerTest {
     }
 
     /**
-     * Tests getting undeleted RealEstates as an Advertiser
+     * Tests getting non-deleted RealEstates as an Advertiser
      * <p>
      * This test retrieves all undeleted RealEstate objects from the database
      * using an Advertiser's authority.
@@ -651,6 +651,15 @@ public class RealEstateControllerTest {
                 .andExpect(jsonPath("$.[*].deleted").value(hasItem(REAL_ESTATE_DELETED)));
     }
 
+    /**
+     * Tests getting deleted RealEstates as an Advertiser
+     * <p>
+     * This test tries to retrieve all deleted RealEstate objects from the database
+     * using an Advertiser's authority. Because only Admin can get all deleted real estates
+     * this test results with Method Not Allowed HTTP Status.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -663,6 +672,14 @@ public class RealEstateControllerTest {
                 .andExpect(status().isMethodNotAllowed());
     }
 
+    /**
+     * Tests getting similar RealEstates as an Advertiser
+     * <p>
+     * This test tries to retrieve all similar RealEstate objects from the database
+     * based on custom implemented algorithm using an Advertiser's authority.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -691,6 +708,14 @@ public class RealEstateControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
     }
 
+    /**
+     * Tests getting similar RealEstates as an Advertiser with wrong Area
+     * <p>
+     * This tests shows that number of retrieved results is 0 when there's no
+     * similar area for any non-deleted real estate in database.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -724,6 +749,14 @@ public class RealEstateControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
     }
 
+    /**
+     * Tests getting similar RealEstates as an Advertiser with wrong Location
+     * <p>
+     * This tests shows that number of retrieved results is 0 when there's no
+     * same location for any provided and database's real estate.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
@@ -757,6 +790,14 @@ public class RealEstateControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE));
     }
 
+    /**
+     * Tests tries to get similar RealEstates as a Verifier
+     * <p>
+     * Tries to find similar real estates, but because ADVERTISER has this privilege
+     * it results with Forbidden HTTP status.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.VERIFIER)
@@ -772,6 +813,14 @@ public class RealEstateControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Tests tries to get similar RealEstates as a Guest
+     * <p>
+     * Tries to find similar real estates, but because ADVERTISER has this privilege
+     * it results with Unauthorized HTTP status.
+     *
+     * @throws Exception
+     */
     @Test
     @Transactional
     public void getAllSimilarRealEstatesAsGuest() throws Exception {
