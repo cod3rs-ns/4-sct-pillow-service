@@ -5,7 +5,7 @@
 
     <groupId>rs.acs.uns.sw.teamone</groupId>
     <artifactId>sct-project-2016</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
     <packaging>jar</packaging>
 
     <name>sct-sw-project-2016</name>
