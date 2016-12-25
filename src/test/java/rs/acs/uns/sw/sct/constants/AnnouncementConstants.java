@@ -73,7 +73,7 @@ public interface AnnouncementConstants {
     Integer TOP = 3;
 
     // Number of "deleted = true" database records
-    Long DB_COUNT_ANNOUNCEMENT_DELETED_TRUE  = 1L;
+    Long DB_COUNT_ANNOUNCEMENT_DELETED_TRUE = 1L;
     // Number of "deleted = false" database records
     Long DB_COUNT_ANNOUNCEMENT_DELETED_FALSE = 2L;
     // Number of "deleted = false" database records
@@ -82,5 +82,5 @@ public interface AnnouncementConstants {
     // file to be upload
     String FILE_TO_BE_UPLOAD = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "test_upload.jpg";
 
-    public final String NEW_BASE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "uploads";
+    String NEW_BASE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "uploads";
 }

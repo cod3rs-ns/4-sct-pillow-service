@@ -11,6 +11,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.conf.PropertyMockingApplicationContextInitializer;
 import rs.acs.uns.sw.sct.constants.RealEstateConstants;
 import rs.acs.uns.sw.sct.constants.UserConstants;
 import rs.acs.uns.sw.sct.realestates.Location;
@@ -42,9 +44,7 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.COMPANY_ID;
-import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.FILE_TO_BE_UPLOAD;
-import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.NEW_BASE_DIR;
+import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.*;
 import static rs.acs.uns.sw.sct.util.ContainsIgnoreCase.containsIgnoringCase;
 import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 
@@ -54,6 +54,7 @@ import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
  * @see AnnouncementController
  */
 @RunWith(SpringRunner.class)
+@ContextConfiguration(initializers = PropertyMockingApplicationContextInitializer.class)
 @SpringBootTest(classes = SctServiceApplication.class)
 public class AnnouncementControllerTest {
 
@@ -154,7 +155,7 @@ public class AnnouncementControllerTest {
         ReflectionTestUtils.setField(announcementCtrl, "announcementService", announcementService);
         ReflectionTestUtils.setField(announcementCtrl, "userService", userService);
 
-        ReflectionTestUtils.setField(AnnouncementController.class, "uploadPath", NEW_BASE_DIR);
+        //ReflectionTestUtils.setField(AnnouncementController.class, "uploadPath", NEW_BASE_DIR);
 
         this.restAnnouncementMockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -1218,6 +1219,7 @@ public class AnnouncementControllerTest {
      * authors are members of the same company using an Verifier's authority.
      * It then checks whether the objects' company ids are equals to path
      * param that was passed.
+     *
      * @throws Exception
      */
     @Test
@@ -1240,6 +1242,7 @@ public class AnnouncementControllerTest {
      * authors are members of the same company and their prices are in top three
      * using an Verifier's authority. It then checks whether the objects' company
      * ids are equals to path param that was passed.
+     *
      * @throws Exception
      */
     @Test
