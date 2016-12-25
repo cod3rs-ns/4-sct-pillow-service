@@ -32,10 +32,6 @@ public class CommentService {
      * @return the persisted entity
      */
     public Comment save(Comment comment) {
-
-        // comment.setAnnouncement(announcementRepository.findOne(comment.getAnnouncement().getId()));
-        // comment.setAuthor(userRepository.findOne(comment.getAuthor().getId()));
-
         return commentRepository.save(comment);
     }
 
