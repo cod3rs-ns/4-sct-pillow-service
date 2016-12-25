@@ -50,8 +50,7 @@ public class AnnouncementController {
     private UserSecurityUtil userSecurityUtil;
 
     @Value("${sct.file_upload.path}")
-    public static String uploadPath;  // NOSONAR
-
+    private String uploadPath;
 
     /**
      * POST  /announcements : Create a new announcement.
