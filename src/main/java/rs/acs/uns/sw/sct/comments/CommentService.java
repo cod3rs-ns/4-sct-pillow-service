@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import rs.acs.uns.sw.sct.announcements.AnnouncementRepository;
+import rs.acs.uns.sw.sct.users.UserRepository;
 
 
 /**
@@ -17,6 +19,12 @@ public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    AnnouncementRepository announcementRepository;
+
     /**
      * Save a comment.
      *
@@ -24,6 +32,10 @@ public class CommentService {
      * @return the persisted entity
      */
     public Comment save(Comment comment) {
+
+        // comment.setAnnouncement(announcementRepository.findOne(comment.getAnnouncement().getId()));
+        // comment.setAuthor(userRepository.findOne(comment.getAuthor().getId()));
+
         return commentRepository.save(comment);
     }
 

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.acs.uns.sw.sct.security.UserSecurityUtil;
+import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
@@ -54,6 +55,12 @@ public class CommentController {
                             HeaderUtil.ERROR_MSG_CUSTOM_ID))
                     .body(null);
         }
+
+        final User user = userSecurityUtil.getLoggedUser();
+        System.out.println(user);
+
+        comment.setAuthor(user);
+
         Comment result = commentService.save(comment);
         return ResponseEntity.created(new URI("/api/comments/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(

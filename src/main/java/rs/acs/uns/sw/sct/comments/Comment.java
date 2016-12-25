@@ -1,6 +1,5 @@
 package rs.acs.uns.sw.sct.comments;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.users.User;
 
@@ -31,7 +30,6 @@ public class Comment implements Serializable {
     @Column(nullable = false)
     private Date date;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn()
     private Announcement announcement;

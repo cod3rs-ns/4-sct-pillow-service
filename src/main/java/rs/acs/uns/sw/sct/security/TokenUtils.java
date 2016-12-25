@@ -115,8 +115,10 @@ public class TokenUtils {
     }
 
     private Boolean isTokenExpired(String token) {
-        final Date expirationDate = this.getExpirationDateFromToken(token);
-        return expirationDate.before(this.generateCurrentDate());
+        // FIXME @dmarjanovic
+        //final Date expirationDate = this.getExpirationDateFromToken(token);
+        //return expirationDate.before(this.generateCurrentDate());
+        return false;
     }
 
     private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
@@ -136,7 +138,8 @@ public class TokenUtils {
      */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("user", userDetails.getUsername());
+        // FIXME @dmarjanovic
+        claims.put("sub", userDetails.getUsername());
         // Set Role of User to token. Our user has only one role.
         claims.put("role", userDetails.getAuthorities().toArray()[0]);
         claims.put(CREATED, this.generateCurrentDate());
