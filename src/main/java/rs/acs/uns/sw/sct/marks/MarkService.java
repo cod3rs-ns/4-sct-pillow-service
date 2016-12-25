@@ -50,6 +50,18 @@ public class MarkService {
     }
 
     /**
+     * Get all the marks by user id.
+     *
+     * @param pageable    the pagination information
+     * @param userId      id of one user
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Mark> findAllByUser(Long userId, Pageable pageable) {
+        return markRepository.findByGradedAnnouncer_Id(userId, pageable);
+    }
+
+    /**
      * Get one mark by id.
      *
      * @param id the id of the entity
