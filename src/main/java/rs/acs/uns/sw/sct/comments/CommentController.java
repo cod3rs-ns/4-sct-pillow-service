@@ -57,8 +57,6 @@ public class CommentController {
         }
 
         final User user = userSecurityUtil.getLoggedUser();
-        System.out.println(user);
-
         comment.setAuthor(user);
 
         Comment result = commentService.save(comment);
