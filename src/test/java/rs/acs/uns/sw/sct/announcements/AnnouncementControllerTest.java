@@ -778,7 +778,7 @@ public class AnnouncementControllerTest {
 
 
         String newFileName = result.getResponse().getContentAsString();
-        String filePath = NEW_BASE_DIR + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + newFileName;
+        String filePath = NEW_BASE_DIR + File.separator + newFileName;
         File newFile = new File(filePath);
 
         System.out.println(newFile.getAbsolutePath());
