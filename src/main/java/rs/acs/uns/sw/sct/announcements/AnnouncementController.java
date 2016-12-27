@@ -263,6 +263,24 @@ public class AnnouncementController {
     }
 
     /**
+     * GET  /announcements/user/:authorId : get all the announcements created by specified User ID
+     *
+     * @param authorId the id of the announcements author
+     * @param pageable  the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/announcements/user/{authorId}")
+    public ResponseEntity<List<Announcement>> getAllAnnouncementsByAuthor(@PathVariable Long authorId, Pageable pageable)
+            throws URISyntaxException {
+        Page<Announcement> page = announcementService.findAllByCompany(authorId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/user");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+
+    /**
      * GET  /announcements/top/company/:companyId : get top three announcements created by users of the same company.
      *
      * @param companyId the id of the company

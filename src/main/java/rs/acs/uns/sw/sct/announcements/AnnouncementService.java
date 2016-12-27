@@ -69,6 +69,18 @@ public class AnnouncementService {
     }
 
     /**
+     * Get all the announcements by Author ID.
+     *
+     * @param pageable the pagination information
+     * @param authorId id of one announcements author
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Announcement> findAllByAuthor(Long authorId, Pageable pageable) {
+        return announcementRepository.findByAuthor_Id(authorId, pageable);
+    }
+
+    /**
      * Get top the announcements by company id.
      *
      * @param companyId id of one company
