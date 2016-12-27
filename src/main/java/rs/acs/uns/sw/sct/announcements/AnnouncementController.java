@@ -19,6 +19,7 @@ import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
 import java.net.URI;
@@ -340,7 +341,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PostMapping("/announcements/upload")
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> handleFileUpload(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
         if (!file.isEmpty()) {
             try {
                 String originalFileName = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.'));
@@ -352,10 +353,11 @@ public class AnnouncementController {
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
+
                 File newFile = new File(dir + File.separator + newFilename);
                 file.transferTo(newFile);
 
-                return new ResponseEntity<>(newFilename, HttpStatus.OK);
+                return new ResponseEntity<>(Constants.FilePaths.ANNOUNCEMENTS + File.separator + newFilename, HttpStatus.OK);
             } catch (Exception e) {
                 Logger.getLogger(getClass().getName()).log(Level.INFO, "Unable to create folders.", e);
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
