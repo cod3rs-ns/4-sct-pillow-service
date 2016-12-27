@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.realestates.RealEstate;
+import rs.acs.uns.sw.sct.realestates.RealEstateService;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.users.User;
@@ -39,6 +41,9 @@ public class AnnouncementController {
 
     @Autowired
     private AnnouncementService announcementService;
+
+    @Autowired
+    private RealEstateService realEstateService;
 
     @Autowired
     private UserService userService;
@@ -76,6 +81,13 @@ public class AnnouncementController {
         final User user = userSecurityUtil.getLoggedUser();
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        if (annDTO.getRealEstate().getId() != null) {
+            RealEstate realEstate = realEstateService.findOne(annDTO.getRealEstate().getId());
+            if (realEstate != null) {
+                annDTO.setRealEstate(realEstate);
+            }
         }
 
         Announcement announcement = annDTO.convertToAnnouncement(user);
