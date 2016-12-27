@@ -222,9 +222,10 @@ public class RealEstateController {
                     .body(null);
 
         Announcement ann = realEstate.getAnnouncements().iterator().next();
-        Image image = ann.getImages().iterator().next();
+        String imageURL = ann.getImages().iterator().next().getImagePath();
+        String fileName = imageURL.substring(imageURL.lastIndexOf('/') + 1);
 
-        File f = new File(uploadPath + File.separator + image.getImagePath());
+        File f = new File(uploadPath + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + fileName);
         if (!f.exists()) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)

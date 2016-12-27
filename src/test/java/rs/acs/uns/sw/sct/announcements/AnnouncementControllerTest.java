@@ -768,20 +768,16 @@ public class AnnouncementControllerTest {
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void uploadFile() throws Exception {
-        MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
+        MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/images/announcements/")
                 .file(fileToBeUpload)
                 .contentType(MediaType.IMAGE_PNG))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        System.out.println(context.getEnvironment().getProperty("sct.file_upload.path"));
-
-
-        String newFileName = result.getResponse().getContentAsString();
-        String filePath = NEW_BASE_DIR + File.separator + newFileName;
+        String newImageURL = result.getResponse().getContentAsString();
+        String imagePath = newImageURL.substring(newImageURL.lastIndexOf('/') + 1);
+        String filePath = NEW_BASE_DIR + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + imagePath;
         File newFile = new File(filePath);
-
-        System.out.println(newFile.getAbsolutePath());
 
         assertThat(newFile.exists()).isTrue();
 
@@ -811,7 +807,7 @@ public class AnnouncementControllerTest {
         // Assert that folder does not exist anymore
         assertThat(f.exists()).isFalse();
 
-        restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
+        restAnnouncementMockMvc.perform(fileUpload("/api/images/announcements/")
                 .file(fileToBeUpload))
                 .andExpect(status().isOk())
                 .andReturn();
