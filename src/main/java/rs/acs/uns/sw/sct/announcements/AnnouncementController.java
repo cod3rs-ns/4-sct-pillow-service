@@ -83,7 +83,7 @@ public class AnnouncementController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        if (annDTO.getRealEstate().getId() != null) {
+        if (annDTO.getRealEstate() != null && annDTO.getRealEstate().getId() != null) {
             RealEstate realEstate = realEstateService.findOne(annDTO.getRealEstate().getId());
             if (realEstate != null) {
                 annDTO.setRealEstate(realEstate);

@@ -238,6 +238,22 @@ public class UserController {
     }
 
     /**
+     * GET  /users/search/typeAhead : get all the users that satisfied search params.
+     *
+     * @param firstName   first name of the user
+     * @param lastName    last name of the user
+     * @return the ResponseEntity with status 200 (OK) and the list of users in body
+     */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
+    @GetMapping("/users/search/type-ahead")
+    public ResponseEntity<List<User>> searchTypeAhead(@RequestParam(value = "firstName", required = false) String firstName,
+                                             @RequestParam(value = "lastName", required = false) String lastName) {
+        List<User> list = userService.findBySearchTermOR(firstName, lastName);
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+
+    /**
      * Method that checks if provided username is available for use by new user.
      *
      * @param username term to perform check on

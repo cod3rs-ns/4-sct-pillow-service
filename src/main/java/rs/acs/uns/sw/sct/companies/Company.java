@@ -1,6 +1,7 @@
 package rs.acs.uns.sw.sct.companies;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import rs.acs.uns.sw.sct.announcements.Image;
 import rs.acs.uns.sw.sct.users.User;
 
@@ -37,7 +38,7 @@ public class Company implements Serializable {
 
     private String imagePath;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>(0);
 
