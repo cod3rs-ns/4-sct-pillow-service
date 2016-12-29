@@ -1232,6 +1232,28 @@ public class AnnouncementControllerTest {
     }
 
     /**
+     * Tests getting all Announcements from same user as an Avertiser
+     * <p>
+     * This test retrieves all Announcement objects from the specified author with an Advertiser's authority.
+     * It then checks whether the objects' author ids are equals to path
+     * param that was passed.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member" )
+    public void getAllAnnouncementsByAuthorId() throws Exception {
+
+        // Get all announcements from same company
+        restAnnouncementMockMvc.perform(get("/api/announcements/user/{authorId}", 12L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].author.id").value(everyItem(comparesEqualTo(12L))))
+                .andReturn();
+    }
+
+    /**
      * Tests getting top three Announcements from same company as an Admin
      * <p>
      * This test retrieves all Announcement objects from the database whose

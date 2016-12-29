@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 
 public interface AnnouncementConstants {
 
-    int DB_COUNT_ANNOUNCEMENT = 3;
+    int DB_COUNT_ANNOUNCEMENT = 4;
     int PAGE_SIZE = 2;
 
     Long ID = 1L;
@@ -75,7 +75,7 @@ public interface AnnouncementConstants {
     // Number of "deleted = true" database records
     Long DB_COUNT_ANNOUNCEMENT_DELETED_TRUE = 1L;
     // Number of "deleted = false" database records
-    Long DB_COUNT_ANNOUNCEMENT_DELETED_FALSE = 2L;
+    Long DB_COUNT_ANNOUNCEMENT_DELETED_FALSE = 3L;
     // Number of "deleted = false" database records
 
 
