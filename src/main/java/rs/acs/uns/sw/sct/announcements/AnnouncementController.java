@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import rs.acs.uns.sw.sct.realestates.RealEstate;
+import rs.acs.uns.sw.sct.realestates.RealEstateService;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.users.User;
@@ -20,15 +21,15 @@ import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * REST controller for managing Announcement.
@@ -40,6 +41,9 @@ public class AnnouncementController {
 
     @Autowired
     private AnnouncementService announcementService;
+
+    @Autowired
+    private RealEstateService realEstateService;
 
     @Autowired
     private UserService userService;
@@ -77,6 +81,13 @@ public class AnnouncementController {
         final User user = userSecurityUtil.getLoggedUser();
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        if (annDTO.getRealEstate() != null && annDTO.getRealEstate().getId() != null) {
+            RealEstate realEstate = realEstateService.findOne(annDTO.getRealEstate().getId());
+            if (realEstate != null) {
+                annDTO.setRealEstate(realEstate);
+            }
         }
 
         Announcement announcement = annDTO.convertToAnnouncement(user);
@@ -266,6 +277,24 @@ public class AnnouncementController {
     }
 
     /**
+     * GET  /announcements/user/:authorId : get all the announcements created by specified User ID
+     *
+     * @param authorId the id of the announcements author
+     * @param pageable  the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/announcements/user/{authorId}")
+    public ResponseEntity<List<Announcement>> getAllAnnouncementsByAuthor(@PathVariable Long authorId, Pageable pageable)
+            throws URISyntaxException {
+        Page<Announcement> page = announcementService.findAllByCompany(authorId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/user");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+
+    /**
      * GET  /announcements/top/company/:companyId : get top three announcements created by users of the same company.
      *
      * @param companyId the id of the company
@@ -333,40 +362,6 @@ public class AnnouncementController {
             return ResponseEntity
                     .notFound()
                     .build();
-        }
-    }
-
-    /**
-     * POST  /announcements/:id : upload file for announcement.
-     *
-     * @param file the file to be upload
-     * @return the ResponseEntity with status 201 (Created) and with body the new file name,
-     * or with status 400 (Bad Request) if the upload failed, or with status 204 (No content)
-     */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
-    @PostMapping("/announcements/upload")
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
-        if (!file.isEmpty()) {
-            try {
-                String originalFileName = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.'));
-                String originalFileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
-                String newFilename = originalFileName + UUID.randomUUID().toString() + originalFileExtension;
-
-                // transfer to upload folder
-                File dir = new File(uploadPath + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                File newFile = new File(dir + File.separator + newFilename);
-                file.transferTo(newFile);
-
-                return new ResponseEntity<>(newFilename, HttpStatus.OK);
-            } catch (Exception e) {
-                Logger.getLogger(getClass().getName()).log(Level.INFO, "Unable to create folders.", e);
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
     }
 

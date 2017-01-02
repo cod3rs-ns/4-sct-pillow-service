@@ -76,9 +76,11 @@ public final class Constants {
      * Constants representing file paths for image upload.
      */
     public static final class FilePaths {
+        public static final String IMAGES_URL = "http://localhost:8091/api/images/";
         public static final String ANNOUNCEMENTS = "announcements";
         public static final String COMPANIES = "companies";
         public static final String USERS = "users";
+        public static final String REAL_ESTATES = "real_estates";
         private FilePaths() {
         }
     }

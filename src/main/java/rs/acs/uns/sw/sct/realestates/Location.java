@@ -43,12 +43,11 @@ public class Location implements Serializable {
 
         Location location = (Location) o;
 
-        if (country != null ? !country.equals(location.country) : location.country != null) return false;
-        if (city != null ? !city.equals(location.city) : location.city != null) return false;
-        if (cityRegion != null ? !cityRegion.equals(location.cityRegion) : location.cityRegion != null) return false;
-        if (street != null ? !street.equals(location.street) : location.street != null) return false;
-        return streetNumber != null ? streetNumber.equals(location.streetNumber) : location.streetNumber == null;
-
+        if (country != null ? !country.toLowerCase().contains(location.country.trim().toLowerCase()) : location.country != null) return false;
+        if (city != null ? !city.toLowerCase().contains(location.city.trim().toLowerCase()) : location.city != null) return false;
+        if (cityRegion != null ? !cityRegion.toLowerCase().contains(location.cityRegion.trim().toLowerCase()) : location.cityRegion != null) return false;
+        if (street != null ? !street.toLowerCase().contains(location.street.trim().toLowerCase()) : location.street != null) return false;
+        return streetNumber != null ? streetNumber.equals(location.streetNumber.toLowerCase()) : location.streetNumber == null;
     }
 
     public Long getId() {

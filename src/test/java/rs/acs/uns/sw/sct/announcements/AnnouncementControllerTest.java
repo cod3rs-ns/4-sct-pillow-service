@@ -769,20 +769,16 @@ public class AnnouncementControllerTest {
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void uploadFile() throws Exception {
-        MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
+        MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/images/announcements/")
                 .file(fileToBeUpload)
                 .contentType(MediaType.IMAGE_PNG))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        System.out.println(context.getEnvironment().getProperty("sct.file_upload.path"));
-
-
-        String newFileName = result.getResponse().getContentAsString();
-        String filePath = NEW_BASE_DIR + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + newFileName;
+        String newImageURL = result.getResponse().getContentAsString();
+        String imagePath = newImageURL.substring(newImageURL.lastIndexOf('/') + 1);
+        String filePath = NEW_BASE_DIR + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + imagePath;
         File newFile = new File(filePath);
-
-        System.out.println(newFile.getAbsolutePath());
 
         assertThat(newFile.exists()).isTrue();
 
@@ -812,7 +808,7 @@ public class AnnouncementControllerTest {
         // Assert that folder does not exist anymore
         assertThat(f.exists()).isFalse();
 
-        restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
+        restAnnouncementMockMvc.perform(fileUpload("/api/images/announcements/")
                 .file(fileToBeUpload))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -1232,6 +1228,28 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].author.company.id").value(everyItem(comparesEqualTo(Integer.valueOf(COMPANY_ID.intValue())))))
+                .andReturn();
+    }
+
+    /**
+     * Tests getting all Announcements from same user as an Avertiser
+     * <p>
+     * This test retrieves all Announcement objects from the specified author with an Advertiser's authority.
+     * It then checks whether the objects' author ids are equals to path
+     * param that was passed.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member" )
+    public void getAllAnnouncementsByAuthorId() throws Exception {
+
+        // Get all announcements from same company
+        restAnnouncementMockMvc.perform(get("/api/announcements/user/{authorId}", 12L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].author.id").value(everyItem(comparesEqualTo(12L))))
                 .andReturn();
     }
 

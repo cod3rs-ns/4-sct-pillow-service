@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * REST controller for managing Company.
@@ -63,6 +64,19 @@ public class CompanyController {
         }
 
         Company result = companyService.save(company);
+
+        Set<User> users = company.getUsers();
+        if (users != null && users.size() > 0) {
+            for (User u : users) {
+                User companyUser = userService.findOne(u.getId());
+                if (companyUser != null) {
+                    companyUser.setCompany(result);
+                    companyUser.setCompanyVerified(Constants.CompanyStatus.ACCEPTED);
+                    userService.save(companyUser);
+                }
+            }
+        }
+
         return ResponseEntity.created(new URI("/api/companies/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(
                         Constants.EntityNames.COMPANY,
@@ -91,14 +105,14 @@ public class CompanyController {
         if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && (companyMember.getCompany() == null ||
                 !companyMember.getCompanyVerified().equals(Constants.CompanyStatus.ACCEPTED) ||
                 !companyMember.getCompany().getId().equals(company.getId()))) {
-                return ResponseEntity
-                        .badRequest()
-                        .headers(HeaderUtil.failure(
-                                Constants.EntityNames.COMPANY,
-                                HeaderUtil.ERROR_CODE_NOT_MEMBER_OF_COMPANY,
-                                HeaderUtil.ERROR_MSG_NOT_MEMBER_OF_COMPANY
-                        ))
-                        .body(null);
+            return ResponseEntity
+                    .badRequest()
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.COMPANY,
+                            HeaderUtil.ERROR_CODE_NOT_MEMBER_OF_COMPANY,
+                            HeaderUtil.ERROR_MSG_NOT_MEMBER_OF_COMPANY
+                    ))
+                    .body(null);
         }
 
         Company result = companyService.save(company);
