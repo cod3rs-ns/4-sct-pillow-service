@@ -38,15 +38,15 @@ public class MarkController {
     /**
      * POST  /marks : Create a new mark.
      *
-     * @param mark the mark to create
+     * @param markDTO the mark to create
      * @return the ResponseEntity with status 201 (Created) and with body the new mark,
      * or with status 400 (Bad Request) if the mark has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PostMapping("/marks")
-    public ResponseEntity<MarkDTO> createMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
-        if (mark.getId() != null) {
+    public ResponseEntity<MarkDTO> createMark(@Valid @RequestBody MarkDTO markDTO) throws URISyntaxException {
+        if (markDTO.getId() != null) {
             return ResponseEntity
                     .badRequest()
                     .headers(HeaderUtil.failure(
@@ -57,6 +57,9 @@ public class MarkController {
         }
 
         final User user = userSecurityUtil.getLoggedUser();
+
+        final Mark mark = markDTO.convertToMark();
+
         mark.grader(user);
 
         // OPTION 1 - advertisers cannot rate announcements by company which members they are
@@ -82,7 +85,7 @@ public class MarkController {
     /**
      * PUT  /marks : Updates an existing mark.
      *
-     * @param mark the mark to update
+     * @param markDTO the mark to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated mark,
      * or with status 400 (Bad Request) if the mark is not valid,
      * or with status 500 (Internal Server Error) if the mark couldnt be updated
@@ -90,13 +93,13 @@ public class MarkController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/marks")
-    public ResponseEntity<MarkDTO> updateMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
-        if (mark.getId() == null) {
-            return createMark(mark);
+    public ResponseEntity<MarkDTO> updateMark(@Valid @RequestBody MarkDTO markDTO) throws URISyntaxException {
+        if (markDTO.getId() == null) {
+            return createMark(markDTO);
         }
 
         // OPTION 1 - user cannot update mark created by another user
-        if (!markService.findOne(mark.getId()).getGrader().getUsername()
+        if (!markService.findOne(markDTO.getId()).getGrader().getUsername()
                 .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
@@ -106,6 +109,8 @@ public class MarkController {
                             HeaderUtil.ERROR_MSG_NOT_OWNER))
                     .body(null);
         }
+
+        final Mark mark = markDTO.convertToMark();
 
         Mark result = markService.save(mark);
         return ResponseEntity

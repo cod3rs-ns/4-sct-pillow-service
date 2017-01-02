@@ -23,6 +23,21 @@ public class MarkDTO {
 
     private AnnouncementDTO announcement;
 
+    /**
+     * Converts DTO to Mark entity
+     *
+     * @return announcement for further use
+     */
+    public Mark convertToMark() {
+        return new Mark()
+                .id(id)
+                .value(value)
+                .grader((grader != null) ? grader.convertToUser() : null)
+                .gradedAnnouncer((gradedAnnouncer != null) ? gradedAnnouncer.convertToUser() : null)
+                .announcement(announcement.convertToAnnouncement(announcement.getAuthor().convertToUser()));
+
+    }
+
     public Long getId() {
         return id;
     }
