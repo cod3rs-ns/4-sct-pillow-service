@@ -38,15 +38,15 @@ public class CommentController {
     /**
      * POST  /comments : Create a new comment.
      *
-     * @param comment the comment to create
+     * @param commentDTO the comment to create
      * @return the ResponseEntity with status 201 (Created) and with body the new comment,
      * or with status 400 (Bad Request) if the comment has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PreAuthorize("permitAll()")
     @PostMapping("/comments")
-    public ResponseEntity<CommentDTO> createComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
-        if (comment.getId() != null) {
+    public ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CommentDTO commentDTO) throws URISyntaxException {
+        if (commentDTO.getId() != null) {
             return ResponseEntity
                     .badRequest()
                     .headers(HeaderUtil.failure(
@@ -57,6 +57,9 @@ public class CommentController {
         }
 
         final User user = userSecurityUtil.getLoggedUser();
+
+        final Comment comment = commentDTO.convertToComment();
+
         comment.setAuthor(user);
 
         Comment result = commentService.save(comment);
@@ -70,7 +73,7 @@ public class CommentController {
     /**
      * PUT  /comments : Updates an existing comment.
      *
-     * @param comment the comment to update
+     * @param commentDTO the comment to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated comment,
      * or with status 400 (Bad Request) if the comment is not valid,
      * or with status 500 (Internal Server Error) if the comment couldnt be updated
@@ -78,13 +81,13 @@ public class CommentController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/comments")
-    public ResponseEntity<CommentDTO> updateComment(@Valid @RequestBody Comment comment) throws URISyntaxException {
-        if (comment.getId() == null) {
-            return createComment(comment);
+    public ResponseEntity<CommentDTO> updateComment(@Valid @RequestBody CommentDTO commentDTO) throws URISyntaxException {
+        if (commentDTO.getId() == null) {
+            return createComment(commentDTO);
         }
         // check if user has no rights to update comment
         if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) &&
-                !commentService.findOne(comment.getId()).getAuthor().getUsername()
+                !commentService.findOne(commentDTO.getId()).getAuthor().getUsername()
                         .equals(userSecurityUtil.getLoggedUserUsername())) {
             return ResponseEntity
                     .badRequest()
@@ -95,6 +98,8 @@ public class CommentController {
                     .body(null);
         }
 
+
+        final Comment comment = commentDTO.convertToComment();
 
         Comment result = commentService.save(comment);
         return ResponseEntity.ok()
