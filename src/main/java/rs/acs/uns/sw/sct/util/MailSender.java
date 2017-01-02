@@ -39,12 +39,13 @@ public class MailSender {
      * @param address email address of the user
      */
     @Async
-    public void sendRegistrationMail(String name, String address){
+    public void sendRegistrationMail(String name, String address, String tokenValue){
         Map<String, Object> model = new HashMap<>();
         model.put("name", name);
 
         try {
-            String tokenValue = generateToken(address);
+            if (tokenValue == null)
+                tokenValue = generateToken(address);
             model.put("link", Constants.MailParameters.TOKEN_CONFIRM_LINK + tokenValue);
 
             // Rendering html page for email
