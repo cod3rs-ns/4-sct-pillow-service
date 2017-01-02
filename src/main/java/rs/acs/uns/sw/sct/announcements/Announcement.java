@@ -73,7 +73,7 @@ public class Announcement implements Serializable {
     @OneToMany(mappedBy = "announcement", fetch = FetchType.LAZY)
     private Set<Comment> comments = new HashSet<>(0);
 
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private Set<Image> images = new HashSet<>(0);
 
     public Long getId() {
@@ -366,6 +366,7 @@ public class Announcement implements Serializable {
      */
     public AnnouncementDTO convertToDTO() {
         AnnouncementDTO dto = new AnnouncementDTO();
+
         dto.setType(this.type);
         dto.setId(id);
         dto.setExpirationDate(expirationDate);
@@ -373,6 +374,9 @@ public class Announcement implements Serializable {
         dto.setPhoneNumber(phoneNumber);
         dto.setPrice(price);
         dto.setRealEstate(realEstate);
+        dto.setAuthor(author.convertToDTO());
+        dto.setVerified(verified);
+        dto.dateAnnounced(dateAnnounced);
 
         return dto;
     }
