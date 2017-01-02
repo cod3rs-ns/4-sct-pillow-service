@@ -64,7 +64,7 @@ public interface AnnouncementConstants {
 
     // Companies
     Long COMPANY_ID = 1L;
-    Integer COUNT_OF_COMPANY_ANN = 3;
+    Integer COUNT_OF_COMPANY_ANN = 2;
 
     // 1st page with 10 elements
     Pageable PAGEABLE = new PageRequest(0, 10, Sort.Direction.ASC, "dateAnnounced", "price");

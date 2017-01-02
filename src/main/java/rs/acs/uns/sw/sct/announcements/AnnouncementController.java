@@ -25,11 +25,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.stream.Collectors;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Announcement.
@@ -281,7 +281,7 @@ public class AnnouncementController {
      * GET  /announcements/user/:authorId : get all the announcements created by specified User ID
      *
      * @param authorId the id of the announcements author
-     * @param pageable  the pagination information
+     * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
@@ -289,12 +289,32 @@ public class AnnouncementController {
     @GetMapping("/announcements/user/{authorId}")
     public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsByAuthor(@PathVariable Long authorId, Pageable pageable)
             throws URISyntaxException {
-        Page<AnnouncementDTO> page = announcementService.findAllByCompany(authorId, pageable)
-                .map(announcement -> announcement.convertToDTO());
+        Page<AnnouncementDTO> page = announcementService.findAllByAuthor(authorId, pageable)
+                .map(Announcement::convertToDTO);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/user");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    /**
+     * GET  /announcements/user/:authorId/:deleted : get all the announcements created by specified User ID and status - deleted
+     *
+     * @param authorId the id of the announcements author
+     * @param deleted  announcement's deleted status
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/announcements/user/{authorId}/{deleted}")
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsByAuthorAndStatus(
+            @PathVariable Long authorId,
+            @PathVariable Boolean deleted,
+            Pageable pageable) throws URISyntaxException {
+        Page<AnnouncementDTO> page = announcementService.findAllByAuthorAndStatus(authorId, deleted, pageable)
+                .map(Announcement::convertToDTO);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/user");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
 
     /**
      * GET  /announcements/top/company/:companyId : get top three announcements created by users of the same company.
@@ -437,21 +457,21 @@ public class AnnouncementController {
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/search")
     public ResponseEntity<List<AnnouncementDTO>> search(@RequestParam(value = "startPrice", required = false) Double startPrice, //NOSONAR - there is no other way
-                                                     @RequestParam(value = "endPrice", required = false) Double endPrice,
-                                                     @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-                                                     @RequestParam(value = "type", required = false) String type,
-                                                     @RequestParam(value = "authorName", required = false) String authorName,
-                                                     @RequestParam(value = "authorSurname", required = false) String authorSurname,
-                                                     @RequestParam(value = "startArea", required = false) Double startArea,
-                                                     @RequestParam(value = "endArea", required = false) Double endArea,
-                                                     @RequestParam(value = "heatingType", required = false) String heatingType,
-                                                     @RequestParam(value = "name", required = false) String name,
-                                                     @RequestParam(value = "country", required = false) String country,
-                                                     @RequestParam(value = "cityRegion", required = false) String cityRegion,
-                                                     @RequestParam(value = "city", required = false) String city,
-                                                     @RequestParam(value = "street", required = false) String street,
-                                                     @RequestParam(value = "streetNumber", required = false) String streetNumber,
-                                                     Pageable pageable) {
+                                                        @RequestParam(value = "endPrice", required = false) Double endPrice,
+                                                        @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
+                                                        @RequestParam(value = "type", required = false) String type,
+                                                        @RequestParam(value = "authorName", required = false) String authorName,
+                                                        @RequestParam(value = "authorSurname", required = false) String authorSurname,
+                                                        @RequestParam(value = "startArea", required = false) Double startArea,
+                                                        @RequestParam(value = "endArea", required = false) Double endArea,
+                                                        @RequestParam(value = "heatingType", required = false) String heatingType,
+                                                        @RequestParam(value = "name", required = false) String name,
+                                                        @RequestParam(value = "country", required = false) String country,
+                                                        @RequestParam(value = "cityRegion", required = false) String cityRegion,
+                                                        @RequestParam(value = "city", required = false) String city,
+                                                        @RequestParam(value = "street", required = false) String street,
+                                                        @RequestParam(value = "streetNumber", required = false) String streetNumber,
+                                                        Pageable pageable) {
 
         AnnouncementSearchWrapper wrap = new AnnouncementSearchWrapper()
                 .startPrice(startPrice).endPrice(endPrice)

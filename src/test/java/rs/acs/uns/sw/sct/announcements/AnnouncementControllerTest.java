@@ -1232,12 +1232,33 @@ public class AnnouncementControllerTest {
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member" )
     public void getAllAnnouncementsByAuthorId() throws Exception {
-
         // Get all announcements from same company
         restAnnouncementMockMvc.perform(get("/api/announcements/user/{authorId}", 12L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(jsonPath("$.[*].author.id").value(everyItem(comparesEqualTo(12L))))
+                .andExpect(jsonPath("$.[*].author.id").value(everyItem(comparesEqualTo(12))))
+                .andReturn();
+    }
+
+    /**
+     * Tests getting all Announcements from same user as an Avertiser with provided status - deleted
+     * <p>
+     * This test retrieves all Announcement objects from the specified author with an Advertiser's authority.
+     * It then checks whether the objects' author ids are equals to path
+     * param that was passed and count them.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member" )
+    public void getAllAnnouncementsByAuthorIdAndStatus() throws Exception {
+        // Get all announcements from same company
+        restAnnouncementMockMvc.perform(get("/api/announcements/user/{authorId}/{deleted}", 12L, false))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].author.id").value(everyItem(comparesEqualTo(12))))
+                .andExpect(jsonPath("$", hasSize(1)))
                 .andReturn();
     }
 
