@@ -373,12 +373,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
                 .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
-                // .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
-                // .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)));
     }
 
     /**
@@ -422,12 +420,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.id").value(announcement.getId().intValue()))
                 .andExpect(jsonPath("$.price").value(DEFAULT_PRICE))
                 .andExpect(jsonPath("$.dateAnnounced").value(String.valueOf(DEFAULT_DATE_ANNOUNCED.getTime())))
-                // .andExpect(jsonPath("$.dateModified").value(String.valueOf(DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.expirationDate").value(String.valueOf(DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER))
                 .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
                 .andExpect(jsonPath("$.verified").value(DEFAULT_VERIFIED));
-                // .andExpect(jsonPath("$.deleted").value(DEFAULT_DELETED));
     }
 
     /**
@@ -558,8 +554,6 @@ public class AnnouncementControllerTest {
         // Initialize the database
         announcementService.save(announcement);
 
-        int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
-
         // Update the announcement
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
@@ -601,7 +595,7 @@ public class AnnouncementControllerTest {
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
 
-        // Validate the database is empty
+        // Validate the database has one announcement less than before
         List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(databaseSizeBeforeDelete - 1);
     }
@@ -1100,12 +1094,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
                 .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
-                // .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
-                // .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)))
     }
 
     /**
@@ -1139,12 +1131,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
                 .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
-                // .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
-                //.andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
     }
 
     /**
@@ -1199,12 +1189,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
                 .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
-                // .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
-                // .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
     }
 
 

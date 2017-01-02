@@ -76,6 +76,25 @@ public class Announcement implements Serializable {
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private Set<Image> images = new HashSet<>(0);
 
+    /**
+     * Converting announcement to DTO object
+     *
+     * @return AnnouncementDTO (dto)
+     */
+    public AnnouncementDTO convertToDTO() {
+        return new AnnouncementDTO()
+                .id(id)
+                .type(type)
+                .dateAnnounced(dateAnnounced)
+                .expirationDate(expirationDate)
+                .images(images)
+                .phoneNumber(phoneNumber)
+                .price(price)
+                .realEstate(realEstate)
+                .author(author.convertToDTO())
+                .verified(verified);
+    }
+
     public Long getId() {
         return id;
     }
@@ -106,7 +125,7 @@ public class Announcement implements Serializable {
     /**
      * Setter used for 'method chaining'.
      *
-     * @param price announcement rice
+     * @param price announcement price
      * @return Announcement (this)
      */
     public Announcement price(Double price) {
@@ -357,27 +376,5 @@ public class Announcement implements Serializable {
                 ", deleted=" + deleted +
                 ", realEstate=" + realEstate +
                 "}";
-    }
-
-    /**
-     * Converting announcement to DTO object
-     *
-     * @return AnnouncementDTO (dto)
-     */
-    public AnnouncementDTO convertToDTO() {
-        AnnouncementDTO dto = new AnnouncementDTO();
-
-        dto.setType(this.type);
-        dto.setId(id);
-        dto.setExpirationDate(expirationDate);
-        dto.setImages(images);
-        dto.setPhoneNumber(phoneNumber);
-        dto.setPrice(price);
-        dto.setRealEstate(realEstate);
-        dto.setAuthor(author.convertToDTO());
-        dto.setVerified(verified);
-        dto.dateAnnounced(dateAnnounced);
-
-        return dto;
     }
 }

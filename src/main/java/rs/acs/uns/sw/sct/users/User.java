@@ -63,6 +63,26 @@ public class User implements Serializable {
     @Column(nullable = false)
     private Boolean deleted = false;
 
+    /**
+     * Converting user to DTO object
+     *
+     * @return UserDTO (dto)
+     */
+    public UserDTO convertToDTO() {
+
+        return new UserDTO()
+                .id(id)
+                .email(email)
+                .username(username)
+                .firstName(firstName)
+                .lastName(lastName)
+                .phoneNumber(phoneNumber)
+                .type(type)
+                .company(company)
+                .companyVerified(companyVerified)
+                .imagePath(imagePath);
+    }
+
     public Long getId() {
         return id;
     }
@@ -324,28 +344,5 @@ public class User implements Serializable {
                 ", imagePath='" + imagePath + '\'' +
                 ", deleted=" + deleted +
                 '}';
-    }
-
-    /**
-     * Converting user to DTO object
-     *
-     * @return UserDTO (dto)
-     */
-    public UserDTO convertToDTO() {
-
-        UserDTO dto = new UserDTO();
-
-        dto.setId(id);
-        dto.setEmail(email);
-        dto.setUsername(username);
-        dto.setFirstName(firstName);
-        dto.setLastName(lastName);
-        dto.setPhoneNumber(phoneNumber);
-        dto.setType(type);
-        dto.setCompany(company);
-        dto.setCompanyVerified(companyVerified);
-        dto.setImagePath(imagePath);
-
-        return dto;
     }
 }

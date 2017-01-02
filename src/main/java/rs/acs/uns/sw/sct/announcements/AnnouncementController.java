@@ -90,7 +90,7 @@ public class AnnouncementController {
             }
         }
 
-        Announcement announcement = annDTO.convertToAnnouncement(user);
+        Announcement announcement = annDTO.convertToAnnouncement();
 
         Announcement result = announcementService.save(announcement);
         return ResponseEntity
@@ -269,9 +269,10 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/company/{companyId}")
-    public ResponseEntity<List<Announcement>> getAllAnnouncementsByCompanyId(@PathVariable Long companyId, Pageable pageable)
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsByCompanyId(@PathVariable Long companyId, Pageable pageable)
             throws URISyntaxException {
-        Page<Announcement> page = announcementService.findAllByCompany(companyId, pageable);
+        Page<AnnouncementDTO> page = announcementService.findAllByCompany(companyId, pageable)
+                .map(announcement -> announcement.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/company");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -286,9 +287,10 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/user/{authorId}")
-    public ResponseEntity<List<Announcement>> getAllAnnouncementsByAuthor(@PathVariable Long authorId, Pageable pageable)
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsByAuthor(@PathVariable Long authorId, Pageable pageable)
             throws URISyntaxException {
-        Page<Announcement> page = announcementService.findAllByCompany(authorId, pageable);
+        Page<AnnouncementDTO> page = announcementService.findAllByCompany(authorId, pageable)
+                .map(announcement -> announcement.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/user");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }

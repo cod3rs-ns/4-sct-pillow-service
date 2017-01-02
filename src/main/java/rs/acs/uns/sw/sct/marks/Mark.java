@@ -25,6 +25,7 @@ public class Mark implements Serializable {
     @Column(nullable = false)
     private Integer value;
 
+    @NotNull
     @ManyToOne
     private User grader;
 
@@ -37,9 +38,9 @@ public class Mark implements Serializable {
     /**
      * Converts DTO to Mark entity
      *
-     * @return Mark for further use
+     * @return MarkDTO for further use
      */
-    public MarkDTO convertToDto() {
+    public MarkDTO convertToDTO() {
         return new MarkDTO()
                 .id(id)
                 .value(value)

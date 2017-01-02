@@ -43,7 +43,7 @@ public class Comment implements Serializable {
      *
      * @return CommentDTO for further use
      */
-    public CommentDTO convertToDto() {
+    public CommentDTO convertToDTO() {
         return new CommentDTO()
                 .id(id)
                 .content(content)

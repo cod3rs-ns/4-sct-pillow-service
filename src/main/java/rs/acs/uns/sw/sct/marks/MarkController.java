@@ -79,7 +79,7 @@ public class MarkController {
         return ResponseEntity
                 .created(new URI("/api/marks/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.MARK, result.getId().toString()))
-                .body(result.convertToDto());
+                .body(result.convertToDTO());
     }
 
     /**
@@ -116,7 +116,7 @@ public class MarkController {
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.MARK, mark.getId().toString()))
-                .body(result.convertToDto());
+                .body(result.convertToDTO());
     }
 
     /**
@@ -131,7 +131,7 @@ public class MarkController {
     public ResponseEntity<List<MarkDTO>> getAllMarks(Pageable pageable) throws URISyntaxException {
         // TODO 3 - this option should not be allowed
         Page<MarkDTO> page = markService.findAll(pageable)
-                .map(mark -> mark.convertToDto());
+                .map(mark -> mark.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/marks");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -148,7 +148,7 @@ public class MarkController {
         Mark mark = markService.findOne(id);
         return Optional.ofNullable(mark)
                 .map(result -> new ResponseEntity<>(
-                        result.convertToDto(),
+                        result.convertToDTO(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -166,7 +166,7 @@ public class MarkController {
     public ResponseEntity<List<MarkDTO>> getAllAnnouncementsByAnnouncementId(@PathVariable Long announcementId, Pageable pageable)
             throws URISyntaxException {
         Page<MarkDTO> page = markService.findAllByAnnouncement(announcementId, pageable)
-                .map(mark -> mark.convertToDto());
+                .map(mark -> mark.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/marks/announcement");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -184,7 +184,7 @@ public class MarkController {
     public ResponseEntity<List<MarkDTO>> getAllAnnouncementsByUserId(@PathVariable Long userId, Pageable pageable)
             throws URISyntaxException {
         Page<MarkDTO> page = markService.findAllByUser(userId, pageable)
-                .map(mark -> mark.convertToDto());
+                .map(mark -> mark.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/marks/user");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }

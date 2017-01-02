@@ -1,7 +1,6 @@
 package rs.acs.uns.sw.sct.announcements;
 
 import rs.acs.uns.sw.sct.realestates.RealEstate;
-import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserDTO;
 
 import javax.validation.constraints.NotNull;
@@ -46,13 +45,12 @@ public class AnnouncementDTO implements Serializable {
     /**
      * Converts DTO to Announcement entity
      *
-     * @param user author of the announcement
      * @return announcement for further use
      */
-    public Announcement convertToAnnouncement(User user) {
+    public Announcement convertToAnnouncement() {
         return new Announcement()
                 .id(id)
-                .author(user)
+                .author(author.convertToUser())
                 .images(images)
                 .price(price)
                 .dateAnnounced(new Date())
