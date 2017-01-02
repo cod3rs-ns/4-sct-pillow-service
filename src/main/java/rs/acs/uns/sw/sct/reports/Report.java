@@ -45,6 +45,22 @@ public class Report implements Serializable {
     @JoinColumn()
     private Announcement announcement;
 
+    /**
+     * Converts Report to DTO entity
+     *
+     * @return ReportDTO for further use
+     */
+    public ReportDTO convertToDTO() {
+        return new ReportDTO()
+                .id(id)
+                .email(email)
+                .type(type)
+                .content(content)
+                .status(status)
+                .reporter((reporter != null) ? reporter.convertToDTO() : null)
+                .announcement(announcement.convertToDTO());
+    }
+
     public Long getId() {
         return id;
     }

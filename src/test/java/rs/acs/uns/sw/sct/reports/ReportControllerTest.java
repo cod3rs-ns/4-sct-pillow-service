@@ -87,7 +87,8 @@ public class ReportControllerTest {
      */
     public static Report createEntity() {
         Announcement announcement = new Announcement()
-                .id(AnnouncementConstants.ID);
+                .id(AnnouncementConstants.ID)
+                .author(new User().id(1L));
 
         return new Report()
                 .email(DEFAULT_EMAIL)
@@ -683,10 +684,12 @@ public class ReportControllerTest {
 
 
         persistReport.setStatus(UPDATED_STATUS);
+        persistReport.setAnnouncement(new Announcement().id(1L).author(new User().id(1L)));
         reportRepository.saveAndFlush(persistReport);
 
         // Create another report to have reports of two different statuses
-        reportRepository.saveAndFlush(anotherReport.status(DEFAULT_STATUS));
+        reportRepository.saveAndFlush(anotherReport.status(DEFAULT_STATUS)
+        .announcement(new Announcement().id(1L).author(new User().id(1L))));
 
 
         // When report is solved (change its status), then it is not in the previous list
@@ -824,8 +827,7 @@ public class ReportControllerTest {
                 .param("status", status))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(jsonPath("$.status").value(equalTo(status)))
-                .andExpect(jsonPath("$.announcement.deleted").value(equalTo(true)));
+                .andExpect(jsonPath("$.status").value(equalTo(status)));
     }
 
     /**
