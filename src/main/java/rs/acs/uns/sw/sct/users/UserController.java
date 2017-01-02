@@ -166,7 +166,7 @@ public class UserController {
         User result = userService.save(user);
 
         // TODO 7 - this code is probably commented for development purpose
-        // mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
+        mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail(), null);
 
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.USER, result.getId().toString()))

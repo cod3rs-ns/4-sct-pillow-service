@@ -44,16 +44,14 @@ public class VerificationTokenController {
         VerificationToken verificationToken = verificationTokenService.findOneByToken(token);
 
         if (verificationToken == null) {
-            // TODO 10 - create page for registration-confirm-wrong-link
-            // response.sendRedirect#("");-
+            response.sendRedirect(Constants.VerificationPages.WRONG);
             return;
         }
 
         Date currentTime = new Date();
 
         if (currentTime.after(verificationToken.getExpiryDate())) {
-            // TODO 11 - create page for registration-confirm-expired-link
-            // response.sendRedirect("");-
+            response.sendRedirect(Constants.VerificationPages.EXPIRED);
             return;
         }
 
@@ -63,25 +61,23 @@ public class VerificationTokenController {
         userService.save(user);
         verificationTokenService.delete(verificationToken.getId());
 
-        // TODO 12 - create page for registration-confirm-success
-        // response.sendRedirect("");-
+        response.sendRedirect(Constants.VerificationPages.SUCCESS);
     }
 
 
     /**
-     * PUT  /registration-token-resend/:userId : resending verification token.
+     * PUT  /registration-token-resend/:username : resending verification token.
      *
-     * @param userId id of user hwo request token resending
+     * @param username username of user hwo request token resending
      * @return the ResponseEntity with status 200 (OK) and with body the updated token
      */
-    @PutMapping("/registration-token-resend/{userId}")
-    public ResponseEntity<VerificationToken> resendToken(@PathVariable Long userId) {
-        User user = userService.getUserById(userId);
+    @PutMapping("/registration-token-resend/{username}")
+    public ResponseEntity<VerificationToken> resendToken(@PathVariable String username) {
+        User user = userService.getUserByUsername(username);
         if (user == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         VerificationToken token = verificationTokenService.findByUserId(user.getId());
-
         // Generate VerificationToken
         Date date = new Date();
         date.setTime(date.getTime() + Constants.MailParameters.TOKEN_EXPIRE_TIME);
@@ -93,9 +89,7 @@ public class VerificationTokenController {
         VerificationToken tkn = verificationTokenService.save(token);
 
         // Async sending mail
-        mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
-
+        mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail(), tkn.getToken());
         return new ResponseEntity<>(tkn, HttpStatus.OK);
     }
-
 }

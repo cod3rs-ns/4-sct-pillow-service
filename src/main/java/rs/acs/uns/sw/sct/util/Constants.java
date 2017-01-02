@@ -99,4 +99,16 @@ public final class Constants {
         private MailParameters(){
         }
     }
+
+    /**
+     * Constants for Verification through email.
+     */
+    public static final class VerificationPages {
+        public static final String SUCCESS = "http://localhost:8080/#/registration-confirm-success";
+        public static final String WRONG = "http://localhost:8080/#/registration-wrong-token";
+        public static final String EXPIRED = "http://localhost:8080/#/registration-token-expired";
+
+        private VerificationPages(){
+        }
+    }
 }
