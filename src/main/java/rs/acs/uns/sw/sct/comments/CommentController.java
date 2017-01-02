@@ -67,7 +67,7 @@ public class CommentController {
                 .headers(HeaderUtil.createEntityCreationAlert(
                         Constants.EntityNames.COMMENT,
                         result.getId().toString()))
-                .body(result.convertToDto());
+                .body(result.convertToDTO());
     }
 
     /**
@@ -106,7 +106,7 @@ public class CommentController {
                 .headers(HeaderUtil.createEntityUpdateAlert(
                         Constants.EntityNames.COMMENT,
                         comment.getId().toString()))
-                .body(result.convertToDto());
+                .body(result.convertToDTO());
     }
 
 
@@ -122,7 +122,7 @@ public class CommentController {
     public ResponseEntity<List<CommentDTO>> getAllComments(Pageable pageable) throws URISyntaxException {
         // TODO 1 - this method should not be allowed for anyone
         Page<CommentDTO> page = commentService.findAll(pageable)
-                .map(comment -> comment.convertToDto());
+                .map(comment -> comment.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/comments");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -139,7 +139,7 @@ public class CommentController {
         Comment comment = commentService.findOne(id);
         return Optional.ofNullable(comment)
                 .map(result -> new ResponseEntity<>(
-                        result.convertToDto(),
+                        result.convertToDTO(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -158,7 +158,7 @@ public class CommentController {
             throws URISyntaxException {
 
         Page<CommentDTO> page = commentService.findAllByAnnouncement(announcementId, pageable)
-                .map(comment -> comment.convertToDto());
+                .map(comment -> comment.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/comments/announcement");
 
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);

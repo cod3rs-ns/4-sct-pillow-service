@@ -28,14 +28,14 @@ public class CommentDTO {
     /**
      * Converts DTO to Comment entity
      *
-     * @return announcement for further use
+     * @return comment for further use
      */
     public Comment convertToComment() {
         return new Comment()
                 .id(id)
                 .content(content)
                 .date(date)
-                .announcement(announcement.convertToAnnouncement(announcement.getAuthor().convertToUser()))
+                .announcement(announcement.convertToAnnouncement())
                 .author((author != null) ? author.convertToUser() : null);
 
     }

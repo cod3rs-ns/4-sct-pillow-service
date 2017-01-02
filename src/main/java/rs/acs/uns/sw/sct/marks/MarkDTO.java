@@ -17,6 +17,7 @@ public class MarkDTO {
     @NotNull
     private Integer value;
 
+    @NotNull
     private UserDTO grader;
 
     private UserDTO gradedAnnouncer;
@@ -26,7 +27,7 @@ public class MarkDTO {
     /**
      * Converts DTO to Mark entity
      *
-     * @return announcement for further use
+     * @return Mark for further use
      */
     public Mark convertToMark() {
         return new Mark()
@@ -34,7 +35,7 @@ public class MarkDTO {
                 .value(value)
                 .grader((grader != null) ? grader.convertToUser() : null)
                 .gradedAnnouncer((gradedAnnouncer != null) ? gradedAnnouncer.convertToUser() : null)
-                .announcement(announcement.convertToAnnouncement(announcement.getAuthor().convertToUser()));
+                .announcement(announcement.convertToAnnouncement());
 
     }
 
