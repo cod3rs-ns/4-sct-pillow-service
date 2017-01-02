@@ -45,7 +45,7 @@ public class MarkController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PostMapping("/marks")
-    public ResponseEntity<Mark> createMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
+    public ResponseEntity<MarkDTO> createMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
         if (mark.getId() != null) {
             return ResponseEntity
                     .badRequest()
@@ -76,7 +76,7 @@ public class MarkController {
         return ResponseEntity
                 .created(new URI("/api/marks/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.MARK, result.getId().toString()))
-                .body(result);
+                .body(result.convertToDto());
     }
 
     /**
@@ -90,7 +90,7 @@ public class MarkController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/marks")
-    public ResponseEntity<Mark> updateMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
+    public ResponseEntity<MarkDTO> updateMark(@Valid @RequestBody Mark mark) throws URISyntaxException {
         if (mark.getId() == null) {
             return createMark(mark);
         }
@@ -111,7 +111,7 @@ public class MarkController {
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.MARK, mark.getId().toString()))
-                .body(result);
+                .body(result.convertToDto());
     }
 
     /**
@@ -123,9 +123,10 @@ public class MarkController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/marks")
-    public ResponseEntity<List<Mark>> getAllMarks(Pageable pageable) throws URISyntaxException {
+    public ResponseEntity<List<MarkDTO>> getAllMarks(Pageable pageable) throws URISyntaxException {
         // TODO 3 - this option should not be allowed
-        Page<Mark> page = markService.findAll(pageable);
+        Page<MarkDTO> page = markService.findAll(pageable)
+                .map(mark -> mark.convertToDto());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/marks");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -138,11 +139,11 @@ public class MarkController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/marks/{id}")
-    public ResponseEntity<Mark> getMark(@PathVariable Long id) {
+    public ResponseEntity<MarkDTO> getMark(@PathVariable Long id) {
         Mark mark = markService.findOne(id);
         return Optional.ofNullable(mark)
                 .map(result -> new ResponseEntity<>(
-                        result,
+                        result.convertToDto(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -157,9 +158,10 @@ public class MarkController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/marks/announcement/{announcementId}")
-    public ResponseEntity<List<Mark>> getAllAnnouncementsByAnnouncementId(@PathVariable Long announcementId, Pageable pageable)
+    public ResponseEntity<List<MarkDTO>> getAllAnnouncementsByAnnouncementId(@PathVariable Long announcementId, Pageable pageable)
             throws URISyntaxException {
-        Page<Mark> page = markService.findAllByAnnouncement(announcementId, pageable);
+        Page<MarkDTO> page = markService.findAllByAnnouncement(announcementId, pageable)
+                .map(mark -> mark.convertToDto());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/marks/announcement");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -174,9 +176,10 @@ public class MarkController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/marks/user/{userId}")
-    public ResponseEntity<List<Mark>> getAllAnnouncementsByUserId(@PathVariable Long userId, Pageable pageable)
+    public ResponseEntity<List<MarkDTO>> getAllAnnouncementsByUserId(@PathVariable Long userId, Pageable pageable)
             throws URISyntaxException {
-        Page<Mark> page = markService.findAllByUser(userId, pageable);
+        Page<MarkDTO> page = markService.findAllByUser(userId, pageable)
+                .map(mark -> mark.convertToDto());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/marks/user");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }

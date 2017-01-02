@@ -38,6 +38,20 @@ public class Comment implements Serializable {
     @JoinColumn()
     private User author;
 
+    /**
+     * Converts DTO to Comment entity
+     *
+     * @return Comment for further use
+     */
+    public CommentDTO convertToDto() {
+        return new CommentDTO()
+                .id(id)
+                .content(content)
+                .date(date)
+                .author((author != null) ? author.convertToDTO() : null)
+                .announcement(announcement.convertToDTO());
+    }
+
     public Long getId() {
         return id;
     }

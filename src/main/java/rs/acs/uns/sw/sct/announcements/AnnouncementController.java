@@ -25,11 +25,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.stream.Collectors;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 
 /**
  * REST controller for managing Announcement.
@@ -67,7 +67,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PostMapping("/announcements")
-    public ResponseEntity<Announcement> createAnnouncement(@Valid @RequestBody AnnouncementDTO annDTO) throws URISyntaxException {
+    public ResponseEntity<AnnouncementDTO> createAnnouncement(@Valid @RequestBody AnnouncementDTO annDTO) throws URISyntaxException {
         if (annDTO.getId() != null) {
             return ResponseEntity
                     .badRequest()
@@ -98,7 +98,7 @@ public class AnnouncementController {
                 .headers(HeaderUtil.createEntityCreationAlert(
                         Constants.EntityNames.ANNOUNCEMENT,
                         result.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
     /**
@@ -112,7 +112,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements")
-    public ResponseEntity<Announcement> updateAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
+    public ResponseEntity<AnnouncementDTO> updateAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
         if (announcement.getId() == null) {
             return createAnnouncement(announcement.convertToDTO());
         }
@@ -135,7 +135,7 @@ public class AnnouncementController {
                 .headers(HeaderUtil.createEntityUpdateAlert(
                         Constants.EntityNames.ANNOUNCEMENT,
                         announcement.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
     /**
@@ -150,7 +150,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements/{id}")
-    public ResponseEntity<Announcement> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException { // NOSONAR
+    public ResponseEntity<AnnouncementDTO> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException { // NOSONAR
         if (id == null || !data.containsKey("expirationDate"))
             return ResponseEntity
                     .badRequest()
@@ -216,7 +216,7 @@ public class AnnouncementController {
                 .headers(HeaderUtil.createEntityUpdateAlert(
                         Constants.EntityNames.ANNOUNCEMENT,
                         persistedAnnouncement.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
     /**
@@ -228,9 +228,10 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements")
-    public ResponseEntity<List<Announcement>> getAllAnnouncements(Pageable pageable)
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncements(Pageable pageable)
             throws URISyntaxException {
-        Page<Announcement> page = announcementService.findAll(pageable);
+        Page<AnnouncementDTO> page = announcementService.findAll(pageable)
+                .map(announcement -> announcement.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -245,14 +246,15 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/deleted/{status}")
-    public ResponseEntity<List<Announcement>> getAllAnnouncementsByStatus(Pageable pageable, @PathVariable Boolean status)
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsByStatus(Pageable pageable, @PathVariable Boolean status)
             throws URISyntaxException {
 
         // If User is not ADMIN and want to get DELETED announcements
         if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && status)
             return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
 
-        Page<Announcement> page = announcementService.findAllByStatus(status, pageable);
+        Page<AnnouncementDTO> page = announcementService.findAllByStatus(status, pageable)
+                .map(announcement -> announcement.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/deleted");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -275,6 +277,24 @@ public class AnnouncementController {
     }
 
     /**
+     * GET  /announcements/user/:authorId : get all the announcements created by specified User ID
+     *
+     * @param authorId the id of the announcements author
+     * @param pageable  the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/announcements/user/{authorId}")
+    public ResponseEntity<List<Announcement>> getAllAnnouncementsByAuthor(@PathVariable Long authorId, Pageable pageable)
+            throws URISyntaxException {
+        Page<Announcement> page = announcementService.findAllByCompany(authorId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/user");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+
+    /**
      * GET  /announcements/top/company/:companyId : get top three announcements created by users of the same company.
      *
      * @param companyId the id of the company
@@ -283,9 +303,11 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/top/company/{companyId}")
-    public ResponseEntity<List<Announcement>> getTopAnnouncementsByCompanyId(@PathVariable Long companyId)
+    public ResponseEntity<List<AnnouncementDTO>> getTopAnnouncementsByCompanyId(@PathVariable Long companyId)
             throws URISyntaxException {
-        List<Announcement> list = announcementService.findTopByCompany(companyId);
+        List<AnnouncementDTO> list = announcementService.findTopByCompany(companyId)
+                .stream().map(announcement -> announcement.convertToDTO())
+                .collect(Collectors.toList());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -297,11 +319,11 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/{id}")
-    public ResponseEntity<Announcement> getAnnouncement(@PathVariable Long id) {
+    public ResponseEntity<AnnouncementDTO> getAnnouncement(@PathVariable Long id) {
         final Announcement announcement = announcementService.findOne(id);
         return Optional.ofNullable(announcement)
                 .map(result -> new ResponseEntity<>(
-                        result,
+                        result.convertToDTO(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -354,7 +376,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/announcements/{announcementId}/verify")
-    public ResponseEntity<Announcement> verifyAnnouncement(@PathVariable Long announcementId) throws URISyntaxException {
+    public ResponseEntity<AnnouncementDTO> verifyAnnouncement(@PathVariable Long announcementId) throws URISyntaxException {
         Announcement announcement = announcementService.findOne(announcementId);
         if (announcement == null) {
             return ResponseEntity
@@ -385,7 +407,7 @@ public class AnnouncementController {
                 .headers(HeaderUtil.createEntityUpdateAlert(
                         Constants.EntityNames.ANNOUNCEMENT,
                         announcement.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
 
@@ -412,7 +434,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/search")
-    public ResponseEntity<List<Announcement>> search(@RequestParam(value = "startPrice", required = false) Double startPrice, //NOSONAR - there is no other way
+    public ResponseEntity<List<AnnouncementDTO>> search(@RequestParam(value = "startPrice", required = false) Double startPrice, //NOSONAR - there is no other way
                                                      @RequestParam(value = "endPrice", required = false) Double endPrice,
                                                      @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
                                                      @RequestParam(value = "type", required = false) String type,
@@ -439,7 +461,10 @@ public class AnnouncementController {
                 .city(city).street(street)
                 .streetNumber(streetNumber);
 
-        List<Announcement> list = announcementService.findBySearchTerm(wrap, pageable);
+        List<AnnouncementDTO> list = announcementService.findBySearchTerm(wrap, pageable)
+                .stream().map(announcement -> announcement.convertToDTO())
+                .collect(Collectors.toList());
+
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

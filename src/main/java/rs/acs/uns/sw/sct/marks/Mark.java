@@ -34,6 +34,20 @@ public class Mark implements Serializable {
     @ManyToOne
     private Announcement announcement;
 
+    /**
+     * Converts DTO to Mark entity
+     *
+     * @return Mark for further use
+     */
+    public MarkDTO convertToDto() {
+        return new MarkDTO()
+                .id(id)
+                .value(value)
+                .grader(grader.convertToDTO())
+                .gradedAnnouncer((gradedAnnouncer != null) ? gradedAnnouncer.convertToDTO() : null)
+                .announcement((announcement != null) ? announcement.convertToDTO() : null);
+    }
+
     public Long getId() {
         return id;
     }
