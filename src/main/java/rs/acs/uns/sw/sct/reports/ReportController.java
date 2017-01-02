@@ -52,7 +52,7 @@ public class ReportController {
      */
     @PreAuthorize("permitAll()")
     @PostMapping("/reports")
-    public ResponseEntity<Report> createReport(@Valid @RequestBody Report report) throws URISyntaxException {
+    public ResponseEntity<ReportDTO> createReport(@Valid @RequestBody Report report) throws URISyntaxException {
         if (report.getId() != null) {
             return ResponseEntity
                     .badRequest()
@@ -110,7 +110,7 @@ public class ReportController {
         return ResponseEntity
                 .created(new URI("/api/reports/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.REPORT, result.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
 
@@ -125,7 +125,7 @@ public class ReportController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/reports")
-    public ResponseEntity<Report> updateReport(@Valid @RequestBody Report report) throws URISyntaxException {
+    public ResponseEntity<ReportDTO> updateReport(@Valid @RequestBody Report report) throws URISyntaxException {
         if (report.getId() == null) {
             return createReport(report);
         }
@@ -133,7 +133,7 @@ public class ReportController {
         Report result = reportService.save(report);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
     /**
@@ -145,9 +145,10 @@ public class ReportController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/reports")
-    public ResponseEntity<List<Report>> getAllReports(Pageable pageable)
+    public ResponseEntity<List<ReportDTO>> getAllReports(Pageable pageable)
             throws URISyntaxException {
-        Page<Report> page = reportService.findAll(pageable);
+        Page<ReportDTO> page = reportService.findAll(pageable)
+                .map(report -> report.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -160,11 +161,11 @@ public class ReportController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/reports/{id}")
-    public ResponseEntity<Report> getReport(@PathVariable Long id) {
+    public ResponseEntity<ReportDTO> getReport(@PathVariable Long id) {
         Report report = reportService.findOne(id);
         return Optional.ofNullable(report)
                 .map(result -> new ResponseEntity<>(
-                        result,
+                        result.convertToDTO(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -202,9 +203,10 @@ public class ReportController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/reports/status/{status}")
-    public ResponseEntity<List<Report>> getAllReportsByStatus(Pageable pageable, @PathVariable String status)
+    public ResponseEntity<List<ReportDTO>> getAllReportsByStatus(Pageable pageable, @PathVariable String status)
             throws URISyntaxException {
-        Page<Report> page = reportService.findByStatus(status, pageable);
+        Page<ReportDTO> page = reportService.findByStatus(status, pageable)
+                .map(report -> report.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports/status");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -219,9 +221,10 @@ public class ReportController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/reports/author/{email:.+}")
-    public ResponseEntity<List<Report>> getAllReportsByAuthorEmail(Pageable pageable, @PathVariable String email)
+    public ResponseEntity<List<ReportDTO>> getAllReportsByAuthorEmail(Pageable pageable, @PathVariable String email)
             throws URISyntaxException {
-        Page<Report> page = reportService.findByAuthorEmail(email, pageable);
+        Page<ReportDTO> page = reportService.findByAuthorEmail(email, pageable)
+                .map(report -> report.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports/author");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -236,7 +239,7 @@ public class ReportController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/reports/resolve/{id}")
-    public ResponseEntity<Report> resolveReport(@PathVariable Long id, @RequestParam(value = "status") String status) {
+    public ResponseEntity<ReportDTO> resolveReport(@PathVariable Long id, @RequestParam(value = "status") String status) {
         Report report = reportService.findOne(id);
         // OPTION 1 - user is trying to resolve report that doesn't exist
         if (report == null)
@@ -280,6 +283,6 @@ public class ReportController {
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 }

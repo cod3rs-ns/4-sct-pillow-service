@@ -39,9 +39,9 @@ public class Comment implements Serializable {
     private User author;
 
     /**
-     * Converts DTO to Comment entity
+     * Converts Comment to DTO entity
      *
-     * @return Comment for further use
+     * @return CommentDTO for further use
      */
     public CommentDTO convertToDto() {
         return new CommentDTO()

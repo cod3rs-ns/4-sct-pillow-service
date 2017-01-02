@@ -35,8 +35,8 @@ public class CommentDTO {
                 .id(id)
                 .content(content)
                 .date(date)
-                .announcement(announcement.convertToAnnouncement(author.convertToUser()))
-                .author(author.convertToUser());
+                .announcement(announcement.convertToAnnouncement(announcement.getAuthor().convertToUser()))
+                .author((author != null) ? author.convertToUser() : null);
 
     }
 
