@@ -40,7 +40,7 @@ public final class AnnouncementPredicates {
         if (searchWrapper.getHeatingType() != null)
             where.and(announcement.realEstate.heatingType.containsIgnoreCase(searchWrapper.getHeatingType()));
         if (searchWrapper.getName() != null)
-            where.and(announcement.realEstate.name.containsIgnoreCase(searchWrapper.getName()));
+            where.and(announcement.name.containsIgnoreCase(searchWrapper.getName()));
         if (searchWrapper.getCity() != null)
             where.and(announcement.realEstate.location.city.containsIgnoreCase(searchWrapper.getCity()));
         if (searchWrapper.getCityRegion() != null)
