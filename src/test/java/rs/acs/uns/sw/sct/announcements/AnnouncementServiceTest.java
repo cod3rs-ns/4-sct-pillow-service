@@ -104,7 +104,6 @@ public class AnnouncementServiceTest {
                 .streetNumber(STREET_NUMBER);
         RealEstate NEW_REAL_ESTATE = new RealEstate().id(null)
                 .equipment(RE_EQUIPMENT)
-                .name(RE_NAME)
                 .type(RE_TYPE)
                 .area(RE_AREA)
                 .heatingType(RE_HEATING_TYPE)
@@ -113,6 +112,7 @@ public class AnnouncementServiceTest {
         return new Announcement()
                 .id(null)
                 .price(NEW_PRICE)
+                .name(NEW_NAME)
                 .dateAnnounced(NEW_DATE_ANNOUNCED)
                 .dateModified(NEW_DATE_MODIFIED)
                 .expirationDate(NEW_EXPIRATION_DATE)

@@ -81,6 +81,8 @@ public class AnnouncementController {
         final User user = userSecurityUtil.getLoggedUser();
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        } else {
+            annDTO.setAuthor(user.convertToDTO());
         }
 
         if (annDTO.getRealEstate() != null && annDTO.getRealEstate().getId() != null) {

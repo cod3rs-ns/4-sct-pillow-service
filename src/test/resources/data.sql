@@ -36,16 +36,16 @@ INSERT INTO `locations` (`id`, `city`, `city_region`, `country`, `street`, `stre
 INSERT INTO `locations` (`id`, `city`, `city_region`, `country`, `street`, `street_number`) VALUES (2, 'Novi Sad', 'Grbavica', 'Srbija', 'Trg Dositeja Obradovica', '51'); -- Stimac (CZV)
 
 /* Insert new real estates */
-INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `name`, `type`, `location_id`) VALUES ('1', '220', 0, 'coal', 'RealEstate1', 'flat', 1);
-INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `name`, `type`, `location_id`) VALUES ('2', '220', 0, 'central_heating', 'RealEstate2', 'house', 2);
-INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `name`, `type`, `location_id`) VALUES ('3', '240', 1, 'central_heating', 'RealEstate3', 'flat', 2);
-INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `name`, `type`, `location_id`) VALUES ('4', '240', 0, 'coal', 'RealEstate4', 'flat', 2);
+INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `type`, `location_id`) VALUES ('1', '220', 0, 'coal', 'flat', 1);
+INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `type`, `location_id`) VALUES ('2', '220', 0, 'central_heating', 'house', 2);
+INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `type`, `location_id`) VALUES ('3', '240', 1, 'central_heating', 'flat', 2);
+INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `type`, `location_id`) VALUES ('4', '240', 0, 'coal', 'flat', 2);
 
 /* Insert new announcements */
-INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`) VALUES ('1', '1994-01-01', '1994-01-03', 0, '1994-01-20', '50', '0654887612', 'flat', 'not-verified', '1', '1');
-INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`) VALUES ('2', '1997-01-01', '1997-01-03', 0, '1997-01-20', '60', '0654887111', 'flat', 'verified', '1', '3');
-INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`) VALUES ('3', '1994-01-01', '1994-01-03', 1, '1994-01-20', '50', '0654887612', 'flat', 'not-verified', '12', '1');
-INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`) VALUES ('4', '2017-01-01', '2017-01-01', 0, '2017-01-20', '50', '0654887612', 'flat', 'not-verified', '12', '1');
+INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`) VALUES ('1', '1994-01-01', '1994-01-03', 0, '1994-01-20', '50', '0654887612', 'flat', 'not-verified', '1', '1', 'name1');
+INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`) VALUES ('2', '1997-01-01', '1997-01-03', 0, '1997-01-20', '60', '0654887111', 'flat', 'verified', '1', '3', 'name2');
+INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`) VALUES ('3', '1994-01-01', '1994-01-03', 1, '1994-01-20', '50', '0654887612', 'flat', 'not-verified', '12', '1', 'name3');
+INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`) VALUES ('4', '2017-01-01', '2017-01-01', 0, '2017-01-20', '50', '0654887612', 'flat', 'not-verified', '12', '1', 'name4');
 
 /* Insert new comments*/
 INSERT INTO `comments` (`id`, `content`, `date`, `announcement_id`, `author_id`) VALUES ('1', 'Another one comment', '2016-05-05', '2', '5');

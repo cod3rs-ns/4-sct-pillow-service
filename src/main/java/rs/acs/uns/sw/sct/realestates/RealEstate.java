@@ -28,10 +28,6 @@ public class RealEstate implements Serializable {
 
     @NotNull
     @Column(nullable = false)
-    private String name;
-
-    @NotNull
-    @Column(nullable = false)
     private String type;
 
     @NotNull
@@ -122,25 +118,6 @@ public class RealEstate implements Serializable {
      */
     public RealEstate id(Long id) {
         this.id = id;
-        return this;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Setter used for 'method chaining'.
-     *
-     * @param name real estate name
-     * @return RealEstate (this)
-     */
-    public RealEstate name(String name) {
-        this.name = name;
         return this;
     }
 

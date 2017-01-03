@@ -58,6 +58,9 @@ import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 @SpringBootTest(classes = SctServiceApplication.class)
 public class AnnouncementControllerTest {
 
+    private static final String DEFAULT_NAME = "name_default";
+    private static final String UPDATED_NAME = "name_updated";
+
     private static final Double DEFAULT_PRICE = 150D;
     private static final Double UPDATED_PRICE = 1D;
 
@@ -128,6 +131,7 @@ public class AnnouncementControllerTest {
     public static Announcement createEntity() {
         return new Announcement()
                 .price(DEFAULT_PRICE)
+                .name(DEFAULT_NAME)
                 .dateAnnounced(DEFAULT_DATE_ANNOUNCED)
                 .dateModified(DEFAULT_DATE_MODIFIED)
                 .expirationDate(DEFAULT_EXPIRATION_DATE)
@@ -465,6 +469,7 @@ public class AnnouncementControllerTest {
         // Update the announcement
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
+                .name(UPDATED_NAME)
                 .price(UPDATED_PRICE)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
                 .dateModified(UPDATED_DATE_MODIFIED)
@@ -510,6 +515,7 @@ public class AnnouncementControllerTest {
         // Update the announcement
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
+                .name(UPDATED_NAME)
                 .price(UPDATED_PRICE)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
                 .dateModified(UPDATED_DATE_MODIFIED)
@@ -557,6 +563,7 @@ public class AnnouncementControllerTest {
         // Update the announcement
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
+                .name(UPDATED_NAME)
                 .price(UPDATED_PRICE)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
                 .dateModified(UPDATED_DATE_MODIFIED)
