@@ -25,6 +25,9 @@ public class AnnouncementDTO implements Serializable {
     private String name;
 
     @NotNull
+    private String description;
+
+    @NotNull
     private Date dateAnnounced;
 
     @NotNull
@@ -54,6 +57,7 @@ public class AnnouncementDTO implements Serializable {
         return new Announcement()
                 .id(id)
                 .name(name)
+                .description(description)
                 .author(author.convertToUser())
                 .images(images)
                 .price(price)
@@ -275,4 +279,24 @@ public class AnnouncementDTO implements Serializable {
         this.name = name;
         return this;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param description Announcement's name
+     * @return AnnouncementDTO (this)
+     */
+    public AnnouncementDTO description(String description) {
+        this.description = description;
+        return this;
+    }
+
 }

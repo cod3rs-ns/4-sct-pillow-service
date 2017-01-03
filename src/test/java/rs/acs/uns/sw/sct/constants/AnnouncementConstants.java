@@ -34,6 +34,7 @@ public interface AnnouncementConstants {
     Timestamp NEW_DATE_MODIFIED = DateUtil.date("03-01-1995");
     Timestamp NEW_EXPIRATION_DATE = DateUtil.date("20-01-1995");
     String NEW_NAME = "new name";
+    String NEW_DESCRIPTION= "new desc";
 
     Long UPDATED_ID = 1L;
     Double UPDATED_PRICE = 15D;
@@ -44,6 +45,9 @@ public interface AnnouncementConstants {
     Timestamp UPDATED_DATE_ANNOUNCED = DateUtil.date("01-01-1996");
     Timestamp UPDATED_DATE_MODIFIED = DateUtil.date("03-01-1996");
     Timestamp UPDATED_EXPIRATION_DATE = DateUtil.date("20-01-1996");
+    String UPDATED_NAME = "updated name";
+    String UPDATED_DESCRIPTION= "updated desc";
+
 
     String DEFAULT_VERIFIED = "not-verified";
     Boolean DEFAULT_DELETED = false;

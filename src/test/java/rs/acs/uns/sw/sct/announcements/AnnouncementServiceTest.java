@@ -93,6 +93,7 @@ public class AnnouncementServiceTest {
 
     /**
      * Creates an Announcement object
+     *
      * @return a new Announcement object
      */
     private Announcement createNewEntity() {
@@ -113,6 +114,7 @@ public class AnnouncementServiceTest {
                 .id(null)
                 .price(NEW_PRICE)
                 .name(NEW_NAME)
+                .description(NEW_DESCRIPTION)
                 .dateAnnounced(NEW_DATE_ANNOUNCED)
                 .dateModified(NEW_DATE_MODIFIED)
                 .expirationDate(NEW_EXPIRATION_DATE)
@@ -203,6 +205,8 @@ public class AnnouncementServiceTest {
         Announcement dbAnnouncement = announcementService.findOne(ID);
 
         dbAnnouncement.setPrice(UPDATED_PRICE);
+        dbAnnouncement.setName(UPDATED_NAME);
+        dbAnnouncement.setDescription(UPDATED_DESCRIPTION);
         dbAnnouncement.setDateAnnounced(UPDATED_DATE_ANNOUNCED);
         dbAnnouncement.setDateModified(UPDATED_DATE_MODIFIED);
         dbAnnouncement.setExpirationDate(UPDATED_EXPIRATION_DATE);
@@ -359,6 +363,38 @@ public class AnnouncementServiceTest {
         announcementService.save(newAnnouncement);
     }
 
+
+    /**
+     * Tests adding an Announcement with a null name value
+     * <p>
+     * This test sets an Announcement's name to null, then
+     * attempts to add it to the database. As name is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullName() {
+        newAnnouncement.setName(null);
+        announcementService.save(newAnnouncement);
+    }
+
+
+    /**
+     * Tests adding an Announcement with a null description value
+     * <p>
+     * This test sets an Announcement's description to null, then
+     * attempts to add it to the database. As description is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullDescription() {
+        newAnnouncement.setDescription(null);
+        announcementService.save(newAnnouncement);
+    }
+
     /**
      * Tests finding deleted Announcements
      * <p>
@@ -410,6 +446,7 @@ public class AnnouncementServiceTest {
      * the number of returned results matches the number of undeleted
      * Announcements on the database or the number of results on a page,
      * whichever is smaller.
+     *
      * @throws Exception
      */
     @Test
@@ -429,6 +466,7 @@ public class AnnouncementServiceTest {
      * then uses its Area value to search the database.
      * Then it asserts that the Area of all results is equal
      * to the area specified.
+     *
      * @throws Exception
      */
     @Test
@@ -456,6 +494,7 @@ public class AnnouncementServiceTest {
      * then saves it to the database. Then it searches the database
      * with no arguments and asserts that none of the returned results
      * match the deleted Announcement's id.
+     *
      * @throws Exception
      */
     @Test
