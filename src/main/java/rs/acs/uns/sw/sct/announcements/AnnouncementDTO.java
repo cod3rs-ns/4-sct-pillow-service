@@ -68,7 +68,6 @@ public class AnnouncementDTO implements Serializable {
                 .deleted(false)
                 .verified("not-verified")
                 .realEstate(realEstate);
-
     }
 
     public Long getId() {
@@ -298,5 +297,4 @@ public class AnnouncementDTO implements Serializable {
         this.description = description;
         return this;
     }
-
 }

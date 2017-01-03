@@ -104,7 +104,6 @@ public class AnnouncementServiceTest {
                 .street(STREET)
                 .streetNumber(STREET_NUMBER);
         RealEstate NEW_REAL_ESTATE = new RealEstate().id(null)
-                .equipment(RE_EQUIPMENT)
                 .type(RE_TYPE)
                 .area(RE_AREA)
                 .heatingType(RE_HEATING_TYPE)

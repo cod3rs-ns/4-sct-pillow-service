@@ -93,7 +93,6 @@ public class AnnouncementController {
         }
 
         Announcement announcement = annDTO.convertToAnnouncement();
-
         Announcement result = announcementService.save(announcement);
         return ResponseEntity
                 .created(new URI("/api/announcements/" + result.getId()))
