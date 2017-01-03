@@ -146,6 +146,13 @@
             <artifactId>querydsl-jpa</artifactId>
             <version>4.0.6</version>
         </dependency>
+
+        <!-- End to End Testing dependencies -->
+        <dependency>
+            <groupId>io.ddavison</groupId>
+            <artifactId>conductor</artifactId>
+            <version>1.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -153,6 +160,16 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- Exclude E2E Tests from Maven Build -->
+                        <exclude>**/SigningTest.java</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.mysema.maven</groupId>
