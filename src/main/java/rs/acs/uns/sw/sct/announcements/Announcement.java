@@ -28,6 +28,14 @@ public class Announcement implements Serializable {
 
     @NotNull
     @Column(nullable = false)
+    private String name;
+
+    @NotNull
+    @Column(nullable = false)
+    private String description;
+
+    @NotNull
+    @Column(nullable = false)
     private Double price;
 
     @NotNull
@@ -84,6 +92,8 @@ public class Announcement implements Serializable {
     public AnnouncementDTO convertToDTO() {
         return new AnnouncementDTO()
                 .id(id)
+                .name(name)
+                .description(description)
                 .type(type)
                 .dateAnnounced(dateAnnounced)
                 .expirationDate(expirationDate)
@@ -359,6 +369,45 @@ public class Announcement implements Serializable {
      */
     public Announcement images(Set<Image> images) {
         this.images = images;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param name name of announcement
+     * @return Announcement (this)
+     */
+    public Announcement name(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param description description of announcement
+     * @return Announcement (this)
+     */
+    public Announcement description(String description) {
+        this.description = description;
         return this;
     }
 

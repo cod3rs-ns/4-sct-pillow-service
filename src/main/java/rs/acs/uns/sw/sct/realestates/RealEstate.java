@@ -28,10 +28,6 @@ public class RealEstate implements Serializable {
 
     @NotNull
     @Column(nullable = false)
-    private String name;
-
-    @NotNull
-    @Column(nullable = false)
     private String type;
 
     @NotNull
@@ -41,9 +37,6 @@ public class RealEstate implements Serializable {
     @NotNull
     @Column(nullable = false)
     private String heatingType;
-
-    @Column
-    private String equipment;
 
     @NotNull
     @Column(nullable = false)
@@ -55,6 +48,18 @@ public class RealEstate implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "realEstate", fetch = FetchType.LAZY)
     private Set<Announcement> announcements = new HashSet<>(0);
+
+    private Boolean intercom = false;
+
+    private Boolean internet = false;
+
+    private Boolean phone = false;
+
+    private Boolean airConditioner = false;
+
+    private Boolean videoSurveillance = false;
+
+    private Boolean cableTV = false;
 
     @Override
     public boolean equals(Object o) {
@@ -125,25 +130,6 @@ public class RealEstate implements Serializable {
         return this;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Setter used for 'method chaining'.
-     *
-     * @param name real estate name
-     * @return RealEstate (this)
-     */
-    public RealEstate name(String name) {
-        this.name = name;
-        return this;
-    }
-
     public String getType() {
         return type;
     }
@@ -201,25 +187,6 @@ public class RealEstate implements Serializable {
         return this;
     }
 
-    public String getEquipment() {
-        return equipment;
-    }
-
-    public void setEquipment(String equipment) {
-        this.equipment = equipment;
-    }
-
-    /**
-     * Setter used for 'method chaining'.
-     *
-     * @param equipment real estate technical equipment
-     * @return RealEstate (this)
-     */
-    public RealEstate equipment(String equipment) {
-        this.equipment = equipment;
-        return this;
-    }
-
     public Boolean isDeleted() {
         return deleted;
     }
@@ -274,6 +241,120 @@ public class RealEstate implements Serializable {
      */
     public RealEstate announcements(Set<Announcement> announcements) {
         this.announcements = announcements;
+        return this;
+    }
+
+    public Boolean getIntercom() {
+        return intercom;
+    }
+
+    public void setIntercom(Boolean intercom) {
+        this.intercom = intercom;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param intercom intercom of real estate
+     * @return RealEstate (this)
+     */
+    public RealEstate intercom(Boolean intercom) {
+        this.intercom = intercom;
+        return this;
+    }
+
+    public Boolean getInternet() {
+        return internet;
+    }
+
+    public void setInternet(Boolean internet) {
+        this.internet = internet;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param internet internet of real estate
+     * @return RealEstate (this)
+     */
+    public RealEstate internet(Boolean internet) {
+        this.internet = internet;
+        return this;
+    }
+
+    public Boolean getPhone() {
+        return phone;
+    }
+
+    public void setPhone(Boolean phone) {
+        this.phone = phone;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param phone phone of real estate
+     * @return RealEstate (this)
+     */
+    public RealEstate phone(Boolean phone) {
+        this.phone = phone;
+        return this;
+    }
+
+    public Boolean getAirConditioner() {
+        return airConditioner;
+    }
+
+    public void setAirConditioner(Boolean airConditioner) {
+        this.airConditioner = airConditioner;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param airConditioner air conditioner of real estate
+     * @return RealEstate (this)
+     */
+    public RealEstate airConditioner(Boolean airConditioner) {
+        this.airConditioner = airConditioner;
+        return this;
+    }
+
+    public Boolean getVideoSurveillance() {
+        return videoSurveillance;
+    }
+
+    public void setVideoSurveillance(Boolean videoSurveillance) {
+        this.videoSurveillance = videoSurveillance;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param videoSurveillance video surveillance of real estate
+     * @return RealEstate (this)
+     */
+    public RealEstate videoSurveillance(Boolean videoSurveillance) {
+        this.videoSurveillance = videoSurveillance;
+        return this;
+    }
+
+    public Boolean getCableTV() {
+        return cableTV;
+    }
+
+    public void setCableTV(Boolean cableTV) {
+        this.cableTV = cableTV;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param cableTV cable TV of real estate
+     * @return RealEstate (this)
+     */
+    public RealEstate cableTV(Boolean cableTV) {
+        this.cableTV = cableTV;
         return this;
     }
 }

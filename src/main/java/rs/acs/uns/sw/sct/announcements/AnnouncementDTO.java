@@ -22,6 +22,12 @@ public class AnnouncementDTO implements Serializable {
     private Double price;
 
     @NotNull
+    private String name;
+
+    @NotNull
+    private String description;
+
+    @NotNull
     private Date dateAnnounced;
 
     @NotNull
@@ -50,6 +56,8 @@ public class AnnouncementDTO implements Serializable {
     public Announcement convertToAnnouncement() {
         return new Announcement()
                 .id(id)
+                .name(name)
+                .description(description)
                 .author(author.convertToUser())
                 .images(images)
                 .price(price)
@@ -60,7 +68,6 @@ public class AnnouncementDTO implements Serializable {
                 .deleted(false)
                 .verified("not-verified")
                 .realEstate(realEstate);
-
     }
 
     public Long getId() {
@@ -250,6 +257,44 @@ public class AnnouncementDTO implements Serializable {
      */
     public AnnouncementDTO dateAnnounced(Date dateAnnounced) {
         this.dateAnnounced = dateAnnounced;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param name Announcement's name
+     * @return AnnouncementDTO (this)
+     */
+    public AnnouncementDTO name(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param description Announcement's name
+     * @return AnnouncementDTO (this)
+     */
+    public AnnouncementDTO description(String description) {
+        this.description = description;
         return this;
     }
 }

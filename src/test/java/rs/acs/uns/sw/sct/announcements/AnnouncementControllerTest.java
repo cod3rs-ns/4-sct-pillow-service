@@ -58,6 +58,12 @@ import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 @SpringBootTest(classes = SctServiceApplication.class)
 public class AnnouncementControllerTest {
 
+    private static final String DEFAULT_NAME = "name_default";
+    private static final String UPDATED_NAME = "name_updated";
+
+    private static final String DEFAULT_DESC = "desc_default";
+    private static final String UPDATED_DESC = "desc_updated";
+
     private static final Double DEFAULT_PRICE = 150D;
     private static final Double UPDATED_PRICE = 1D;
 
@@ -128,6 +134,8 @@ public class AnnouncementControllerTest {
     public static Announcement createEntity() {
         return new Announcement()
                 .price(DEFAULT_PRICE)
+                .name(DEFAULT_NAME)
+                .description(DEFAULT_DESC)
                 .dateAnnounced(DEFAULT_DATE_ANNOUNCED)
                 .dateModified(DEFAULT_DATE_MODIFIED)
                 .expirationDate(DEFAULT_EXPIRATION_DATE)
@@ -217,6 +225,8 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeCreate + 1);
         Announcement testAnnouncement = announcements.get(announcements.size() - 1);
         assertThat(testAnnouncement.getPrice()).isEqualTo(DEFAULT_PRICE);
+        assertThat(testAnnouncement.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testAnnouncement.getDescription()).isEqualTo(DEFAULT_DESC);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_EXPIRATION_DATE);
         assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
         assertThat(testAnnouncement.getType()).isEqualTo(DEFAULT_TYPE);
@@ -350,6 +360,63 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeTest);
     }
 
+
+    /**
+     * Tests whether the "Name" field is nullable
+     * <p>
+     * This test attempts to add an Announcement object with a null "Name" value to the database,
+     * this is forbidden as the "Name" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    public void checkNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = announcementRepository.findAll().size();
+        // set the field null
+        announcement.setName(null);
+
+        // Create the Announcement, which fails.
+
+        restAnnouncementMockMvc.perform(post("/api/announcements")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(announcement)))
+                .andExpect(status().isBadRequest());
+
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeTest);
+    }
+
+
+    /**
+     * Tests whether the "Description" field is nullable
+     * <p>
+     * This test attempts to add an Announcement object with a null "Description" value to the database,
+     * this is forbidden as the "Description" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     *
+     * @throws Exception
+     */
+
+    @Test
+    @Transactional
+    public void checkDescritpionIsRequired() throws Exception {
+        int databaseSizeBeforeTest = announcementRepository.findAll().size();
+        // set the field null
+        announcement.setDescription(null);
+
+        // Create the Announcement, which fails.
+
+        restAnnouncementMockMvc.perform(post("/api/announcements")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(announcement)))
+                .andExpect(status().isBadRequest());
+
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeTest);
+    }
+
     /**
      * Tests getting Announcements as an Admin
      * <p>
@@ -372,6 +439,8 @@ public class AnnouncementControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
                 .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
+                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+                .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESC)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
@@ -421,6 +490,8 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.price").value(DEFAULT_PRICE))
                 .andExpect(jsonPath("$.dateAnnounced").value(String.valueOf(DEFAULT_DATE_ANNOUNCED.getTime())))
                 .andExpect(jsonPath("$.expirationDate").value(String.valueOf(DEFAULT_EXPIRATION_DATE.getTime())))
+                .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
+                .andExpect(jsonPath("$.description").value(DEFAULT_DESC))
                 .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER))
                 .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
                 .andExpect(jsonPath("$.verified").value(DEFAULT_VERIFIED));
@@ -466,6 +537,8 @@ public class AnnouncementControllerTest {
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
                 .price(UPDATED_PRICE)
+                .name(UPDATED_NAME)
+                .description(UPDATED_DESC)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
                 .dateModified(UPDATED_DATE_MODIFIED)
                 .expirationDate(UPDATED_EXPIRATION_DATE)
@@ -482,6 +555,8 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
         Announcement testAnnouncement = announcements.get(announcements.size() - 1);
         assertThat(testAnnouncement.getPrice()).isEqualTo(UPDATED_PRICE);
+        assertThat(testAnnouncement.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testAnnouncement.getDescription()).isEqualTo(UPDATED_DESC);
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(UPDATED_DATE_ANNOUNCED);
         assertThat(testAnnouncement.getDateModified()).isEqualTo(UPDATED_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(UPDATED_EXPIRATION_DATE);
@@ -510,6 +585,8 @@ public class AnnouncementControllerTest {
         // Update the announcement
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
+                .name(UPDATED_NAME)
+                .description(UPDATED_DESC)
                 .price(UPDATED_PRICE)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
                 .dateModified(UPDATED_DATE_MODIFIED)
@@ -528,6 +605,8 @@ public class AnnouncementControllerTest {
         List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
         Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testAnnouncement.getDescription()).isEqualTo(UPDATED_DESC);
         assertThat(testAnnouncement.getPrice()).isEqualTo(UPDATED_PRICE);
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(UPDATED_DATE_ANNOUNCED);
         assertThat(testAnnouncement.getDateModified()).isEqualTo(UPDATED_DATE_MODIFIED);
@@ -557,6 +636,8 @@ public class AnnouncementControllerTest {
         // Update the announcement
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
+                .name(UPDATED_NAME)
+                .description(UPDATED_DESC)
                 .price(UPDATED_PRICE)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
                 .dateModified(UPDATED_DATE_MODIFIED)
