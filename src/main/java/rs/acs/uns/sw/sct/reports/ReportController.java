@@ -285,4 +285,28 @@ public class ReportController {
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
                 .body(result.convertToDTO());
     }
+
+    /**
+     * GET  /reports/exists : check if report already exists.
+     *
+     * @param email          the author email
+     * @param announcementId the id of announcement that should be reported
+     * @param username       the author username
+     * @return the ResponseEntity with status 200 (OK) and the boolean value in body
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/reports/exists")
+    public ResponseEntity<Boolean> alreadyReported(@RequestParam(value = "email", required = false) String email,
+                                                   @RequestParam(value = "id") Long announcementId,
+                                                   @RequestParam(value = "username", required = false) String username) {
+        if (username != null) {
+            User user = userService.getUserByUsername(username);
+            if (user != null)
+                email = user.getEmail();
+        }
+
+        Report exists = reportService.findByReporterEmailAndStatusAndAnnouncementId(email, Constants.ReportStatus.PENDING, announcementId);
+        boolean retVal = exists != null;
+        return new ResponseEntity<>(retVal, HttpStatus.OK);
+    }
 }
