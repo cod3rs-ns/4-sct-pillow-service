@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
@@ -31,6 +33,9 @@ public class MarkController {
 
     @Autowired
     private MarkService markService;
+
+    @Autowired
+    private AnnouncementService announcementService;
 
     @Autowired
     private UserSecurityUtil userSecurityUtil;
@@ -57,6 +62,11 @@ public class MarkController {
         }
 
         final User user = userSecurityUtil.getLoggedUser();
+        
+        if (markDTO.getAnnouncement() != null) {
+            final Announcement announcement = announcementService.findOne(markDTO.getAnnouncement().getId());
+            markDTO.announcement(announcement.convertToDTO());
+        }
 
         final Mark mark = markDTO.convertToMark();
 
@@ -110,7 +120,16 @@ public class MarkController {
                     .body(null);
         }
 
+        final User user = userSecurityUtil.getLoggedUser();
+
+        if (markDTO.getAnnouncement() != null) {
+            final Announcement announcement = announcementService.findOne(markDTO.getAnnouncement().getId());
+            markDTO.announcement(announcement.convertToDTO());
+        }
+
         final Mark mark = markDTO.convertToMark();
+
+        mark.setGrader(user);
 
         Mark result = markService.save(mark);
         return ResponseEntity

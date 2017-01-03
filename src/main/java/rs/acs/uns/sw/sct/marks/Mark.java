@@ -26,7 +26,7 @@ public class Mark implements Serializable {
     private Integer value;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REFRESH)
     private User grader;
 
     @ManyToOne

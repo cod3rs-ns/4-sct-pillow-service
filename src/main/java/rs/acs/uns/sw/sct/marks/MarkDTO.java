@@ -35,7 +35,7 @@ public class MarkDTO {
                 .value(value)
                 .grader((grader != null) ? grader.convertToUser() : null)
                 .gradedAnnouncer((gradedAnnouncer != null) ? gradedAnnouncer.convertToUser() : null)
-                .announcement(announcement.convertToAnnouncement());
+                .announcement((announcement != null) ? announcement.convertToAnnouncement() : null);
 
     }
 
