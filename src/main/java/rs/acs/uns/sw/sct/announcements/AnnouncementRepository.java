@@ -40,7 +40,17 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
     Page<Announcement> findByAuthor_Id(Long authorId, Pageable pageable); // NOSONAR - invalid warning
 
     /**
-     * Get all announcements created by one company.
+     * Get all announcements created by specified Author ID and deletion status.
+     *
+     * @param authorId the id of the announcement's author
+     * @param deleted  announcement's status - deleted
+     * @param pageable the pagination information
+     * @return list of announcements
+     */
+    Page<Announcement> findByAuthor_Id_AndDeleted(Long authorId, Boolean deleted, Pageable pageable); // NOSONAR
+
+    /**
+     * Get first 3 announcements by Company order by price ascending.
      *
      * @param companyId the id of the company
      * @return list of announcements

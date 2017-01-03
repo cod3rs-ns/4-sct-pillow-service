@@ -201,16 +201,16 @@ public class UserController {
     /**
      * GET  /users/:id : get the "id" user.
      *
-     * @param id the id of the user to retrieve
+     * @param username the username of the user to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the user, or with status 404 (Not Found)
      */
     @PreAuthorize("permitAll()")
-    @GetMapping("/users/{id}")
-    public ResponseEntity getUser(@PathVariable Long id) {
+    @GetMapping("/users/{username}")
+    public ResponseEntity getUser(@PathVariable String username) {
 
         final User logged = userSecurityUtil.getLoggedUser();
 
-        User user = userService.findOne(id);
+        User user = userService.getUserByUsername(username);
         return Optional.ofNullable(user)
                 .map(result -> new ResponseEntity<>(
                         (logged != null && user.getUsername().equals(logged.getUsername())) ? result : result.convertToDTO(),

@@ -44,7 +44,7 @@ INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `name`, `ty
 /* Insert new announcements */
 INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`) VALUES ('1', '1994-01-01', '1994-01-03', 0, '1994-01-20', '50', '0654887612', 'flat', 'not-verified', '1', '1');
 INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`) VALUES ('2', '1997-01-01', '1997-01-03', 0, '1997-01-20', '60', '0654887111', 'flat', 'verified', '1', '3');
-INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`) VALUES ('3', '1994-01-01', '1994-01-03', 1, '1994-01-20', '50', '0654887612', 'flat', 'not-verified', '1', '1');
+INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`) VALUES ('3', '1994-01-01', '1994-01-03', 1, '1994-01-20', '50', '0654887612', 'flat', 'not-verified', '12', '1');
 INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`) VALUES ('4', '2017-01-01', '2017-01-01', 0, '2017-01-20', '50', '0654887612', 'flat', 'not-verified', '12', '1');
 
 /* Insert new comments*/

@@ -81,6 +81,20 @@ public class AnnouncementService {
     }
 
     /**
+     * Get all the announcements by Author ID and deletion status.
+     *
+     * @param pageable the pagination information
+     * @param authorId id of one announcements author
+     * @param deleted  announcement's status - deleted
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Announcement> findAllByAuthorAndStatus(Long authorId, Boolean deleted, Pageable pageable) {
+        return announcementRepository.findByAuthor_Id_AndDeleted(authorId, deleted, pageable);
+    }
+
+
+    /**
      * Get top the announcements by company id.
      *
      * @param companyId id of one company
