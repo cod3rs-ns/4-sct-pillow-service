@@ -68,12 +68,34 @@ public class UserDTO implements Serializable {
         this.id = id;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param id    User id
+     * @return UserDTO (this)
+     */
+    public UserDTO id(Long id) {
+        this.id = id;
+        return this;
+    }
+
     public String getUsername() {
         return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param username    User username
+     * @return UserDTO (this)
+     */
+    public UserDTO username(String username) {
+        this.username = username;
+        return this;
     }
 
     public String getEmail() {
@@ -84,12 +106,34 @@ public class UserDTO implements Serializable {
         this.email = email;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param email    User email
+     * @return UserDTO (this)
+     */
+    public UserDTO email(String email) {
+        this.email = email;
+        return this;
+    }
+
     public String getFirstName() {
         return firstName;
     }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param firstName    User first name
+     * @return UserDTO (this)
+     */
+    public UserDTO firstName(String firstName) {
+        this.firstName = firstName;
+        return this;
     }
 
     public String getLastName() {
@@ -100,12 +144,34 @@ public class UserDTO implements Serializable {
         this.lastName = lastName;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param lastName    User last name
+     * @return UserDTO (this)
+     */
+    public UserDTO lastName(String lastName) {
+        this.lastName = lastName;
+        return this;
+    }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param phoneNumber    User's phone number
+     * @return UserDTO (this)
+     */
+    public UserDTO phoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+        return this;
     }
 
     public String getType() {
@@ -116,12 +182,34 @@ public class UserDTO implements Serializable {
         this.type = type;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param type    User's type - admin, advertiser or verifier
+     * @return UserDTO (this)
+     */
+    public UserDTO type(String type) {
+        this.type = type;
+        return this;
+    }
+
     public Company getCompany() {
         return company;
     }
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param company    User's company
+     * @return UserDTO (this)
+     */
+    public UserDTO company(Company company) {
+        this.company = company;
+        return this;
     }
 
     public String getCompanyVerified() {
@@ -132,12 +220,34 @@ public class UserDTO implements Serializable {
         this.companyVerified = companyVerified;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param companyVerified    Is user verified in company
+     * @return UserDTO (this)
+     */
+    public UserDTO companyVerified(String companyVerified) {
+        this.companyVerified = companyVerified;
+        return this;
+    }
+
     public String getImagePath() {
         return imagePath;
     }
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param imagePath    User's profile image path
+     * @return UserDTO (this)
+     */
+    public UserDTO imagePath(String imagePath) {
+        this.imagePath = imagePath;
+        return this;
     }
 
     @Override

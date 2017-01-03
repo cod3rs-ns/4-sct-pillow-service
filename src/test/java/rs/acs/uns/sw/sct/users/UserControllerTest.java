@@ -298,7 +298,7 @@ public class UserControllerTest {
         // Add user to database first
         userService.save(advertiser);
 
-        mockMvc.perform(get("/api/users/{id}", advertiser.getId()))
+        mockMvc.perform(get("/api/users/{username}", advertiser.getUsername()))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(advertiser.getId().intValue()))
@@ -323,7 +323,7 @@ public class UserControllerTest {
         // Add user to database first
         userService.save(advertiser);
 
-        mockMvc.perform(get("/api/users/{id}", advertiser.getId()))
+        mockMvc.perform(get("/api/users/{username}", advertiser.getUsername()))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(advertiser.getId().intValue()))

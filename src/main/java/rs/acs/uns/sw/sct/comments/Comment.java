@@ -34,7 +34,7 @@ public class Comment implements Serializable {
     @JoinColumn()
     private Announcement announcement;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REFRESH)
     @JoinColumn()
     private User author;
 
@@ -43,7 +43,7 @@ public class Comment implements Serializable {
      *
      * @return CommentDTO for further use
      */
-    public CommentDTO convertToDto() {
+    public CommentDTO convertToDTO() {
         return new CommentDTO()
                 .id(id)
                 .content(content)

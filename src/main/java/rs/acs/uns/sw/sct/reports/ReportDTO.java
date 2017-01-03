@@ -44,7 +44,7 @@ public class ReportDTO {
                 .content(content)
                 .status(status)
                 .reporter((reporter != null) ? reporter.convertToUser() : null)
-                .announcement(announcement.convertToAnnouncement(announcement.getAuthor().convertToUser()));
+                .announcement(announcement.convertToAnnouncement());
 
     }
 

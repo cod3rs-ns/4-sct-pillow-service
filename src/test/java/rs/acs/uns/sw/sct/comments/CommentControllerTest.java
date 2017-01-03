@@ -181,8 +181,6 @@ public class CommentControllerTest {
         // set the field null
         comment.setDate(null);
 
-        // create the Comment, which fails.
-
         restCommentMockMvc.perform(post("/api/comments")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(comment)))

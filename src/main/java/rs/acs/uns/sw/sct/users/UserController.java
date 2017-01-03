@@ -98,7 +98,7 @@ public class UserController {
 
         UserDTO result = userService.save(user).convertToDTO();
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.USER, user.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.USER, result.getId().toString()))
                 .body(result);
     }
 
@@ -201,16 +201,16 @@ public class UserController {
     /**
      * GET  /users/:id : get the "id" user.
      *
-     * @param id the id of the user to retrieve
+     * @param username the username of the user to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the user, or with status 404 (Not Found)
      */
     @PreAuthorize("permitAll()")
-    @GetMapping("/users/{id}")
-    public ResponseEntity getUser(@PathVariable Long id) {
+    @GetMapping("/users/{username}")
+    public ResponseEntity getUser(@PathVariable String username) {
 
         final User logged = userSecurityUtil.getLoggedUser();
 
-        User user = userService.findOne(id);
+        User user = userService.getUserByUsername(username);
         return Optional.ofNullable(user)
                 .map(result -> new ResponseEntity<>(
                         (logged != null && user.getUsername().equals(logged.getUsername())) ? result : result.convertToDTO(),
@@ -255,9 +255,11 @@ public class UserController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/users/search/type-ahead")
-    public ResponseEntity<List<User>> searchTypeAhead(@RequestParam(value = "firstName", required = false) String firstName,
+    public ResponseEntity<List<UserDTO>> searchTypeAhead(@RequestParam(value = "firstName", required = false) String firstName,
                                              @RequestParam(value = "lastName", required = false) String lastName) {
-        List<User> list = userService.findBySearchTermOR(firstName, lastName);
+        List<UserDTO> list = userService.findBySearchTermOR(firstName, lastName)
+                .stream().map(user -> user.convertToDTO())
+                .collect(Collectors.toList());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
