@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.announcements.Announcement;
+import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
@@ -31,6 +33,9 @@ public class CommentController {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private AnnouncementService announcementService;
 
     @Autowired
     private UserSecurityUtil userSecurityUtil;
@@ -57,6 +62,8 @@ public class CommentController {
         }
 
         final User user = userSecurityUtil.getLoggedUser();
+        final Announcement announcement = announcementService.findOne(commentDTO.getAnnouncement().getId());
+        commentDTO.announcement(announcement.convertToDTO());
 
         final Comment comment = commentDTO.convertToComment();
 
@@ -98,8 +105,13 @@ public class CommentController {
                     .body(null);
         }
 
+        final User user = userSecurityUtil.getLoggedUser();
+        final Announcement announcement = announcementService.findOne(commentDTO.getAnnouncement().getId());
+        commentDTO.announcement(announcement.convertToDTO());
 
         final Comment comment = commentDTO.convertToComment();
+
+        comment.setAuthor(user);
 
         Comment result = commentService.save(comment);
         return ResponseEntity.ok()

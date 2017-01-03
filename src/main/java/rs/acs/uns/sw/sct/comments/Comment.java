@@ -34,7 +34,7 @@ public class Comment implements Serializable {
     @JoinColumn()
     private Announcement announcement;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REFRESH)
     @JoinColumn()
     private User author;
 
