@@ -93,6 +93,12 @@ public class AnnouncementController {
         }
 
         Announcement announcement = annDTO.convertToAnnouncement();
+
+        // set default values
+        announcement.setDeleted(false);
+        announcement.setDateAnnounced(new Date());
+        announcement.setVerified(Constants.VerifiedStatuses.NOT_VERIFIED);
+
         Announcement result = announcementService.save(announcement);
         return ResponseEntity
                 .created(new URI("/api/announcements/" + result.getId()))
@@ -105,7 +111,7 @@ public class AnnouncementController {
     /**
      * PUT  /announcements : Updates an existing announcement.
      *
-     * @param announcement the announcement to update
+     * @param announcementDTO the announcement to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated announcement,
      * or with status 400 (Bad Request) if the announcement is not valid,
      * or with status 500 (Internal Server Error) if the announcement couldn't be updated
@@ -113,14 +119,14 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements")
-    public ResponseEntity<AnnouncementDTO> updateAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
-        if (announcement.getId() == null) {
-            return createAnnouncement(announcement.convertToDTO());
+    public ResponseEntity<AnnouncementDTO> updateAnnouncement(@Valid @RequestBody AnnouncementDTO announcementDTO) throws URISyntaxException {
+        if (announcementDTO.getId() == null) {
+            return createAnnouncement(announcementDTO);
         }
 
         // check if user has no rights to update
         // if current use of type Advertiser is not the author of the announcement
-        String authorUsername = announcementService.findOne(announcement.getId()).getAuthor().getUsername();
+        String authorUsername = announcementService.findOne(announcementDTO.getId()).getAuthor().getUsername();
         if (!userSecurityUtil.checkPermission(authorUsername, AuthorityRoles.ADVERTISER)) {
             return ResponseEntity
                     .badRequest()
@@ -130,6 +136,15 @@ public class AnnouncementController {
                             HeaderUtil.ERROR_MSG_NOT_OWNER))
                     .body(null);
         }
+
+        // get not-changeable properties
+        Announcement previousAnnouncement = announcementService.findOne(announcementDTO.getId());
+
+        Announcement announcement = announcementDTO.convertToAnnouncement();
+
+        // set default values
+        announcement.setDateModified(new Date());
+        announcement.setDeleted(previousAnnouncement.isDeleted());
 
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.ok()
