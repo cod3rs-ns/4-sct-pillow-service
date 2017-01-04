@@ -330,7 +330,38 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME))
                 .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
                 .andExpect(jsonPath("$.type").value(Constants.Roles.ADVERTISER))
-                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER));
+                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER))
+                .andExpect(jsonPath("$.verified").doesNotExist())
+                .andExpect(jsonPath("$.deleted").doesNotExist())
+                .andExpect(jsonPath("$.password").doesNotExist());
+    }
+
+    /**
+     * Tests retrieval of ME by username as an Advertiser
+     * <p>
+     * This test saves a User to the database, then searches for it
+     * by id using a mocked Advertiser user. It then asserts that the object
+     * the search returned matches the saved User.
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DEFAULT_USERNAME)
+    public void getMyProfileAsAdvertiser() throws Exception {
+        // Add user to database first
+        userService.save(advertiser);
+
+        mockMvc.perform(get("/api/users/{username}", advertiser.getUsername()))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.id").value(advertiser.getId().intValue()))
+                .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME))
+                .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
+                .andExpect(jsonPath("$.type").value(Constants.Roles.ADVERTISER))
+                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER))
+                .andExpect(jsonPath("$.verified").value(true))
+                .andExpect(jsonPath("$.deleted").value(false))
+                .andExpect(jsonPath("$.password").exists());
     }
 
     /**
