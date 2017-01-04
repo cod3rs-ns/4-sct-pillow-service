@@ -70,8 +70,8 @@ public class AnnouncementService {
      */
     @Transactional(readOnly = true)
     public Page<Announcement> findAllInArea(Double x1, Double y1, Double x2, Double y2, Pageable pageable) {
-        final List<Announcement> announcementsInArea = announcementRepository.findAll()
-                .stream()
+        final List<Announcement> announcementsInArea = announcementRepository.findAllByDeleted(false, pageable)
+                .getContent().stream()
                 .filter(announcement -> announcement.getRealEstate().getLocation().isInArea(x1, y1, x2, y2))
                 .collect(Collectors.toList());
 

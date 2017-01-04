@@ -40,7 +40,7 @@ public class AnnouncementServiceTest {
      * Asserts equality of two Announcements.
      *
      * @param ann1 One of the Announcements to be compared
-     * @param ann2 The other Annoucement to be compared
+     * @param ann2 The other Announcement to be compared
      */
     private void compareAnnouncements(Announcement ann1, Announcement ann2) {
         if (ann1.getId() != null && ann2.getId() != null)
@@ -102,7 +102,10 @@ public class AnnouncementServiceTest {
                 .cityRegion(CITY_REGION)
                 .country(COUNTRY)
                 .street(STREET)
-                .streetNumber(STREET_NUMBER);
+                .streetNumber(STREET_NUMBER)
+                .latitude(90.)
+                .longitude(90.);
+
         RealEstate NEW_REAL_ESTATE = new RealEstate().id(null)
                 .type(RE_TYPE)
                 .area(RE_AREA)
@@ -508,4 +511,32 @@ public class AnnouncementServiceTest {
             assertThat(ann.getId()).isNotEqualTo(persisted.getId());
         }
     }
+
+    /**
+     * Tests searching for all announcements in provided area
+     * <p>
+     * This test search for all announcements which longitude and latitude is
+     * in provided square and then asserts if size of resulting list is same as
+     * number of announcements in database which satisfies this condition.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    public void searchAnnouncementsInArea() throws Exception {
+
+        final Double topRightLong = 20.0;
+        final Double topRightLat = 46.0;
+        final Double bottomLeftLong = 18.0;
+        final Double bottomLeftLat = 45.0;
+
+        final List<Announcement> announcements = announcementService.findAllInArea(topRightLong, topRightLat, bottomLeftLong, bottomLeftLat, PAGEABLE).getContent();
+
+        assertThat(announcements.size()).isEqualTo(ANNOUNCEMENTS_IN_AREA);
+
+        for (final Announcement announcement : announcements) {
+            assertThat(announcement.getRealEstate().getLocation().isInArea(topRightLong, topRightLat, bottomLeftLong, bottomLeftLat));
+        }
+    }
+
 }

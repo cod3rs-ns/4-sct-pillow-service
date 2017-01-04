@@ -83,6 +83,8 @@ public interface AnnouncementConstants {
     Long DB_COUNT_ANNOUNCEMENT_DELETED_FALSE = 3L;
     // Number of "deleted = false" database records
 
+    Integer ANNOUNCEMENTS_IN_AREA = 2;
+
 
     // file to be upload
     String FILE_TO_BE_UPLOAD = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "test_upload.jpg";
