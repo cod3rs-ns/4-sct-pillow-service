@@ -4,12 +4,14 @@ import com.querydsl.core.types.Predicate;
 import org.apache.commons.collections.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static rs.acs.uns.sw.sct.search.AnnouncementPredicates.search;
 
@@ -55,6 +57,27 @@ public class AnnouncementService {
     public Page<Announcement> findAllByStatus(Boolean status, Pageable pageable) {
         return announcementRepository.findAllByDeleted(status, pageable);
     }
+
+    /**
+     * Get all the announcements.
+     *
+     * @param x1    Top right corner longitude
+     * @param y1    Top right corner latitude
+     * @param x2    Bottom left corner longitude
+     * @param y2    Bottom left corner latitude
+     * @param pageable the pagination information
+     * @return the list of entities
+     */
+    @Transactional(readOnly = true)
+    public Page<Announcement> findAllInArea(Double x1, Double y1, Double x2, Double y2, Pageable pageable) {
+        final List<Announcement> announcementsInArea = announcementRepository.findAll()
+                .stream()
+                .filter(announcement -> announcement.getRealEstate().getLocation().isInArea(x1, y1, x2, y2))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(announcementsInArea, pageable, announcementsInArea.size());
+    }
+
 
     /**
      * Get all the announcements by company id.

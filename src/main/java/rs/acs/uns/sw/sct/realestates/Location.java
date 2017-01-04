@@ -36,6 +36,14 @@ public class Location implements Serializable {
     @Column(nullable = false)
     private String streetNumber;
 
+    @NotNull
+    @Column(nullable = false)
+    private Double latitude;
+
+    @NotNull
+    @Column(nullable = false)
+    private Double longitude;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -164,6 +172,44 @@ public class Location implements Serializable {
         return this;
     }
 
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param latitude Location latitude
+     * @return Location (this)
+     */
+    public Location latitude(Double latitude) {
+        this.latitude = latitude;
+        return this;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param longitude Location latitude
+     * @return Location (this)
+     */
+    public Location longitude(Double longitude) {
+        this.longitude = longitude;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Location{" +
@@ -174,5 +220,22 @@ public class Location implements Serializable {
                 ", street='" + street + '\'' +
                 ", streetNumber='" + streetNumber + '\'' +
                 '}';
+    }
+
+    /**
+     * Method which returns if location is in provided area
+     *
+     * @param x1    Top right corner longitude
+     * @param y1    Top right corner latitude
+     * @param x2    Bottom left corner longitude
+     * @param y2    Bottom left corner latitude
+     * @return Boolean (true - if is in Area, false otherwise)
+     */
+    public Boolean isInArea(Double x1, Double y1, Double x2, Double y2) {
+
+        Boolean isX = (x2 <= this.longitude) && (this.longitude <= x1);
+        Boolean isY = (y2 <= this.latitude) && (this.latitude <= y1);
+
+        return isX && isY;
     }
 }

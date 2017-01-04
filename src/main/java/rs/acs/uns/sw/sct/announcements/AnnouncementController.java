@@ -490,4 +490,31 @@ public class AnnouncementController {
 
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+
+    /**
+     * GET  /announcements/location-search
+     *
+     * @param topRightLat        Top right corner latitude
+     * @param topRightLong       Top right corner longitude
+     * @param bottomLeftLat      Bottom left corner latitude
+     * @param bottomLeftLong     Bottom left corner longitude
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements which contains real estate in provided area
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/announcements/location-search")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsInArea(@RequestParam(value = "topRightLat") Double topRightLat,
+                                                                           @RequestParam(value = "topRightLong") Double topRightLong,
+                                                                           @RequestParam(value = "bottomLeftLat") Double bottomLeftLat,
+                                                                           @RequestParam(value = "bottomLeftLong") Double bottomLeftLong,
+                                                                           Pageable pageable)
+            throws URISyntaxException {
+
+        Page<AnnouncementDTO> page = announcementService.findAllInArea(topRightLong, topRightLat, bottomLeftLong, bottomLeftLat, pageable)
+                .map(announcement -> announcement.convertToDTO());
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/location-search");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
 }
