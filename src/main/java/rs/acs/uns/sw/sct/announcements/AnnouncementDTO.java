@@ -61,12 +61,11 @@ public class AnnouncementDTO implements Serializable {
                 .author(author.convertToUser())
                 .images(images)
                 .price(price)
-                .dateAnnounced(new Date())
+                .dateAnnounced(dateAnnounced)
                 .expirationDate(expirationDate)
                 .phoneNumber(phoneNumber)
                 .type(type)
-                .deleted(false)
-                .verified("not-verified")
+                .verified(verified)
                 .realEstate(realEstate);
     }
 
