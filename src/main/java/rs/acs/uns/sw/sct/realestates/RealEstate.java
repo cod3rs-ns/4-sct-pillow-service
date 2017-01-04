@@ -42,7 +42,7 @@ public class RealEstate implements Serializable {
     @Column(nullable = false)
     private Boolean deleted;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Location location;
 
     @JsonIgnore

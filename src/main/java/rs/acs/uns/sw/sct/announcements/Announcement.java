@@ -65,7 +65,7 @@ public class Announcement implements Serializable {
     @Column(nullable = false)
     private Boolean deleted;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn()
     private RealEstate realEstate;
 
@@ -81,7 +81,7 @@ public class Announcement implements Serializable {
     @OneToMany(mappedBy = "announcement", fetch = FetchType.LAZY)
     private Set<Comment> comments = new HashSet<>(0);
 
-    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Image> images = new HashSet<>(0);
 
     /**

@@ -83,7 +83,6 @@ public class AnnouncementControllerTest {
     private static final String UPDATED_TYPE = "TYPE_BBB";
 
     private static final Boolean DEFAULT_DELETED = false;
-    private static final Boolean UPDATED_DELETED = true;
 
     private static final String DEFAULT_VERIFIED = "not-verified";
     private static final String UPDATED_VERIFIED = "verified";
@@ -529,6 +528,7 @@ public class AnnouncementControllerTest {
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
     public void updateAnnouncement() throws Exception {
         announcement.setAuthor(DBUserMocker.ADVERTISER);
+        announcement.setDeleted(false);
         announcementService.save(announcement);
 
         int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
@@ -540,14 +540,13 @@ public class AnnouncementControllerTest {
                 .name(UPDATED_NAME)
                 .description(UPDATED_DESC)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
-                .dateModified(UPDATED_DATE_MODIFIED)
                 .expirationDate(UPDATED_EXPIRATION_DATE)
                 .phoneNumber(UPDATED_PHONE_NUMBER)
                 .type(UPDATED_TYPE);
 
         restAnnouncementMockMvc.perform(put("/api/announcements")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedAnnouncement)))
+                .content(TestUtil.convertObjectToJsonBytes(updatedAnnouncement.convertToDTO())))
                 .andExpect(status().isOk());
 
         // Validate the Announcement in the database
@@ -558,7 +557,6 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testAnnouncement.getDescription()).isEqualTo(UPDATED_DESC);
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(UPDATED_DATE_ANNOUNCED);
-        assertThat(testAnnouncement.getDateModified()).isEqualTo(UPDATED_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(UPDATED_EXPIRATION_DATE);
         assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(UPDATED_PHONE_NUMBER);
         assertThat(testAnnouncement.getType()).isEqualTo(UPDATED_TYPE);
@@ -589,7 +587,6 @@ public class AnnouncementControllerTest {
                 .description(UPDATED_DESC)
                 .price(UPDATED_PRICE)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
-                .dateModified(UPDATED_DATE_MODIFIED)
                 .expirationDate(UPDATED_EXPIRATION_DATE)
                 .phoneNumber(UPDATED_PHONE_NUMBER)
                 .type(UPDATED_TYPE);
@@ -609,7 +606,6 @@ public class AnnouncementControllerTest {
         assertThat(testAnnouncement.getDescription()).isEqualTo(UPDATED_DESC);
         assertThat(testAnnouncement.getPrice()).isEqualTo(UPDATED_PRICE);
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(UPDATED_DATE_ANNOUNCED);
-        assertThat(testAnnouncement.getDateModified()).isEqualTo(UPDATED_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(UPDATED_EXPIRATION_DATE);
         assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(UPDATED_PHONE_NUMBER);
         assertThat(testAnnouncement.getType()).isEqualTo(UPDATED_TYPE);
@@ -646,9 +642,11 @@ public class AnnouncementControllerTest {
                 .type(UPDATED_TYPE)
                 .images(null);
 
+        announcementDTO = updatedAnnouncement.convertToDTO();
+
         restAnnouncementMockMvc.perform(put("/api/announcements")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedAnnouncement)))
+                .content(TestUtil.convertObjectToJsonBytes(announcementDTO)))
                 .andExpect(status().isBadRequest());
     }
 
