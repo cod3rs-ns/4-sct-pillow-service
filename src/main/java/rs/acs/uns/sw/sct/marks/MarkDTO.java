@@ -17,7 +17,6 @@ public class MarkDTO {
     @NotNull
     private Integer value;
 
-    @NotNull
     private UserDTO grader;
 
     private UserDTO gradedAnnouncer;
