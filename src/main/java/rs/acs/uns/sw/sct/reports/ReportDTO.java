@@ -4,6 +4,7 @@ import rs.acs.uns.sw.sct.announcements.AnnouncementDTO;
 import rs.acs.uns.sw.sct.users.UserDTO;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * Comment Data Transfer Object.
@@ -26,6 +27,9 @@ public class ReportDTO {
     @NotNull
     private String status;
 
+    @NotNull
+    private Date createdAt;
+
     private UserDTO reporter;
 
     @NotNull
@@ -44,8 +48,8 @@ public class ReportDTO {
                 .content(content)
                 .status(status)
                 .reporter((reporter != null) ? reporter.convertToUser() : null)
-                .announcement(announcement.convertToAnnouncement());
-
+                .announcement(announcement.convertToAnnouncement())
+                .createdAt(createdAt);
     }
 
     public Long getId() {
@@ -59,7 +63,7 @@ public class ReportDTO {
     /**
      * Setter used for 'method chaining'.
      *
-     * @param id    Report id
+     * @param id Report id
      * @return ReportDTO (this)
      */
     public ReportDTO id(Long id) {
@@ -78,7 +82,7 @@ public class ReportDTO {
     /**
      * Setter used for 'method chaining'.
      *
-     * @param email    Report email
+     * @param email Report email
      * @return ReportDTO (this)
      */
     public ReportDTO email(String email) {
@@ -97,7 +101,7 @@ public class ReportDTO {
     /**
      * Setter used for 'method chaining'.
      *
-     * @param type    Report type
+     * @param type Report type
      * @return ReportDTO (this)
      */
     public ReportDTO type(String type) {
@@ -116,7 +120,7 @@ public class ReportDTO {
     /**
      * Setter used for 'method chaining'.
      *
-     * @param content    Report content
+     * @param content Report content
      * @return ReportDTO (this)
      */
     public ReportDTO content(String content) {
@@ -135,7 +139,7 @@ public class ReportDTO {
     /**
      * Setter used for 'method chaining'.
      *
-     * @param status    Report status
+     * @param status Report status
      * @return ReportDTO (this)
      */
     public ReportDTO status(String status) {
@@ -154,7 +158,7 @@ public class ReportDTO {
     /**
      * Setter used for 'method chaining'.
      *
-     * @param reporter    Report author
+     * @param reporter Report author
      * @return ReportDTO (this)
      */
     public ReportDTO reporter(UserDTO reporter) {
@@ -173,11 +177,30 @@ public class ReportDTO {
     /**
      * Setter used for 'method chaining'.
      *
-     * @param announcement    Report announcement
+     * @param announcement Report announcement
      * @return ReportDTO (this)
      */
     public ReportDTO announcement(AnnouncementDTO announcement) {
         this.announcement = announcement;
+        return this;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param createdAt date when report is created
+     * @return ReportDTO (this)
+     */
+    public ReportDTO createdAt(Date createdAt) {
+        this.createdAt = createdAt;
         return this;
     }
 }

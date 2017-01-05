@@ -27,6 +27,7 @@ import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.*;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,7 +96,8 @@ public class ReportControllerTest {
                 .type(DEFAULT_TYPE)
                 .status(DEFAULT_STATUS)
                 .content(DEFAULT_CONTENT)
-                .announcement(announcement);
+                .announcement(announcement)
+                .createdAt(new Date());
     }
 
     /**
@@ -113,7 +115,8 @@ public class ReportControllerTest {
                 .type(UPDATED_TYPE)
                 .status(UPDATED_STATUS)
                 .content(UPDATED_CONTENT)
-                .announcement(announcement);
+                .announcement(announcement)
+                .createdAt(new Date());
     }
 
     @PostConstruct
@@ -194,7 +197,8 @@ public class ReportControllerTest {
                 .email(report.getEmail())
                 .type(report.getType())
                 .content(report.getContent())
-                .status(report.getStatus());
+                .status(report.getStatus())
+                .createdAt(new Date());
 
         // Create the Report
         MvcResult result = restReportMockMvc.perform(post("/api/reports")

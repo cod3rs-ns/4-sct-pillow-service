@@ -6,6 +6,7 @@ import rs.acs.uns.sw.sct.users.User;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * A report.
@@ -36,6 +37,10 @@ public class Report implements Serializable {
     @Column(nullable = false)
     private String status;
 
+    @NotNull
+    @Column(nullable = false)
+    private Date createdAt;
+
     @ManyToOne
     @JoinColumn()
     private User reporter;
@@ -58,7 +63,8 @@ public class Report implements Serializable {
                 .content(content)
                 .status(status)
                 .reporter((reporter != null) ? reporter.convertToDTO() : null)
-                .announcement(announcement.convertToDTO());
+                .announcement(announcement.convertToDTO())
+                .createdAt(createdAt);
     }
 
     public Long getId() {
@@ -191,6 +197,25 @@ public class Report implements Serializable {
      */
     public Report announcement(Announcement announcement) {
         this.announcement = announcement;
+        return this;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param createdAt date when report is created
+     * @return Report (this)
+     */
+    public Report createdAt(Date createdAt) {
+        this.createdAt = createdAt;
         return this;
     }
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,7 @@ public class AnnouncementService {
      */
     @Transactional(readOnly = true)
     public Page<Announcement> findAllByCompany(Long companyId, Pageable pageable) {
-        return announcementRepository.findByAuthor_Company_Id(companyId, pageable);
+        return announcementRepository.findByAuthor_Company_IdAndExpirationDateAfter(companyId, new Date(), pageable);
     }
 
     /**
