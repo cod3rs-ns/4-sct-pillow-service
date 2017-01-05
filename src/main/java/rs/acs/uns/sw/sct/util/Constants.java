@@ -95,6 +95,7 @@ public final class Constants {
         public static final int HOST_PORT = 587;
         public static final String AUTH_USER = "bacovakuhinja@gmail.com";
         public static final String AUTH_PASS = "jedanjebaco";
+        public static final String ANNOUNCEMENT_CLIENT = "http://localhost:8080/index.html#!/announcement/";
 
         private MailParameters(){
         }

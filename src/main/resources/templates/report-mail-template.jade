@@ -1,0 +1,73 @@
+html
+
+head
+    meta(http-equiv="Content-Type", content="text/html; charset=utf-8")
+    style(media='screen', type='text/css').
+        body {margin: 0; padding: 0; min-width: 100%!important;}
+        #details {margin-left: 15px;}
+        img {height: auto;}
+        .content {width: 100%; max-width: 600px;}
+        .header {padding: 40px 30px 20px 30px;}
+        .innerpadding {padding: 30px 30px 30px 30px;}
+        .borderbottom {border-bottom: 1px solid #f2eeed;}
+        .subhead {font-size: 15px; color: #ffffff; font-family: sans-serif; letter-spacing: 10px;}
+        .h1, .h2, .bodycopy {color: #153643; font-family: sans-serif;}
+        .h1 {font-size: 33px; line-height: 38px; font-weight: bold;}
+        .h2 {padding: 0 0 15px 0; font-size: 24px; line-height: 28px; font-weight: bold;}
+        .bodycopy {font-size: 16px; line-height: 22px;}
+        .button {text-align: center; font-size: 18px; font-family: sans-serif; font-weight: bold; padding: 0 30px 0 30px; margin: 30px;}
+        .button a {color: #ffffff; text-decoration: none;}
+        .footer {padding: 20px 30px 15px 30px;}
+        .footercopy {font-family: sans-serif; font-size: 14px; color: #ffffff;}
+        .footercopy a {color: #ffffff; text-decoration: underline;}
+
+body(bgcolor="#f6f8f1")
+    table(width="100%", bgcolor="#f6f8f1", border="0", cellpadding="0", cellspacing="0")
+        tr
+            td
+                table(bgcolor="#ffffff", class="content", align="center", cellpadding="0", cellspacing="0", border="0")
+                    tr
+                        td(bgcolor="#C62828", class="header")
+                            table(width="70", align="left", border="0", cellpadding="0", cellspacing="0")
+                                tr
+                                    td(height="70", style="padding: 0 20px 20px 0;")
+                                        img(class="fix", src="http://i.imgur.com/YukJdnZ.png", width="90", height="90", border="0", alt="")
+                            table(class="col425", align="left", border="0", cellpadding="0", cellspacing="0", style="width: 100%; max-width: 425px;")
+                                tr
+                                    td(height="70")
+                                        table(width="100%", border="0", cellspacing="0", cellpadding="0")
+                                            tr
+                                                td(class="subhead", style="padding: 0 0 0 3px;") PRIJAVA OGLASA
+                                            tr
+                                                td(class="h4", style="padding: 5px 0 0 0;")
+                                                    em Ba&#263;o predstavlja
+                                            tr
+                                                td(class="h1", style="padding: 5px 0 0 0;")
+                                                    strong PILLOW
+
+                    tr
+                        td(class="innerpadding borderbottom")
+                            table(width="100%", border="0", cellspacing="0", cellpadding="0")
+                                tr
+                                    td(class="h2") PILLOW ima obave&#353;tenje za Vas!
+                                tr
+                                    td(class="bodycopy") Va&#353; oglas &nbsp;
+                                        a(href="#{announcementLink}") #{announcementName}
+                                        | &nbsp; je prijavljen kao
+                                        strong &nbsp;neispravan&nbsp;
+                                        | od strane drugog korisnika sa slede&#263;om porukom:
+                                        br
+                                        br
+                                        strong #{reportContent}
+                                        br
+                                        br
+                                        | Molimo Vas da adekvatno izmenite Va&#353; oglas. Va&#353;
+                                        strong &nbsp;PILLOW&nbsp;
+                                        | tim.
+                                        br
+                    tr(align="center", valign="middle")
+                        td(style="align: center;", align="center", valign="middle" )
+                            table(class="buttonwrapper", bgcolor="#009688", border="0", cellspacing="0", cellpadding="0")
+                                tr(style="align: center")
+                                    td(class="button", height="45")
+                                        a(href="#{announcementLink}") Izmeni oglas

@@ -15,6 +15,7 @@ import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
+import rs.acs.uns.sw.sct.util.MailSender;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
@@ -42,6 +43,9 @@ public class ReportController {
 
     @Autowired
     private UserSecurityUtil userSecurityUtil;
+
+    @Autowired
+    private MailSender mailSender;
 
     /**
      * POST  /reports : Create a new report.
@@ -143,7 +147,7 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/reports")
     public ResponseEntity<List<ReportDTO>> getAllReports(Pageable pageable)
             throws URISyntaxException {
@@ -159,7 +163,7 @@ public class ReportController {
      * @param id the id of the report to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the report, or with status 404 (Not Found)
      */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/reports/{id}")
     public ResponseEntity<ReportDTO> getReport(@PathVariable Long id) {
         Report report = reportService.findOne(id);
@@ -201,7 +205,7 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/reports/status/{status}")
     public ResponseEntity<List<ReportDTO>> getAllReportsByStatus(Pageable pageable, @PathVariable String status)
             throws URISyntaxException {
@@ -219,7 +223,7 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/reports/author/{email:.+}")
     public ResponseEntity<List<ReportDTO>> getAllReportsByAuthorEmail(Pageable pageable, @PathVariable String email)
             throws URISyntaxException {
@@ -280,6 +284,13 @@ public class ReportController {
         }
 
         Report result = reportService.save(report);
+        // send email to author
+        mailSender.sendReportAcceptedMail(
+                report.getContent(),
+                report.getAnnouncement().getId(),
+                report.getAnnouncement().getName(),
+                report.getAnnouncement().getAuthor().getEmail());
+
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
