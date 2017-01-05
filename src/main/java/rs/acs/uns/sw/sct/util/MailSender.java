@@ -58,6 +58,32 @@ public class MailSender {
         }
     }
 
+    /**
+     * Send mail to advertiser upon resolving report of his announcement
+     *
+     * @param reportContent     content of report attached to announcement
+     * @param announcementID    ID of reported announcement
+     * @param announcementName  name of the reported announcement
+     * @param address           address of the announcement's author
+     */
+    @Async
+    public void sendReportAcceptedMail(String reportContent, Long announcementID, String announcementName, String address){
+        Map<String, Object> model = new HashMap<>();
+        model.put("reportContent", reportContent);
+        model.put("announcementLink", Constants.MailParameters.ANNOUNCEMENT_CLIENT + String.valueOf(announcementID));
+        model.put("announcementName", announcementName);
+
+        try{
+            // Rendering html page for email
+            String html = Jade4J.render("./src/main/resources/templates/report-mail-template.jade", model);
+            sendMail(address, "Prijava oglasa", html);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "", e);
+        } catch (MessagingException e) {
+            logger.log(Level.WARNING, "", e);
+        }
+    }
+
     private void sendMail(String address, String subject, String message) throws MessagingException {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
         sender.setDefaultEncoding("UTF-8");

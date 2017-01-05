@@ -15,6 +15,7 @@ import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
+import rs.acs.uns.sw.sct.util.MailSender;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
@@ -42,6 +43,9 @@ public class ReportController {
 
     @Autowired
     private UserSecurityUtil userSecurityUtil;
+
+    @Autowired
+    private MailSender mailSender;
 
     /**
      * POST  /reports : Create a new report.
@@ -280,6 +284,13 @@ public class ReportController {
         }
 
         Report result = reportService.save(report);
+        // send email to author
+        mailSender.sendReportAcceptedMail(
+                report.getContent(),
+                report.getAnnouncement().getId(),
+                report.getAnnouncement().getName(),
+                report.getAnnouncement().getAuthor().getEmail());
+
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
