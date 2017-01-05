@@ -716,6 +716,7 @@ public class ReportControllerTest {
      */
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void getReportsByAuthor() throws Exception {
         
         // Initialize the database
