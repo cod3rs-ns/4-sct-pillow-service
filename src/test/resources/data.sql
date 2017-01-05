@@ -32,20 +32,21 @@ INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `passw
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (15, 0, 'test_advertiser_other@gmail.com', 'Test', 'TAdvertiser', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '060000000', 'advertiser', 'test_advertiser_other_company_member', '5', 'accepted');
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (16, 0, 'test_advertiser_same@gmail.com', 'Test', 'TAdvertiser', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '060000000', 'advertiser', 'test_advertiser_same_company_member', '4', 'accepted');
 
-INSERT INTO `locations` (`id`, `city`, `city_region`, `country`, `street`, `street_number`) VALUES (1, 'Novi Sad', 'Grbavica', 'Srbija', 'Trg Dositeja Obradovica', '15'); -- Stimac (SRB)
-INSERT INTO `locations` (`id`, `city`, `city_region`, `country`, `street`, `street_number`) VALUES (2, 'Novi Sad', 'Grbavica', 'Srbija', 'Trg Dositeja Obradovica', '51'); -- Stimac (CZV)
+INSERT INTO `locations` (`id`, `city`, `city_region`, `country`, `street`, `street_number`, `latitude`, `longitude`) VALUES (1, 'Novi Sad', 'Grbavica', 'Srbija', 'Trg Dositeja Obradovica', '15', 45.246740, 19.851894); -- Stimac (SRB)
+INSERT INTO `locations` (`id`, `city`, `city_region`, `country`, `street`, `street_number`, `latitude`, `longitude`) VALUES (2, 'Novi Sad', 'Centar', 'Srbija', 'Petra Drapsina', '5', 45.252711, 19.841499);
+INSERT INTO `locations` (`id`, `city`, `city_region`, `country`, `street`, `street_number`, `latitude`, `longitude`) VALUES (3, 'Ugljevik', 'Senjak', 'Bosna i Hercegovina', 'Svetog Save', '51', 44.693972, 18.995955); -- Stimac (CZV)
 
 /* Insert new real estates */
 INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `type`, `location_id`) VALUES ('1', '220', 0, 'coal', 'flat', 1);
 INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `type`, `location_id`) VALUES ('2', '220', 0, 'central_heating', 'house', 2);
 INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `type`, `location_id`) VALUES ('3', '240', 1, 'central_heating', 'flat', 2);
-INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `type`, `location_id`) VALUES ('4', '240', 0, 'coal', 'flat', 2);
+INSERT INTO `real_estates` (`id`, `area`, `deleted`, `heating_type`, `type`, `location_id`) VALUES ('4', '240', 0, 'coal', 'flat', 3);
 
 /* Insert new announcements */
 INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`, `description`) VALUES ('1', '1994-01-01', '1994-01-03', 0, '1994-01-20', '50', '0654887612', 'flat', 'not-verified', '1', '1', 'name1', 'desc1');
-INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`, `description`) VALUES ('2', '1997-01-01', '1997-01-03', 0, '1997-01-20', '60', '0654887111', 'flat', 'verified', '1', '3', 'name2', 'desc2');
+INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`, `description`) VALUES ('2', '1997-01-01', '1997-01-03', 0, '1997-01-20', '60', '0654887111', 'flat', 'verified', '1', '2', 'name2', 'desc2');
 INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`, `description`) VALUES ('3', '1994-01-01', '1994-01-03', 1, '1994-01-20', '50', '0654887612', 'flat', 'not-verified', '12', '1', 'name3', 'desc3');
-INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`, `description`) VALUES ('4', '2017-01-01', '2017-01-01', 0, '2017-01-20', '50', '0654887612', 'flat', 'not-verified', '12', '1', 'name4', 'desc4');
+INSERT INTO `announcements` (`id`, `date_announced`, `date_modified`, `deleted`, `expiration_date`, `price`, `phone_number`, `type`, `verified`, `author_id`, `real_estate_id`, `name`, `description`) VALUES ('4', '2017-01-01', '2017-01-01', 0, '2017-01-20', '50', '0654887612', 'flat', 'not-verified', '12', '4', 'name4', 'desc4');
 
 /* Insert new comments*/
 INSERT INTO `comments` (`id`, `content`, `date`, `announcement_id`, `author_id`) VALUES ('1', 'Another one comment', '2016-05-05', '2', '5');

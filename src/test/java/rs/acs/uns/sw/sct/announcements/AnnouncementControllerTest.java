@@ -45,6 +45,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.*;
+import static rs.acs.uns.sw.sct.constants.CompanyConstants.PAGEABLE;
 import static rs.acs.uns.sw.sct.util.ContainsIgnoreCase.containsIgnoringCase;
 import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 
@@ -1686,5 +1687,69 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[*].id", everyItem(not(comparesEqualTo(Integer.valueOf(persisted.getId().intValue()))))))
                 .andReturn();
+    }
+
+    /**
+     * Tests searching for Announcements that were deleted
+     * <p>
+     * Test saves announcement with provided location and then retrieves
+     * all tests in provided rectangle area. Assert if count is equal and
+     * if exists in result.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    public void findAnnouncementsInArea() throws Exception {
+
+        final Double topRightLong = 11.0;
+        final Double topRightLat = 24.0;
+        final Double bottomLeftLong = 9.0;
+        final Double bottomLeftLat = 20.0;
+
+        final Location location = new Location()
+                .id(99L)
+                .country(COUNTRY)
+                .city(CITY)
+                .cityRegion(CITY_REGION)
+                .street(STREET)
+                .streetNumber(STREET_NUMBER)
+                .latitude(21.)
+                .longitude(10.);
+
+        RealEstate realEstate = new RealEstate()
+                .id(99L)
+                .deleted(false)
+                .area(99.)
+                .type("AAA")
+                .heatingType("BBB")
+                .location(location);
+
+        RealEstate realEstateSaved = realEstateService.save(realEstate);
+        // Initialize the database
+        announcement.realEstate(realEstateSaved);
+
+        announcementRepository.saveAndFlush(announcement);
+
+        final Long size = announcementService.findAllInArea(topRightLong, topRightLat, bottomLeftLong, bottomLeftLat, PAGEABLE).getTotalElements();
+
+        // Get all the announcements
+        restAnnouncementMockMvc.perform(get("/api/announcements/location-search")
+                .param("topRightLong", String.valueOf(topRightLong))
+                .param("topRightLat", String.valueOf(topRightLat))
+                .param("bottomLeftLong", String.valueOf(bottomLeftLong))
+                .param("bottomLeftLat", String.valueOf(bottomLeftLat)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*]", hasSize(Math.toIntExact(size))))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
+                .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
+                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+                .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESC)))
+                .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
+                .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
     }
 }
