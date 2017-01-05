@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,7 +29,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * @param pageable  the pagination information
      * @return list of announcements
      */
-    Page<Announcement> findByAuthor_Company_Id(Long companyId, Pageable pageable); // NOSONAR - invalid warning
+    Page<Announcement> findByAuthor_Company_IdAndExpirationDateAfter(Long companyId, Date date, Pageable pageable); // NOSONAR - invalid warning
 
     /**
      * Get all announcements created by specified Author ID.

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -65,7 +66,8 @@ public class ReportServiceTest {
                 .content(CONTENT)
                 .status(STATUS)
                 .reporter(REPORTER)
-                .announcement(DEFAULT_ANNOUNCEMENT);
+                .announcement(DEFAULT_ANNOUNCEMENT)
+                .createdAt(new Date());
         newReport = new Report()
                 .id(null)
                 .email(NEW_EMAIL)
@@ -73,7 +75,8 @@ public class ReportServiceTest {
                 .content(NEW_CONTENT)
                 .status(NEW_STATUS)
                 .reporter(NEW_REPORTER)
-                .announcement(DEFAULT_ANNOUNCEMENT);
+                .announcement(DEFAULT_ANNOUNCEMENT)
+                .createdAt(new Date());
         updatedReport = new Report()
                 .id(null)
                 .email(UPDATED_EMAIL)
@@ -81,7 +84,8 @@ public class ReportServiceTest {
                 .content(UPDATED_CONTENT)
                 .status(UPDATED_STATUS)
                 .reporter(UPDATED_REPORTER)
-                .announcement(DEFAULT_ANNOUNCEMENT);
+                .announcement(DEFAULT_ANNOUNCEMENT)
+                .createdAt(new Date());
     }
 
     /**

@@ -16,6 +16,7 @@ import rs.acs.uns.sw.sct.realestates.RealEstate;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -250,20 +251,18 @@ public class AnnouncementServiceTest {
      * <p>
      * This test searches for all Announcements by a Company.
      * It then asserts that the company of every Announcement
-     * in the results matches the one we searched by and that
-     * the number of results matches the expected number of
-     * Announcements by the Company.
+     * in the results matches the one we searched by
      */
     @Test
     public void testAnnouncementsByAuthorId() {
+        Date today = new Date();
         Page<Announcement> dbAnnouncements = announcementService.findAllByCompany(COMPANY_ID, PAGEABLE);
         List<Announcement> content = dbAnnouncements.getContent();
 
         for (Announcement ann : content) {
             assertThat(ann.getAuthor().getCompany().getId()).isEqualTo(COMPANY_ID);
+            assertThat(ann.getDateAnnounced().after(today));
         }
-
-        assertThat(content.size()).isEqualTo(COUNT_OF_COMPANY_ANN);
     }
 
     /**
