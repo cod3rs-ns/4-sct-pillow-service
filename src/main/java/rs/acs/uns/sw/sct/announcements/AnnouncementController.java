@@ -487,6 +487,12 @@ public class AnnouncementController {
                                                         @RequestParam(value = "city", required = false) String city,
                                                         @RequestParam(value = "street", required = false) String street,
                                                         @RequestParam(value = "streetNumber", required = false) String streetNumber,
+                                                        @RequestParam(value = "intercom", required = false) Boolean intercom,
+                                                        @RequestParam(value = "internet", required = false) Boolean internet,
+                                                        @RequestParam(value = "phone", required = false) Boolean phone,
+                                                        @RequestParam(value = "airConditioner", required = false) Boolean airConditioner,
+                                                        @RequestParam(value = "videoSurveillance", required = false) Boolean videoSurveillance,
+                                                        @RequestParam(value = "cableTV", required = false) Boolean cableTV,
                                                         Pageable pageable) {
 
         AnnouncementSearchWrapper wrap = new AnnouncementSearchWrapper()
@@ -497,7 +503,13 @@ public class AnnouncementController {
                 .heatingType(heatingType).name(name)
                 .country(country).cityRegion(cityRegion)
                 .city(city).street(street)
-                .streetNumber(streetNumber);
+                .streetNumber(streetNumber)
+                .intercom(intercom)
+                .internet(internet)
+                .phone(phone)
+                .airConditioner(airConditioner)
+                .videoSurveillance(videoSurveillance)
+                .cableTV(cableTV);
 
         List<AnnouncementDTO> list = announcementService.findBySearchTerm(wrap, pageable)
                 .stream().map(announcement -> announcement.convertToDTO())

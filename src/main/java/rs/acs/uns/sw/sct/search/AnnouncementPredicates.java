@@ -21,7 +21,7 @@ public final class AnnouncementPredicates {
      * @param searchWrapper announcement wrapper which contains announcement fields used as search criteria
      * @return search predicate
      */
-    public static Predicate search(AnnouncementSearchWrapper searchWrapper) { // NOSONAR
+    public static Predicate search(AnnouncementSearchWrapper searchWrapper) {
         BooleanBuilder where = new BooleanBuilder();
 
         QAnnouncement announcement = QAnnouncement.announcement;
@@ -51,6 +51,18 @@ public final class AnnouncementPredicates {
             where.and(announcement.realEstate.location.street.containsIgnoreCase(searchWrapper.getStreet()));
         if (searchWrapper.getStreetNumber() != null)
             where.and(announcement.realEstate.location.streetNumber.equalsIgnoreCase(searchWrapper.getStreetNumber()));
+        if (searchWrapper.getIntercom() != null)
+            where.and(announcement.realEstate.intercom.eq(searchWrapper.getIntercom()));
+        if (searchWrapper.getInternet() != null)
+            where.and(announcement.realEstate.internet.eq(searchWrapper.getInternet()));
+        if (searchWrapper.getPhone() != null)
+            where.and(announcement.realEstate.phone.eq(searchWrapper.getPhone()));
+        if (searchWrapper.getAirConditioner() != null)
+            where.and(announcement.realEstate.airConditioner.eq(searchWrapper.getAirConditioner()));
+        if (searchWrapper.getVideoSurveillance() != null)
+            where.and(announcement.realEstate.videoSurveillance.eq(searchWrapper.getVideoSurveillance()));
+        if (searchWrapper.getCableTV() != null)
+            where.and(announcement.realEstate.cableTV.eq(searchWrapper.getCableTV()));
 
         where.and(announcement.deleted.eq(false));
 
