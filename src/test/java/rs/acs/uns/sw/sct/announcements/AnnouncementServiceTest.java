@@ -456,7 +456,7 @@ public class AnnouncementServiceTest {
         final int dbSize = announcementService.findAllByStatus(false, null).getContent().size();
         final int requiredSize = dbSize < PAGEABLE.getPageSize() ? dbSize : PAGEABLE.getPageSize();
 
-        List<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), PAGEABLE);
+        Page<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), PAGEABLE);
         assertThat(result).hasSize(requiredSize);
     }
 
@@ -481,7 +481,7 @@ public class AnnouncementServiceTest {
                 .startArea(area)
                 .endArea(area);
 
-        List<Announcement> result = announcementService.findBySearchTerm(wrapper, PAGEABLE);
+        Page<Announcement> result = announcementService.findBySearchTerm(wrapper, PAGEABLE);
 
         for (Announcement ann : result) {
             assertThat(ann.getRealEstate().getArea()).isBetween(area, area);
@@ -504,7 +504,7 @@ public class AnnouncementServiceTest {
         Announcement persisted = announcementRepository.saveAndFlush(
                 newAnnouncement.deleted(true));
 
-        List<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), AnnouncementConstants.PAGEABLE);
+        Page<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), AnnouncementConstants.PAGEABLE);
 
         for (Announcement ann : result) {
             assertThat(ann.getId()).isNotEqualTo(persisted.getId());

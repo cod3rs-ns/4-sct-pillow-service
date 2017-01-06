@@ -469,6 +469,7 @@ public class AnnouncementController {
      * @param streetNumber  street number of building where is real estate
      * @param pageable      the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/search")
@@ -493,7 +494,7 @@ public class AnnouncementController {
                                                         @RequestParam(value = "airConditioner", required = false) Boolean airConditioner,
                                                         @RequestParam(value = "videoSurveillance", required = false) Boolean videoSurveillance,
                                                         @RequestParam(value = "cableTV", required = false) Boolean cableTV,
-                                                        Pageable pageable) {
+                                                        Pageable pageable) throws URISyntaxException {
 
         AnnouncementSearchWrapper wrap = new AnnouncementSearchWrapper()
                 .startPrice(startPrice).endPrice(endPrice)
@@ -511,11 +512,11 @@ public class AnnouncementController {
                 .videoSurveillance(videoSurveillance)
                 .cableTV(cableTV);
 
-        List<AnnouncementDTO> list = announcementService.findBySearchTerm(wrap, pageable)
-                .stream().map(announcement -> announcement.convertToDTO())
-                .collect(Collectors.toList());
+        Page<AnnouncementDTO> page = announcementService.findBySearchTerm(wrap, pageable)
+                .map(announcement -> announcement.convertToDTO());
 
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/search");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
