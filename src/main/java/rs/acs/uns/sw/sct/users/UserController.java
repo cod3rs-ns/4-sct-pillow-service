@@ -115,7 +115,7 @@ public class UserController {
     @GetMapping("/users/company/{companyId}")
     public ResponseEntity<List<UserDTO>> getAllUsersByCompanyId(@PathVariable Long companyId, Pageable pageable)
             throws URISyntaxException {
-        Page<UserDTO> page = userService.findAllByCompany(companyId, pageable)
+        Page<UserDTO> page = userService.findAllByCompanyMembershipStatus(companyId, Constants.CompanyStatus.ACCEPTED, pageable)
                 .map(user -> user.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users/company");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
@@ -167,7 +167,6 @@ public class UserController {
         user.setVerified(false);
         User result = userService.save(user);
 
-        // TODO 7 - this code is probably commented for development purpose
         mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail(), null);
 
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
