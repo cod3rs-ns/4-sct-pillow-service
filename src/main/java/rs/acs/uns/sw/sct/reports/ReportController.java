@@ -286,12 +286,15 @@ public class ReportController {
         }
 
         Report result = reportService.save(report);
+
         // send email to author
-        mailSender.sendReportAcceptedMail(
-                report.getContent(),
-                report.getAnnouncement().getId(),
-                report.getAnnouncement().getName(),
-                report.getAnnouncement().getAuthor().getEmail());
+        if (result.getStatus().equals(Constants.ReportStatus.ACCEPTED)) {
+            mailSender.sendReportAcceptedMail(
+                    report.getContent(),
+                    report.getAnnouncement().getId(),
+                    report.getAnnouncement().getName(),
+                    report.getAnnouncement().getAuthor().getEmail());
+        }
 
         return ResponseEntity
                 .ok()
