@@ -376,6 +376,7 @@ public class UserControllerTest {
     @Transactional
     public void getUsersByCompanyId() throws Exception {
         // Add user to database first
+        advertiser.setCompanyVerified(Constants.CompanyStatus.ACCEPTED);
         userService.save(advertiser);
 
         mockMvc.perform(get("/api/users/company/{companyId}", advertiser.getCompany().getId()))
