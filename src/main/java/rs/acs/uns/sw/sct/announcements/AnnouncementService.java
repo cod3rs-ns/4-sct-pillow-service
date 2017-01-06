@@ -1,7 +1,6 @@
 package rs.acs.uns.sw.sct.announcements;
 
 import com.querydsl.core.types.Predicate;
-import org.apache.commons.collections.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -126,7 +125,7 @@ public class AnnouncementService {
      */
     @Transactional(readOnly = true)
     public List<Announcement> findTopByCompany(Long companyId) {
-        return announcementRepository.findFirst3ByAuthor_Company_IdOrderByPriceAsc(companyId);
+        return announcementRepository.findFirst3ByAuthor_Company_IdAndExpirationDateAfterOrderByPriceAsc(companyId, new Date());
     }
 
     /**
@@ -157,9 +156,9 @@ public class AnnouncementService {
      * @return list of founded Announcements
      */
     @Transactional(readOnly = true)
-    public List<Announcement> findBySearchTerm(AnnouncementSearchWrapper searchWrapper, Pageable pageable) {
+    public Page<Announcement> findBySearchTerm(AnnouncementSearchWrapper searchWrapper, Pageable pageable) {
         Predicate searchPredicate = search(searchWrapper);
-        Iterable<Announcement> searchResults = announcementRepository.findAll(searchPredicate, pageable);
-        return IteratorUtils.toList(searchResults.iterator());
+        Page<Announcement> searchResults = announcementRepository.findAll(searchPredicate, pageable);
+        return searchResults;
     }
 }

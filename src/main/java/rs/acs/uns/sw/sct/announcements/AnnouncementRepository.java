@@ -56,6 +56,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * @param companyId the id of the company
      * @return list of announcements
      */
-    List<Announcement> findFirst3ByAuthor_Company_IdOrderByPriceAsc(Long companyId); //NOSONAR - invalid warning
+    List<Announcement> findFirst3ByAuthor_Company_IdAndExpirationDateAfterOrderByPriceAsc(Long companyId, Date date); //NOSONAR - invalid warning
 
 }
