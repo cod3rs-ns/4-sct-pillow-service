@@ -5,5 +5,5 @@ package rs.acs.uns.sw.e2e.pages;
  */
 public class HomePage {
 
-    public static final String HOME_URL = "http://localhost:8080/#!/home";
+    public static final String HOME_URL = "http://localhost:8080/#/home";
 }

@@ -8,10 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
-import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.companies.Company;
 import rs.acs.uns.sw.sct.companies.CompanyService;
 import rs.acs.uns.sw.sct.constants.CompanyConstants;
@@ -27,6 +27,7 @@ import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class UserServiceTest {
 
     @Autowired

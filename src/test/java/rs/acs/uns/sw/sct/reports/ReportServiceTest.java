@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
@@ -21,7 +21,7 @@ import static rs.acs.uns.sw.sct.constants.ReportConstants.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
-@TestPropertySource(locations = "classpath:application.properties")
+@ActiveProfiles("test")
 public class ReportServiceTest {
     @Autowired
     private ReportService reportService;

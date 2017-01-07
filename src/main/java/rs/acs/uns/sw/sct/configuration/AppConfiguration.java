@@ -6,7 +6,6 @@ import org.springframework.context.annotation.PropertySources;
 
 @Configuration
 @PropertySources({
-        @PropertySource(value = "classpath:application.properties", ignoreResourceNotFound = true),
         @PropertySource("classpath:upload.properties")
 })
 public class AppConfiguration {

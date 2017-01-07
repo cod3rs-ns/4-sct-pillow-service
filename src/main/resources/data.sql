@@ -12,7 +12,7 @@ INSERT INTO `companies` (`id`, `address`, `name`, `phone_number`) VALUES ('5', '
 
 
 /* Insert new users */
-INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (1, 0, 'isco@gmail.com', 'Isco', 'Alarcon', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065066665', 'verifier', 'isco', '1', 'accepted');
+INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (1, 0, 'isco@gmail.com', 'Isco', 'Alarcon', '$2a$10$iZ.kdcySt1n2BnLIkksLdOSe22jVI4kUYa1OBpZ64QboxruXetmFO', '065066665', 'verifier', 'isco', '1', 'accepted');
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`) VALUES (2, 0, 'sr4@gmail.com', 'Sergio', 'Ramos', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065066665', 'verifier', 'sr4');
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (3, 0, 'david@gmail.com', 'David', 'Beckham', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065066665', 'oglašavač', 'david', '3', 'pending');
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (4, 0, 'bjelica@gmail.com', 'Nemanja', 'Bjelica', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065066765', 'verifikator', 'bjelica', '1', 'accepted');
@@ -22,7 +22,7 @@ INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `passw
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (8, 0, 'russ@gmail.com', 'Russell', 'Westbrook', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'advertiser', 'russ', '3', 'accepted');
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (9, 1, 'davies@gmail.com', 'Antony', 'Davies', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'verifier', 'eyebrow', '3', 'accepted');
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`) VALUES (10, 1, 'towns@gmail.com', 'Karl Anthony', 'Towns', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'advertiser', 'kat', '3', 'accepted');
-INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`) VALUES (11, 0, 'admin@admin.com', 'admin', 'admin', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'admin', 'admin');
+INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`) VALUES (11, 0, 'admin@admin.com', 'admin', 'admin', '$2a$10$iZ.kdcySt1n2BnLIkksLdOSe22jVI4kUYa1OBpZ64QboxruXetmFO', '065161665', 'admin', 'admin');
 
 
 
@@ -60,12 +60,10 @@ INSERT INTO `images` (`id`, `image_path`) VALUES ('2', 'slika2.png');
 INSERT INTO `announcements_images` (`announcement_id`, `images_id`) VALUES ('1', '1');
 INSERT INTO `announcements_images` (`announcement_id`, `images_id`) VALUES ('2', '2');
 
+/* Insert new reports*/
+INSERT INTO `reports` (`id`,`email`, `content`, `status`, `type`, `created_at`, `announcement_id`, `reporter_id`) VALUES ('1', 'user6@mail.com', 'Inappropriate content', 'active', 'admin', '1994-01-01', '2', '6');
 
 /* Insert new marks*/
 INSERT INTO `marks`  VALUES ('1', '4', '2', '1', '3');
 INSERT INTO `marks`  VALUES ('2', '5', '2', '1', '4');
 INSERT INTO `marks`  VALUES ('3', '3', '2', '1', '3');
-
-
-/* Insert new reports*/
-INSERT INTO `reports` (`id`,`email`, `content`, `status`, `type`, `announcement_id`, `reporter_id`) VALUES ('1', 'user6@mail.com', 'Inappropriate content', 'active', 'admin', '2', '6');

@@ -9,6 +9,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.boot.test.context.SpringBootTest;
+import rs.acs.uns.sw.sct.SctServiceApplication;
 
 import java.io.File;
 
@@ -20,6 +22,7 @@ import static rs.acs.uns.sw.e2e.util.Constants.*;
 /**
  * Signing tests.
  */
+@SpringBootTest(classes = SctServiceApplication.class)
 public class SigningTest {
 
     private static WebDriver driver;
