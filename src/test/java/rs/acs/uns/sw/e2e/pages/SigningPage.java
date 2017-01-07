@@ -7,7 +7,7 @@ import org.openqa.selenium.By;
  */
 public class SigningPage {
 
-    public static final String SIGNING_URL = "http://localhost:8080/#!/login";
+    public static final String SIGNING_URL = "http://localhost:8080/#/login";
 
     public static final By BUTTON_LOGIN = By.id("login-button");
     public static final By TEXTBOX_USERNAME = By.id("form-username");
@@ -20,8 +20,8 @@ public class SigningPage {
     public static final String WRONG_LOGIN_DIALOG_MESSAGE = "Uneseno korisničko ime i/ili lozinka su pogrešni. Pokušajte ponovo.";
 
     // Fixed data for populating textboxes on page
-    public static final String ADMIN_USERNAME = "jordan";
-    public static final String ADMIN_PASSWORD = "jordan23";
+    public static final String ADMIN_USERNAME = "isco";
+    public static final String ADMIN_PASSWORD = "123456";
 
     public static final String WRONG_USERNAME = "Sergio Ramos <3";
     public static final String WRONG_PASSWORD = "Until the final whistle";

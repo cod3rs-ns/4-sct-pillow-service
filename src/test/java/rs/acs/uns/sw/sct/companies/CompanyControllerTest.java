@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,6 +42,7 @@ import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class CompanyControllerTest {
 
     private static final String DEFAULT_NAME = "NAME_AAA";

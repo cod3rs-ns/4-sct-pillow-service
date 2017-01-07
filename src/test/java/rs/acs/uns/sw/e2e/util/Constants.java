@@ -5,6 +5,8 @@ package rs.acs.uns.sw.e2e.util;
  */
 public interface Constants {
 
+    String PROFILE_NAME = "test";
+
     // Chrome WebDriver constants
     String WEBDRIVER_NAME = "webdriver.chrome.driver";
     Integer WEBDRIVER_TIMEOUT = 20;

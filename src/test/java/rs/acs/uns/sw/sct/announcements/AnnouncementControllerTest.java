@@ -11,6 +11,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -57,6 +58,7 @@ import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = PropertyMockingApplicationContextInitializer.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class AnnouncementControllerTest {
 
     private static final String DEFAULT_NAME = "name_default";
