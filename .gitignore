@@ -120,3 +120,5 @@ transaction-logs
 .sonar/
 
 database
+
+src/test/java/rs/acs/uns/sw/e2e/util/Constants.java

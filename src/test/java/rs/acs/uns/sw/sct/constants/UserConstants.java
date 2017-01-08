@@ -4,7 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public interface UserConstants {
-    int DB_COUNT = 16;
+    int DB_COUNT = 17;
 
     Long USER_ID = 7L;
     String USER_FIRST_NAME = "Andrew";
@@ -44,7 +44,7 @@ public interface UserConstants {
     // Number of "deleted = true" database records
     Long DB_COUNT_USERS_DELETED_TRUE  = 2L;
     // Number of "deleted = false" database records
-    Long DB_COUNT_USERS_DELETED_FALSE = 14L;
+    Long DB_COUNT_USERS_DELETED_FALSE = 15L;
 
     // Number of "companyStatus = 'status'" database records for Company (ID = 3)
     Long USER_COMPANY_ID = 3L;
