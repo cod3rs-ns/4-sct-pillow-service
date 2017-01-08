@@ -3,6 +3,7 @@ package rs.acs.uns.sw.sct.util;
 import de.neuland.jade4j.Jade4J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import rs.acs.uns.sw.sct.users.UserService;
@@ -31,6 +32,9 @@ public class MailSender {
     @Autowired
     UserService userService;
 
+    @Autowired
+    SimpMessagingTemplate template;
+
     private Logger logger = Logger.getLogger(getClass().getName());
 
     /**
@@ -51,6 +55,7 @@ public class MailSender {
             // Rendering html page for email
             String html = Jade4J.render("./src/main/resources/templates/mail-template.jade", model);
             sendMail(address, "Potvrda registracije", html);
+            template.convertAndSend("/subscribe/email-sent/" + address, "true");
         } catch (IOException e) {
             logger.log(Level.SEVERE, "", e);
         } catch (MessagingException e) {
