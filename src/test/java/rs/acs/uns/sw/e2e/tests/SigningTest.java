@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import rs.acs.uns.sw.e2e.util.ConfigUtil;
 import rs.acs.uns.sw.e2e.util.MailUtil;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.users.User;
@@ -43,14 +44,7 @@ public class SigningTest {
 
     @BeforeClass
     public static void instanceDriver() {
-        File file = new File(WEBDRIVER_PATH);
-        System.setProperty(WEBDRIVER_NAME, file.getAbsolutePath());
-
-        final String os = System.getProperty("os.name");
-
-        final ChromeOptions options = new ChromeOptions();
-        options.addArguments(("Mac OS X".equals(os)) ? MAXIMIZE_OSX : MAXIMIZE_WIN);
-
+        ChromeOptions options = ConfigUtil.chromeOptions();
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
     }
@@ -186,7 +180,7 @@ public class SigningTest {
     @Test
     public void usernameExist() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
-        String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.USERNAME_EXISTS);
+        String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.USERNAME_EXISTS);
         final WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
 
         assertThat(errorMessage.isDisplayed()).isFalse();
@@ -203,7 +197,7 @@ public class SigningTest {
     @Test
     public void EmailExist() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
-        String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.EMAIL_EXISTS);
+        String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.EMAIL_EXISTS);
         final WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
 
         assertThat(errorMessage.isDisplayed()).isFalse();
@@ -220,7 +214,7 @@ public class SigningTest {
     @Test
     public void WrongEmailFormat() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
-        String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.WRONG_EMAIL);
+        String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.WRONG_EMAIL);
         final WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
 
         assertThat(errorMessage.isDisplayed()).isFalse();
@@ -237,7 +231,7 @@ public class SigningTest {
     @Test
     public void weakPassword() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
-        String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.WEAK_PASSWORD);
+        String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.WEAK_PASSWORD);
         final WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
 
         assertThat(errorMessage.isDisplayed()).isFalse();
@@ -254,7 +248,7 @@ public class SigningTest {
     @Test
     public void passwordDoesNotMatch() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
-        final String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.PASSWORD_DOES_NOT_MATCH);
+        final String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.PASSWORD_DOES_NOT_MATCH);
         final WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
 
         assertThat(errorMessage.isDisplayed()).isFalse();
@@ -274,7 +268,7 @@ public class SigningTest {
     @Test
     public void usernameRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
-        final String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.USERNAME_REQUIRED);
+        final String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.USERNAME_REQUIRED);
         final WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
         assertThat(errorMessage.isDisplayed()).isFalse();
 
@@ -291,7 +285,7 @@ public class SigningTest {
     public void passwordRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
 
-        String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.PASSWORD_REQUIRED);
+        String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.PASSWORD_REQUIRED);
         WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
         assertThat(errorMessage.isDisplayed()).isFalse();
 
@@ -308,7 +302,7 @@ public class SigningTest {
     public void firstNameRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
 
-        String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.FIRST_NAME_REQUIRED);
+        String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.FIRST_NAME_REQUIRED);
         WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
         assertThat(errorMessage.isDisplayed()).isFalse();
 
@@ -325,7 +319,7 @@ public class SigningTest {
     public void lastNameRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
 
-        String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.LAST_NAME_REQUIRED);
+        String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.LAST_NAME_REQUIRED);
         WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
         assertThat(errorMessage.isDisplayed()).isFalse();
 
@@ -342,7 +336,7 @@ public class SigningTest {
     public void phoneRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
 
-        String xpath = String.format(X_PATH_ERROR_MESSAGE, ValidationMessages.PHONE_REQUIRED);
+        String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.PHONE_REQUIRED);
         WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
         assertThat(errorMessage.isDisplayed()).isFalse();
 
