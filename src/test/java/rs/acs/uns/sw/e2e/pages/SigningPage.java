@@ -56,7 +56,7 @@ public class SigningPage {
     public static final String WEAK_PASSWORD = "123";
     public static final String RETYPED_WRONG_PASSWORD = "jordan32";
 
-    public static final String X_PATH_ERROR_MESSAGE = "//span[contains(text(), \"%s\")]";
+    public static final String X_PATH_ERROR_MESSAGE_SPAN = "//span[contains(text(), \"%s\")]";
 
     public static final class ValidationMessages {
         public static final String USERNAME_EXISTS = "Korisničko ime je već zauzeto.";

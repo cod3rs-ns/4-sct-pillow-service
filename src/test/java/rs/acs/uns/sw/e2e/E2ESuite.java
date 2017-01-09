@@ -5,13 +5,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.springframework.boot.SpringApplication;
 import rs.acs.uns.sw.e2e.tests.SigningTest;
+import rs.acs.uns.sw.e2e.tests.UserProfileTest;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 
 import static rs.acs.uns.sw.e2e.util.Constants.PROFILE_NAME;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        SigningTest.class
+        SigningTest.class,
+        UserProfileTest.class
 })
 public class E2ESuite {
 

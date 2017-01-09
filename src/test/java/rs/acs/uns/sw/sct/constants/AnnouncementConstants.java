@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 
 public interface AnnouncementConstants {
 
-    int DB_COUNT_ANNOUNCEMENT = 4;
+    int DB_COUNT_ANNOUNCEMENT = 5;
     int PAGE_SIZE = 2;
 
     Long ID = 1L;
@@ -80,10 +80,10 @@ public interface AnnouncementConstants {
     // Number of "deleted = true" database records
     Long DB_COUNT_ANNOUNCEMENT_DELETED_TRUE = 1L;
     // Number of "deleted = false" database records
-    Long DB_COUNT_ANNOUNCEMENT_DELETED_FALSE = 3L;
+    Long DB_COUNT_ANNOUNCEMENT_DELETED_FALSE = 4L;
     // Number of "deleted = false" database records
 
-    Integer ANNOUNCEMENTS_IN_AREA = 2;
+    Integer ANNOUNCEMENTS_IN_AREA = 3;
 
 
     // file to be upload
