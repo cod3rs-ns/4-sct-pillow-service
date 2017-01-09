@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.e2e.tests;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
@@ -42,6 +44,11 @@ public class UserProfileTest {
         ChromeOptions options = ConfigUtil.chromeOptions();
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+    }
+
+    @AfterClass
+    public static void closeDriver() {
+        driver.close();
     }
 
     @Before
@@ -67,7 +74,7 @@ public class UserProfileTest {
 
     @Test
     public void editVerifierProfile() {
-        login(VERIFIER_USERNAME, VERIFIER_PASSWORD);
+        login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
 
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
 
@@ -78,6 +85,7 @@ public class UserProfileTest {
         final WebElement buttonEdit = driver.findElement(EDIT_BUTTON);
         buttonEdit.click();
 
+        wait.until(visibilityOfElementLocated(EDIT_FIRST_NAME));
         final WebElement inputFirstName = driver.findElement(EDIT_FIRST_NAME);
         inputFirstName.clear();
         inputFirstName.sendKeys(UPDATED_FIRST_NAME);
@@ -104,7 +112,7 @@ public class UserProfileTest {
 
     @Test
     public void cancelEditingProfile() {
-        login(VERIFIER_USERNAME, VERIFIER_PASSWORD);
+        login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
 
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
 
@@ -144,7 +152,7 @@ public class UserProfileTest {
 
     @Test
     public void editFirstNameRequired() {
-        login(VERIFIER_USERNAME, VERIFIER_PASSWORD);
+        login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
         wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
@@ -166,7 +174,7 @@ public class UserProfileTest {
 
     @Test
     public void editLastNameRequired() {
-        login(VERIFIER_USERNAME, VERIFIER_PASSWORD);
+        login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
         wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
@@ -188,7 +196,7 @@ public class UserProfileTest {
 
     @Test
     public void editPhoneRequired() {
-        login(VERIFIER_USERNAME, VERIFIER_PASSWORD);
+        login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
         wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
@@ -201,6 +209,7 @@ public class UserProfileTest {
         final WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
         assertThat(errorMessage.isDisplayed()).isFalse();
 
+        wait.until(visibilityOfElementLocated(EDIT_PHONE));
         final WebElement inputPhone = driver.findElement(EDIT_PHONE);
         inputPhone.clear();
 
@@ -210,7 +219,7 @@ public class UserProfileTest {
 
     @Test
     public void changeProfileImage() throws AWTException {
-        login(VERIFIER_USERNAME, VERIFIER_PASSWORD);
+        login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
         wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
@@ -239,7 +248,7 @@ public class UserProfileTest {
 
     @Test
     public void changeUserPassword() throws AWTException {
-        login(USERNAME_FOR_PASS_CHANGING, VERIFIER_PASSWORD);
+        login(USERNAME_FOR_PASS_CHANGING, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_PASS_CHANGING + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_PASS_CHANGING + "/"));
         wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
@@ -276,5 +285,119 @@ public class UserProfileTest {
 
         wait.until(ExpectedConditions.urlToBe(SIGNING_URL));
         login(USERNAME_FOR_PASS_CHANGING, UPDATED_PASSWORD);
+    }
+
+    @Test
+    public void extendExpirationDate() throws AWTException {
+        login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
+        driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
+        wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
+
+        final String xpath = String.format(X_PATH_ANNOUNCEMENT_FRAGMENT, ANNOUNCEMENT_LINK + ANNOUNCEMENT_ID);
+        wait.until(presenceOfElementLocated(By.xpath(xpath)));
+        final WebElement annFragment = driver.findElement(By.xpath(xpath));
+
+        final WebElement inputDate = annFragment.findElement(EXTENDED_DATE);
+        inputDate.clear();
+        inputDate.sendKeys(UPDATED_EXTENDED_DATE);
+
+        final WebElement btnExtendingDate = annFragment.findElement(EXTENDED_DATE_BTN);
+        btnExtendingDate.click();
+
+        wait.until(visibilityOfElementLocated(EXTENDED_DATE_SUCCESS_MSG));
+        final WebElement successMessage = driver.findElement(EXTENDED_DATE_SUCCESS_MSG);
+        assertThat(successMessage.getText()).isEqualTo(String.format(DATE_EXPIRATION_SUCCESS_MESSAGE_CONTENT, UPDATED_EXTENDED_DATE));
+    }
+
+    @Test
+    public void expirationDateBeforeToday() throws AWTException {
+        login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
+        driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
+        wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
+
+        final String xpath = String.format(X_PATH_ANNOUNCEMENT_FRAGMENT, ANNOUNCEMENT_LINK + ANNOUNCEMENT_ID);
+        wait.until(presenceOfElementLocated(By.xpath(xpath)));
+        final WebElement annFragment = driver.findElement(By.xpath(xpath));
+
+        final WebElement inputDate = annFragment.findElement(EXTENDED_DATE);
+        inputDate.clear();
+        inputDate.sendKeys(WRONG_EXTENDED_DATE);
+
+        final WebElement btnExtendingDate = annFragment.findElement(EXTENDED_DATE_BTN);
+        btnExtendingDate.click();
+
+        wait.until(visibilityOfElementLocated(EXTENDED_DATE_ERROR_MSG));
+        final WebElement errorMessage = driver.findElement(EXTENDED_DATE_ERROR_MSG);
+        assertThat(errorMessage.getText()).isEqualTo(DATE_EXPIRATION_ERROR_MESSAGE_CONTENT);
+    }
+
+    @Test
+    public void expirationDateBeforePreviousDate() throws AWTException {
+        login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
+        driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
+        wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
+
+        final String xpath = String.format(X_PATH_ANNOUNCEMENT_FRAGMENT, ANNOUNCEMENT_LINK + ANNOUNCEMENT_ID_EXP_BEFORE_PREV);
+        wait.until(presenceOfElementLocated(By.xpath(xpath)));
+        final WebElement annFragment = driver.findElement(By.xpath(xpath));
+
+        final WebElement inputDate = annFragment.findElement(EXTENDED_DATE);
+        inputDate.clear();
+        inputDate.sendKeys(EXTENDED_DATE_BEFORE_PREV);
+
+        final WebElement btnExtendingDate = annFragment.findElement(EXTENDED_DATE_BTN);
+        btnExtendingDate.click();
+
+        // TODO: check error message appear
+    }
+
+    @Test
+    public void acceptCompanyMembershipRequest() throws AWTException {
+        login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
+        driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
+        wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
+
+        final WebElement membershipRequestsTab = driver.findElement(MEMBERSHIP_REQUESTS_TAB);
+        membershipRequestsTab.click();
+
+        final String xpath = String.format(X_PATH_USER_MEM_REQ_FRAGMENT, USER_MEMBERSHIP_LINK_ACCEPT);
+        wait.until(presenceOfElementLocated(By.xpath(xpath)));
+        final WebElement userFragment = driver.findElement(By.xpath(xpath));
+
+        final WebElement acceptBtn = userFragment.findElement(ACCEPT_REQUEST_BTN);
+        acceptBtn.click();
+
+        wait.until(invisibilityOfElementLocated(By.xpath(xpath)));
+
+        final String userProfileUrl = URL_PREFIX + USER_MEMBERSHIP_LINK_ACCEPT.substring(0, USER_MEMBERSHIP_LINK_ACCEPT.lastIndexOf("/") + 1);
+        driver.navigate().to(userProfileUrl);
+        wait.until(ExpectedConditions.urlToBe(userProfileUrl));
+
+        final WebElement userCompany = driver.findElement(USER_COMPANY);
+        assertThat(userCompany.getAttribute("href")).containsIgnoringCase(COMPANY_MEMBERS_LINK);
+    }
+
+    @Test
+    public void denyCompanyMembershipRequest() throws AWTException {
+        login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
+        driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
+        wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
+
+        final WebElement membershipRequestsTab = driver.findElement(MEMBERSHIP_REQUESTS_TAB);
+        membershipRequestsTab.click();
+
+        final String xpath = String.format(X_PATH_USER_MEM_REQ_FRAGMENT, USER_MEMBERSHIP_LINK_DENY);
+        wait.until(presenceOfElementLocated(By.xpath(xpath)));
+        final WebElement userFragment = driver.findElement(By.xpath(xpath));
+
+        final WebElement denyBtn = userFragment.findElement(DENY_REQUEST_BTN);
+        denyBtn.click();
+
+        wait.until(invisibilityOfElementLocated(By.xpath(xpath)));
     }
 }
