@@ -1,0 +1,151 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>KTS prezentacija</title>
+
+    <meta name="description" content="..." />
+    <meta name="author" content="Pillow's development team" />
+    
+    <link href="style.css" rel="stylesheet" />
+
+    <link rel="shortcut icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+
+<body class="impress-not-supported">
+
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+
+    <div id="title" class="step" data-x="-500" data-y="50">
+        <h1>Konstrukcija i testiranje softera</h1>
+        <h2>prezentacija</h2>
+    </div>
+
+    <div id="agenda" class="step" data-x="500" data-y="50">
+        <h3>Tim:</h3>
+        <h3>Stefan Ristanović</h3>
+        <h3>Bojan Blagojević</h3>
+        <h3>Dragutin Marjanović</h3>
+        <h3>Aleksa Zrnić</h3>
+    </div>
+
+    <div class="cube">
+        <div class="topFace step" data-x="0" data-y="-125" data-z="-1005" data-rotate-x="60" data-rotate-y="0" data-rotate-z="45" data-scale="0.5">
+            <h1>Razvoj</h1>
+            <p>Tokom razvoja koristili smo:</p>
+            <ul>
+                <li>IntelliJ IDEA kao razvojno okruženje</li>
+                <li>Spring Framework</li>
+                <li>Bootstrap + Angular JS</li>
+                <li>GitHub za kontrolu verzija</li>
+            </ul>
+        </div>
+        <div class="leftFace step" data-x="-125" data-y="90" data-z="-985" data-rotate-x="-30" data-rotate-y="-45" data-rotate-z="0" data-scale="0.5">
+            <h1>Sistem za kontrolu verzija</h1>
+            <p>Prilikom korišćenja <i>GitHub</i>-a trudili smo se da ispoštujemo <a href="https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow">Git Workflow</a>
+                što nam je znatno olakšalo rad na projektu.
+            </p>
+        </div>
+        <div class="rightFace step" data-x="125" data-y="90" data-z="-985" data-rotate-x="-30" data-rotate-y="45" data-rotate-z="0" data-scale="0.5">
+            <h1>Jade</h1>
+            <p>Prilikom slanja mejlova koristili smo <b>Jade</b> kao <i>templating</i> jezik. <br/>
+            <img src="images/jade-template.png" width="80%">
+        </div>
+        <div class="backRightFace step" data-x="125" data-y="-35" data-z="-1200" data-rotate-x="-30" data-rotate-y="135" data-rotate-z="0" data-scale="0.5">
+            <h1>Swagger</h1>
+            <ul>
+                <li> Prilikom definisanja API-ja, dodali smo i podršku Swagger-a.</li>
+                <li>
+                    Swagger predstavlja moćan <i>open source framework</i> i pomaže pri:
+                    <ul>
+                        <li>dizajnu</li>
+                        <li>korišćenju</li>
+                        <li>dokumenaciji RESTful API-ja</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="backLeftFace step" data-x="-125" data-y="-35" data-z="-1200" data-rotate-x="-30" data-rotate-y="225" data-rotate-z="0" data-scale="0.5">
+            <img src="images/swagger-ui.png" width="100%"/>
+        </div>
+
+        <div class="bottomFace step" data-x="0" data-y="180" data-z="-1180" data-rotate-x="60" data-rotate-y="180" data-rotate-z="45" data-scale="0.5">
+            <h1>SonarCube</h1>
+            <p>Na repozitorijumu projekta nalazi se i podešavanje alata <b>SonarCube</b>-a zaduženog za statičku
+                analizu programskog koda.</p>
+        </div>
+    </div>
+
+    <div class="cube">
+        <div class="topFace step" data-x="500" data-y="375" data-z="-1005" data-rotate-x="60" data-rotate-y="0" data-rotate-z="45" data-scale="0.5">
+            <h1>Okruženje za testiranje</h1>
+            Prilikom pokretanja testova iskoristili smo zanimljivu mogućnost, a to je anotiranje naših testova
+            <code>@Profile</code> anotacijom. Ova anotacija nam pruža mogućnost da za različite <b>profile</b> koristimo
+            različitu <b>konfiguraciju</b>.
+        </div>
+
+        <div class="leftFace step" data-x="375" data-y="590" data-z="-985" data-rotate-x="-30" data-rotate-y="-45" data-rotate-z="0" data-scale="0.5">
+            <h1>Okruženje za testiranje</h1>
+            <ul>
+                <li>
+                    U skladu sa tim za <b>produkciju</b> koristimo <b>MySQL</b> bazu podataka, dok za <b>testiranje</b>
+                    koristimo <b>H2 In-Memory</b> bazu podataka.
+                </li>
+                <li>
+                    Jednostavan mehanizam za različite profile jeste prilikom konfiguracije <b>application.propeties</b> fajla.
+                    Za <code>@Profile("test")</code> dovoljno je nazvati <b>application-test.propeties</b>.
+                </li>
+            </ul>
+        </div>
+        <div class="rightFace step" data-x="625" data-y="590" data-z="-985" data-rotate-x="-30" data-rotate-y="45" data-rotate-z="0" data-scale="0.5">
+            <h1><img src="https://blog.travis-ci.com/images/travis-mascot-200px.png" width="48px" /> Travis CI</h1>
+            Dodata je podrška za <i>continuos integration</i>. Koristeći alat <b>Travis CI</b> prilikom svakog <b>push</b>-a na
+            repozitorijum automatski se okidaju svi testovi koji postoje u aplikaciji i u <a>README.md</a> datoteci se pojavljuje
+            rezultat <i>build</i>-a.
+        </div>
+        <div class="backRightFace step" data-x="625" data-y="465" data-z="-1200" data-rotate-x="-30" data-rotate-y="135" data-rotate-z="0" data-scale="0.5">
+            <h1>Integracioni testovi</h1>
+            <p>Prilikom <b>integracionog</b> testiranja (≈300 testova) obuhvaćeno je:</p>
+            <ul>
+                <li>
+                    <i>custom</i> metode iz <i>repository</i> sloja
+                </li>
+                <li>
+                    <i>endpoint</i>-i koji se nalaze u <i>kontrolerima</i>
+                </li>
+            </ul>
+            <b>Security</b> je uključen u testiranje koristeći anotaciju <code>@WithMockUser</code>.
+        </div>
+        <div class="backLeftFace step" data-x="375" data-y="465" data-z="-1200" data-rotate-x="-30" data-rotate-y="225" data-rotate-z="0" data-scale="0.5">
+            <h1>End-to-end testiranje</h1>
+            <ul>
+                <li>
+                    End-to-end (E2E) testiranje je takođe vršeno nad <i>H2 In-Memory</i> bazom podataka.
+                </li>
+                <li>
+                    Alat za testiranje je <b>Selenium</b> u programskom jeziku <b>Java</b>.
+                </li>
+            </ul>
+        </div>
+
+        <div class="bottomFace step" data-x="500" data-y="680" data-z="-1180" data-rotate-x="60" data-rotate-y="180" data-rotate-z="45" data-scale="0.5">
+            <h2 style="text-align: center; margin-top: 40%; font-size: 70px;">Hvala na pažnji :)</h2>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/impress.js/0.5.3/impress.min.js"></script>
+<script>impress().init();</script>
+
+</body>
+</html>
