@@ -10,7 +10,7 @@ public interface UserConstants {
     String USER_FIRST_NAME = "Andrew";
     String USER_LAST_NAME = "Wiggins";
     String USER_EMAIL = "wiggins@gmail.com";
-    String USER_PASSWORD = "$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq";
+    String USER_PASSWORD = "$2a$10$iZ.kdcySt1n2BnLIkksLdOSe22jVI4kUYa1OBpZ64QboxruXetmFO";
     String USER_TELEPHONE = "065161665";
     String USER_TYPE = "verifier";
     String USER_USERNAME = "wiggins";
