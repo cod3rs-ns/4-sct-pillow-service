@@ -136,7 +136,7 @@ public class SigningTest {
         assertThat(driver.getCurrentUrl()).isEqualTo(HOME_URL);
 
         assertThat(driver.findElements(LOGGED_USER_NAVBAR)).isNotNull();
-        assertThat(driver.findElements(LOGGED_USER_NAVBAR).get(0).getText()).isEqualTo(loggedUserFormatter(ADMIN_USERNAME, "admin"));
+        assertThat(driver.findElements(LOGGED_USER_NAVBAR).get(0).getText()).isEqualTo(loggedUserFormatter(ADMIN_USERNAME, "administrator"));
     }
 
     @Test

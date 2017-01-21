@@ -43,7 +43,7 @@ public class SigningPage {
     public static final String REGISTRATION_PASSWORD = "jordan23";
     public static final String REGISTRATION_FIRST_NAME = "michael";
     public static final String REGISTRATION_LAST_NAME = "jordan";
-    public static final String REGISTRATION_TYPE = "verifier";
+    public static final String REGISTRATION_TYPE = "verifikator";
     public static final String REGISTRATION_EMAIL = "michael@jordan23.com";
     public static final String REGISTRATION_PHONE = "99-66-88";
 
