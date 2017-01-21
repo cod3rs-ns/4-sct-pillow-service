@@ -18,7 +18,7 @@ INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `passw
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`, `verified`) VALUES (4, 0, 'bjelica@gmail.com', 'Nemanja', 'Bjelica', '$2a$10$iZ.kdcySt1n2BnLIkksLdOSe22jVI4kUYa1OBpZ64QboxruXetmFO', '065066765', 'verifikator', 'bjelica', '1', 'accepted', 1);
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`, `verified`) VALUES (5, 0, 'lillard@gmail.com', 'Damian', 'Lillard', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065066635', 'advertiser', 'damian', '1', 'accepted', 1);
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `verified`) VALUES (6, 0, 'lebron@gmail.com', 'LeBron', 'James', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065061665', 'advertiser', 'james', 1);
-INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`, `verified`) VALUES (7, 0, 'wiggins@gmail.com', 'Andrew', 'Wiggins', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'verifier', 'wiggins', '3', 'accepted', 1);
+INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`, `verified`) VALUES (7, 0, 'wiggins@gmail.com', 'Andrew', 'Wiggins', '$2a$10$iZ.kdcySt1n2BnLIkksLdOSe22jVI4kUYa1OBpZ64QboxruXetmFO', '065161665', 'verifier', 'wiggins', '3', 'accepted', 1);
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`, `verified`) VALUES (8, 0, 'russ@gmail.com', 'Russell', 'Westbrook', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'advertiser', 'russ', '3', 'accepted', 1);
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`, `verified`) VALUES (9, 1, 'davies@gmail.com', 'Antony', 'Davies', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'verifier', 'eyebrow', '3', 'accepted', 1);
 INSERT INTO `users` (`id`, `deleted`, `email`, `first_name`, `last_name`, `password`, `phone_number`, `type`, `username`, `company_id`, `company_verified`, `verified`) VALUES (10, 1, 'towns@gmail.com', 'Karl Anthony', 'Towns', '$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq', '065161665', 'advertiser', 'kat', '3', 'accepted', 1);
@@ -62,7 +62,11 @@ INSERT INTO `announcements_images` (`announcement_id`, `images_id`) VALUES ('1',
 INSERT INTO `announcements_images` (`announcement_id`, `images_id`) VALUES ('2', '2');
 
 /* Insert new reports*/
-INSERT INTO `reports` (`id`,`email`, `content`, `status`, `type`, `created_at`, `announcement_id`, `reporter_id`) VALUES ('1', 'user6@mail.com', 'Inappropriate content', 'active', 'admin', '1994-01-01', '2', '6');
+INSERT INTO `reports` (`id`,`email`, `content`, `status`, `type`, `created_at`, `announcement_id`, `reporter_id`) VALUES ('1', 'user6@mail.com', 'Inappropriate content', 'accepted', 'admin', '1994-01-01', '2', '6');
+INSERT INTO `reports` (`id`,`email`, `content`, `status`, `type`, `created_at`, `announcement_id`) VALUES ('2', 'user50@mail.com', 'Inappropriate content', 'rejected', 'wrong-information', '2017-01-01', '2');
+INSERT INTO `reports` (`id`,`email`, `content`, `status`, `type`, `created_at`, `announcement_id`) VALUES ('3', 'user51@mail.com', 'Inappropriate price', 'pending', 'wrong-price', '2017-01-02', '2');
+INSERT INTO `reports` (`id`,`email`, `content`, `status`, `type`, `created_at`, `announcement_id`) VALUES ('4', 'user52@mail.com', 'Can not reach advertiser', 'pending', 'unreachable-advertiser', '2017-05-05', '2');
+INSERT INTO `reports` (`id`,`email`, `content`, `status`, `type`, `created_at`, `announcement_id`) VALUES ('5', 'user53@mail.com', 'Already sold', 'pending', 'already-sold', '2016-12-01', '2');
 
 /* Insert new marks*/
 INSERT INTO `marks`  VALUES ('1', '4', '2', '1', '3');

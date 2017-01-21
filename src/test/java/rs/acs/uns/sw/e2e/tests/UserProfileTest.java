@@ -14,6 +14,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import rs.acs.uns.sw.e2e.util.ConfigUtil;
+import rs.acs.uns.sw.e2e.util.LoginUtil;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 
 import javax.transaction.Transactional;
@@ -21,6 +22,7 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,21 +58,10 @@ public class UserProfileTest {
         driver.get(SIGNING_URL);
     }
 
-    public void login(String username, String password) {
-        // Input Username
-        final WebElement inputUsername = driver.findElement(TEXTBOX_USERNAME);
-        inputUsername.sendKeys(username);
-
-        // Input Password
-        final WebElement inputPassword = driver.findElement(TEXTBOX_PASSWORD);
-        inputPassword.sendKeys(password);
-
-        // Click on 'Uloguj se' button.
-        final WebElement buttonSubmit = driver.findElement(BUTTON_LOGIN);
-        buttonSubmit.click();
-
-        wait.until(ExpectedConditions.urlToBe(HOME_URL));
+    public void login(String username, String password){
+        LoginUtil.login(username, password, driver, wait);
     }
+
 
     @Test
     public void editVerifierProfile() {
@@ -247,7 +238,7 @@ public class UserProfileTest {
     }
 
     @Test
-    public void changeUserPassword() throws AWTException {
+    public void changeUserPassword() throws AWTException, InterruptedException {
         login(USERNAME_FOR_PASS_CHANGING, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_PASS_CHANGING + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_PASS_CHANGING + "/"));
@@ -274,6 +265,8 @@ public class UserProfileTest {
         final WebElement successNotification = driver.findElement(CHANGE_PASSWORD_SUCCESS_MESSAGE);
         successNotification.click();
 
+        // wait for all info messages to disappear
+        Thread.sleep(3000);
         wait.until(invisibilityOfElementLocated(CHANGE_PASSWORD_SUCCESS_MESSAGE));
 
         final WebElement linkUserMenu = driver.findElement(USER_MENU);
