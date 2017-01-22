@@ -29,7 +29,7 @@ import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
 @ActiveProfiles("test")
 @SpringBootTest(classes = SctServiceApplication.class)
 @Transactional
-public class AddingAnnoucementTest {
+public class AddingAnnouncementTest {
 
     private static WebDriver driver;
 
