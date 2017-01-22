@@ -195,6 +195,7 @@
                         <exclude>**/ReportingTest.java</exclude>
                         <exclude>**/AnnouncementTest.java</exclude>
                         <exclude>**/AddingAnnouncementTest.java</exclude>
+                        <exclude>**/UpdatingAnnouncementTest.java</exclude>
                         <exclude>**/CompanyTest.java</exclude>
                     </excludes>
                 </configuration>

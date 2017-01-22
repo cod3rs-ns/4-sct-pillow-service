@@ -2,7 +2,6 @@ package rs.acs.uns.sw.e2e.pages;
 
 
 import org.openqa.selenium.By;
-import sun.security.provider.PolicySpiFile;
 
 public class AnnouncementPage {
 
@@ -24,13 +23,25 @@ public class AnnouncementPage {
     public static final By NUM_OF_VOTES = By.className("vote-no");
     public static final By RATING_ANNOUNCER_UPDATE = By.id("announcer-rate-update");
     public static final By RATING_ANNOUNCER_LIST = By.id("list-rate-announcer");
+    public static final By VERIFY_BTN = By.id("verify-button");
+
+    public static final By VERIFIED_MESSAGE_ELEMENT = By.id("success-verify");
+
+    public static final String VERIFIED_MESSAGE_VALUE = "Oglas je uspješno verifikovan.";
 
 
     public static final String EMAIL = "russ";
     public static final String EMAIL_OWNER = "isco";
     public static final String PASSWORD = "123456";
 
+    public static final String VERIFIER_USERNAME = "sr4";
+    public static final String VERIFIER_PASSWORD = "123456";
+
+    public static final String ADVERTISER_USERNAME = "damian";
+    public static final String ADVERTISER_PASSWORD = "123456";
+
     public static final String ANNOUNCEMENT_TO_BE_REPORTED = "4";
+    public static final String ANNOUNCEMENT_TO_BE_VERIFIED = "5";
     public static final String REPORT_CONTENT = "Wrong announcement";
     public static final String REPORTER_EMAIL = "reporter@reporter.com";
     public static final String REPORTER_EMAIL_TWICE = "twice@twice.com";

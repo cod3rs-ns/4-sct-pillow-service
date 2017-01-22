@@ -35,6 +35,7 @@ import static rs.acs.uns.sw.e2e.util.ConditionUtil.enabledCondition;
 import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
 import static rs.acs.uns.sw.e2e.util.LoginUtil.logout;
 
+@SuppressWarnings("Duplicates")
 @ActiveProfiles("test")
 @SpringBootTest(classes = SctServiceApplication.class)
 public class AnnouncementTest {
@@ -402,5 +403,69 @@ public class AnnouncementTest {
         wait.until(visibilityOfElementLocated(RATING_ANNOUNCER_LIST));
 
         assertThat(ratingList.findElements(NUM_OF_VOTES).get(0).getText()).isEqualTo("1");
+    }
+
+    /**
+     * Test which verifies announcement
+     *
+     * First, we login as verifier, then we open unverified announcement and click on button for verifiying.
+     * Then we check for message and check for message content.
+     * Also, now button for verifying shouldn't be displayed.
+     */
+    @Test
+    public void verifyAnnouncement() {
+        LoginUtil.login(VERIFIER_USERNAME, VERIFIER_PASSWORD, driver, wait);
+
+        driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_VERIFIED);
+
+        wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_VERIFIED));
+        assertThat(driver.getCurrentUrl()).isEqualTo(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_VERIFIED);
+
+        final WebElement verifyButton = driver.findElement(VERIFY_BTN);
+
+        verifyButton.click();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(VERIFIED_MESSAGE_ELEMENT));
+        assertThat(driver.findElement(VERIFIED_MESSAGE_ELEMENT).getText()).isEqualTo(VERIFIED_MESSAGE_VALUE);
+
+        assertThat(verifyButton.isDisplayed()).isFalse();
+    }
+
+    /**
+     * Test which verifies announcement
+     *
+     * First, we login as verifier, then we open verified announcement.
+     * We check if verify button is not presented.
+     */
+    @Test
+    public void verifyAlreadyVerifiedAnnouncement() {
+        LoginUtil.login(VERIFIER_USERNAME, VERIFIER_PASSWORD, driver, wait);
+
+        driver.get(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT);
+
+        wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT));
+        assertThat(driver.getCurrentUrl()).isEqualTo(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT);
+
+        final WebElement verifyButton = driver.findElement(VERIFY_BTN);
+        assertThat(verifyButton.isDisplayed()).isFalse();
+    }
+
+    /**
+     * Test which tries to verify announcement as advertiser.
+     *
+     * First, we login as advertiser, then we open unverified announcement.
+     * We check if verify button is not presented.
+     */
+    @Test
+    public void tryToVerifyAsAdvertiser() {
+        LoginUtil.login(ADVERTISER_USERNAME, ADVERTISER_PASSWORD, driver, wait);
+
+        driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_VERIFIED);
+
+        wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_VERIFIED));
+        assertThat(driver.getCurrentUrl()).isEqualTo(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_VERIFIED);
+
+        final WebElement verifyButton = driver.findElement(VERIFY_BTN);
+        assertThat(verifyButton.isDisplayed()).isFalse();
     }
 }
