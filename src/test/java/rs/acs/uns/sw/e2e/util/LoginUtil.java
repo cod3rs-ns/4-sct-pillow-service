@@ -7,13 +7,15 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import static rs.acs.uns.sw.e2e.pages.HomePage.HOME_URL;
-import static rs.acs.uns.sw.e2e.pages.SigningPage.BUTTON_LOGIN;
-import static rs.acs.uns.sw.e2e.pages.SigningPage.TEXTBOX_PASSWORD;
-import static rs.acs.uns.sw.e2e.pages.SigningPage.TEXTBOX_USERNAME;
+import static rs.acs.uns.sw.e2e.pages.SigningPage.*;
 
 public class LoginUtil {
 
     public static void login(String username, String password, WebDriver driver, WebDriverWait wait) {
+
+        driver.navigate().to(SIGNING_URL);
+        wait.until(ExpectedConditions.urlToBe(SIGNING_URL));
+
         // Input Username
         final WebElement inputUsername = driver.findElement(TEXTBOX_USERNAME);
         inputUsername.sendKeys(username);
