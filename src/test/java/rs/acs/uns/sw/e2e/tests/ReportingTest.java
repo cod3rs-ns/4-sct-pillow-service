@@ -18,7 +18,6 @@ import rs.acs.uns.sw.e2e.util.ConfigUtil;
 import rs.acs.uns.sw.e2e.util.LoginUtil;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 
-import javax.swing.text.DateFormatter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,13 +40,14 @@ public class ReportingTest {
     @BeforeClass
     public static void instanceDriver() {
         ChromeOptions options = ConfigUtil.chromeOptions();
+        options.addArguments("incognito");
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
     }
 
     @AfterClass
     public static void closeDriver() {
-        //driver.close();
+        driver.close();
     }
 
     @Before
@@ -62,22 +62,17 @@ public class ReportingTest {
         wait.until(ExpectedConditions.urlToBe(REPORTING_URL));
         assertThat(driver.getCurrentUrl()).isEqualTo(REPORTING_URL);
 
-        int activeReportsNum = driver.findElement(ACTIVE_REPORTS_CONTAINER).findElements(By.xpath("*")).size();
-        assertThat(activeReportsNum).isEqualTo(NUM_OF_PENDING_REPORTS);
-
         WebElement report = driver.findElement(By.id(PENDING_REPORT_ID));
         WebElement acceptBtn = report.findElement((By.id(String.format(ACCEPT_REPORT_BTN_ID, PENDING_REPORT_ID))));
         acceptBtn.click();
 
         wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id(PENDING_REPORT_ID)));
 
-        activeReportsNum = driver.findElement(ACTIVE_REPORTS_CONTAINER).findElements(By.xpath("*")).size();
-        assertThat(activeReportsNum).isEqualTo(NUM_OF_PENDING_REPORTS - 1);
-
         WebElement acceptRadio = driver.findElement(ACCEPTED_REPORTS_SEARCH);
         acceptRadio.click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(PENDING_REPORT_ID)));
+        assertThat(driver.findElement(By.id(PENDING_REPORT_ID)).isDisplayed()).isTrue();
     }
 
     @Test

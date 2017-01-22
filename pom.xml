@@ -192,6 +192,8 @@
                         <!-- Exclude E2E Tests from Maven Build -->
                         <exclude>**/SigningTest.java</exclude>
                         <exclude>**/UserProfileTest.java</exclude>
+                        <exclude>**/ReportingTest.java</exclude>
+                        <exclude>**/AnnouncementTest.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
