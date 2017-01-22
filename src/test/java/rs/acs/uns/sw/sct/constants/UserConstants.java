@@ -31,7 +31,7 @@ public interface UserConstants {
     String UPDATED_USER_TYPE = "oglašavač";
     String UPDATED_USER_USERNAME = "steve";
 
-    String ADVERTISER_USERNAME = "james";
+    String ADVERTISER_USERNAME = "lbj";
     String ADMIN_USERNAME = "admin";
     String ADVERTISER_COMPANY_USERNAME = "damian";
     String VERIFIER_ISCO_USERNAME = "isco";
