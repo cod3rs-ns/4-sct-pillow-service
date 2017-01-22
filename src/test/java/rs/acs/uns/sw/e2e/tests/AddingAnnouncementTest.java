@@ -37,7 +37,7 @@ public class AddingAnnouncementTest {
     private static WebDriverWait wait;
 
     /**
-     *
+     *  Creates instace of Chrome Driver
      */
     @BeforeClass
     public static void instanceDriver() {
