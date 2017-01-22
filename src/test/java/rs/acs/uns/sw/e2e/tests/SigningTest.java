@@ -46,6 +46,7 @@ public class SigningTest {
     @BeforeClass
     public static void instanceDriver() {
         ChromeOptions options = ConfigUtil.chromeOptions();
+        options.addArguments("incognito");
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
     }
@@ -201,10 +202,9 @@ public class SigningTest {
     }
 
     @Test
-    public void EmailExist() {
+    public void emailExist() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
-        String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.EMAIL_EXISTS);
-        final WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));
+        final WebElement errorMessage = registrationForm.findElement(EMAIL_EXISTS);
 
         assertThat(errorMessage.isDisplayed()).isFalse();
 
@@ -212,13 +212,11 @@ public class SigningTest {
         inputEmail.sendKeys(EMAIL_IN_USE);
 
         // Wait until error message appear
-        wait.until(ExpectedConditions.visibilityOf(errorMessage));
-
-        assertThat(errorMessage.isDisplayed()).isTrue();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EMAIL_EXISTS));
     }
 
     @Test
-    public void WrongEmailFormat() {
+    public void wrongEmailFormat() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
         String xpath = String.format(X_PATH_ERROR_MESSAGE_SPAN, ValidationMessages.WRONG_EMAIL);
         final WebElement errorMessage = registrationForm.findElement(By.xpath(xpath));

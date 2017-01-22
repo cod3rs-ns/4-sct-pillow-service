@@ -44,6 +44,7 @@ public class UserProfileTest {
     @BeforeClass
     public static void instanceDriver() {
         ChromeOptions options = ConfigUtil.chromeOptions();
+        options.addArguments("incognito");
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
     }

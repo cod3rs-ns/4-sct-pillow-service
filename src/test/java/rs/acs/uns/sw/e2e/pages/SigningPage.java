@@ -28,6 +28,7 @@ public class SigningPage {
     public static final By INPUT_EMAIL = By.id("sign-up-email");
     public static final By INPUT_PHONE = By.id("sign-up-phone");
     public static final By EMAIL_SUCCESS_MESSAGE = By.id("email-sent");
+    public static final By EMAIL_EXISTS = By.id("email-already-exists");
 
     public static final String WRONG_LOGIN_DIALOG_MESSAGE = "Uneseno korisničko ime i/ili lozinka su pogrešni. Pokušajte ponovo.";
 
