@@ -194,6 +194,7 @@
                         <exclude>**/UserProfileTest.java</exclude>
                         <exclude>**/ReportingTest.java</exclude>
                         <exclude>**/AnnouncementTest.java</exclude>
+                        <exclude>**/AddingAnnouncementTest.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
