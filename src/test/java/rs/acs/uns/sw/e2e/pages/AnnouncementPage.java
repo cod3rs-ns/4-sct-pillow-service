@@ -22,6 +22,9 @@ public class AnnouncementPage {
     public static final By RATING_ANNOUNCEMENT_UPDATE = By.id("announcement-rate-update");
     public static final By RATING_ANNOUNCEMENT_LIST = By.id("list-rate-ann");
     public static final By NUM_OF_VOTES = By.className("vote-no");
+    public static final By RATING_ANNOUNCER_UPDATE = By.id("announcer-rate-update");
+    public static final By RATING_ANNOUNCER_LIST = By.id("list-rate-announcer");
+
 
     public static final String EMAIL = "russ";
     public static final String EMAIL_OWNER = "isco";

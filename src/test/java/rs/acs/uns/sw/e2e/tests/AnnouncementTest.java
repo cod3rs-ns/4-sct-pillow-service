@@ -1,6 +1,5 @@
 package rs.acs.uns.sw.e2e.tests;
 
-import org.assertj.core.api.WritableAssertionInfo;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,7 +21,7 @@ import rs.acs.uns.sw.sct.SctServiceApplication;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfAllElementsLocatedBy;
@@ -324,7 +323,7 @@ public class AnnouncementTest {
         wait.until(visibilityOfElementLocated(RATING_ANNOUNCEMENT_UPDATE));
         WebElement ratings = driver.findElement(RATING_ANNOUNCEMENT_UPDATE);
 
-        // Set rating to 3
+        // Set rating to 4
         ratings.findElements(By.xpath("ul/li")).get(3).click();
 
         // hover ratings
@@ -357,5 +356,51 @@ public class AnnouncementTest {
         wait.until(visibilityOfElementLocated(RATING_ANNOUNCEMENT_LIST));
 
         assertThat(ratingList.findElements(NUM_OF_VOTES).get(4).getText()).isEqualTo("0");
+    }
+
+    @Test
+    public void rateAnnouncer() throws InterruptedException {
+        LoginUtil.login(EMAIL, PASSWORD, driver, wait);
+
+        driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_COMMENTED);
+        wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_COMMENTED));
+        assertThat(driver.getCurrentUrl()).isEqualTo(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_COMMENTED);
+
+        wait.until(visibilityOfElementLocated(RATING_ANNOUNCER_UPDATE));
+        WebElement ratings = driver.findElement(RATING_ANNOUNCER_UPDATE);
+
+        // Set rating to 2
+        ratings.findElements(By.xpath("ul/li")).get(1).click();
+
+        // hover ratings
+        Actions action = new Actions(driver);
+        WebElement ratingList = driver.findElement(RATING_ANNOUNCER_LIST);
+        action.moveToElement(ratingList).perform();
+        wait.until(visibilityOfElementLocated(RATING_ANNOUNCER_LIST));
+
+        assertThat(ratingList.findElements(NUM_OF_VOTES).get(3).getText()).isEqualTo("0");
+    }
+
+    @Test
+    public void rateYourself() throws InterruptedException {
+        LoginUtil.login(EMAIL_OWNER, PASSWORD, driver, wait);
+
+        driver.get(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT);
+        wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT));
+        assertThat(driver.getCurrentUrl()).isEqualTo(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT);
+
+        wait.until(visibilityOfElementLocated(RATING_ANNOUNCER_UPDATE));
+        WebElement ratings = driver.findElement(RATING_ANNOUNCER_UPDATE);
+
+        // Set rating to 5
+        ratings.findElements(By.xpath("ul/li")).get(4).click();
+
+        // hover ratings
+        Actions action = new Actions(driver);
+        WebElement ratingList = driver.findElement(RATING_ANNOUNCER_LIST);
+        action.moveToElement(ratingList).perform();
+        wait.until(visibilityOfElementLocated(RATING_ANNOUNCER_LIST));
+
+        assertThat(ratingList.findElements(NUM_OF_VOTES).get(0).getText()).isEqualTo("1");
     }
 }
