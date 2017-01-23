@@ -56,6 +56,12 @@ public class UserProfileTest {
         driver.get(SIGNING_URL);
     }
 
+    /**
+     * Util login method
+     *
+     * @param username user username
+     * @param password user password
+     */
     private void login(String username, String password) {
         LoginUtil.login(username, password, driver, wait);
     }
