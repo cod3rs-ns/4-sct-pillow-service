@@ -2,7 +2,6 @@ package rs.acs.uns.sw.e2e.pages;
 
 
 import org.openqa.selenium.By;
-import sun.security.provider.PolicySpiFile;
 
 public class AnnouncementPage {
 
@@ -25,7 +24,6 @@ public class AnnouncementPage {
     public static final By RATING_ANNOUNCER_UPDATE = By.id("announcer-rate-update");
     public static final By RATING_ANNOUNCER_LIST = By.id("list-rate-announcer");
 
-
     public static final String EMAIL = "russ";
     public static final String EMAIL_OWNER = "isco";
     public static final String PASSWORD = "123456";
@@ -40,5 +38,4 @@ public class AnnouncementPage {
     public static final String ANNOUNCEMENT_TO_BE_COMMENTED = "3";
     public static final String VERIFIED_ANNOUNCEMENT = "2";
     public static final String ANNOUNCEMENT_TO_BE_RATE = "1";
-
 }

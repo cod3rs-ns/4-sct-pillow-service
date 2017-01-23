@@ -232,7 +232,7 @@ public class SigningTest {
      * Expectation: Error message to be shown and register button to be disabled
      */
     @Test
-    public void emailExist() {
+    public void emailExist() throws InterruptedException {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
         final WebElement errorMessage = registrationForm.findElement(EMAIL_EXISTS);
 
@@ -240,6 +240,8 @@ public class SigningTest {
 
         final WebElement inputEmail = driver.findElement(INPUT_EMAIL);
         inputEmail.sendKeys(EMAIL_IN_USE);
+
+        Thread.sleep(1000);
 
         // Wait until error message appear
         wait.until(visibilityOfElementLocated(EMAIL_EXISTS));

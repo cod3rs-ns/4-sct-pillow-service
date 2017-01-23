@@ -37,7 +37,7 @@ public class SearchingTest {
 
     @AfterClass
     public static void closeDriver() {
-        // driver.close();
+        driver.close();
     }
 
     @Before
@@ -146,7 +146,7 @@ public class SearchingTest {
         driver.findElement(SEARCH_BTN).click();
 
         // Wait for results to load
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         WebElement container = driver.findElement(ANNOUNCEMENT_CONTAINER);
         assertThat(container.findElements(SINGLE_ANNOUNCEMENT).size()).isEqualTo(2);
     }
@@ -222,7 +222,7 @@ public class SearchingTest {
      * author has specified name, surname and phone number and whose location has specified
      * parameters. Then we click on button 'Pretra&#x17e;i' to start searching.
      * Expectation: On the home page should appear only announcements whose
-     * location and author are specified with parameters (No results).
+     * location and author are specified with parameters.
      */
     @Test
     public void searchByLocationAndAuthor() throws InterruptedException {
@@ -234,7 +234,7 @@ public class SearchingTest {
         // Wait for results to load
         Thread.sleep(1000);
         WebElement container = driver.findElement(ANNOUNCEMENT_CONTAINER);
-        assertThat(container.findElements(SINGLE_ANNOUNCEMENT).size()).isEqualTo(0);
+        assertThat(container.findElements(SINGLE_ANNOUNCEMENT).size()).isEqualTo(1);
 
         container.findElement(NO_RESULTS);
     }

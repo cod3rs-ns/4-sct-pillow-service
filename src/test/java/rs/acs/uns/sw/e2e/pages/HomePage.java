@@ -42,9 +42,9 @@ public class HomePage {
     public static final By AREA_BEGIN = By.id("area-begin");
     public static final By AREA_END = By.id("area-end");
 
-    public static final String AUTHOR_NAME_VALUE = "is";
-    public static final String AUTHOR_SURNAME_VALUE = "ala";
-    public static final String PHONE_NUMBER_VALUE = "665";
+    public static final String AUTHOR_NAME_VALUE = "TeSt";
+    public static final String AUTHOR_SURNAME_VALUE = "advERT";
+    public static final String PHONE_NUMBER_VALUE = "060";
 
     public static final String CITY_VALUE = "Ugljevik";
     public static final String REGION_VALUE = "Senjak";

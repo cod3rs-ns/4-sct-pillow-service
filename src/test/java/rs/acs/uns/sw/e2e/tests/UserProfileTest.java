@@ -48,7 +48,7 @@ public class UserProfileTest {
 
     @AfterClass
     public static void closeDriver() {
-        //driver.close();
+        driver.close();
     }
 
     @Before

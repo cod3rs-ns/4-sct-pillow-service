@@ -4,10 +4,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.springframework.boot.SpringApplication;
-import rs.acs.uns.sw.e2e.tests.AnnouncementTest;
-import rs.acs.uns.sw.e2e.tests.ReportingTest;
-import rs.acs.uns.sw.e2e.tests.SigningTest;
-import rs.acs.uns.sw.e2e.tests.UserProfileTest;
+import rs.acs.uns.sw.e2e.tests.*;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 
 import static rs.acs.uns.sw.e2e.util.Constants.PROFILE_NAME;
@@ -17,9 +14,11 @@ import static rs.acs.uns.sw.e2e.util.Constants.PROFILE_NAME;
         SigningTest.class,
         UserProfileTest.class,
         ReportingTest.class,
-        AnnouncementTest.class
+        AnnouncementTest.class,
+        SearchingTest.class
 })
 public class E2ESuite {
+
 
     @BeforeClass
     public static void runApplicationInTestProfile() {
