@@ -22,12 +22,9 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
-import static rs.acs.uns.sw.e2e.pages.HomePage.HOME_URL;
 import static rs.acs.uns.sw.e2e.pages.SigningPage.*;
 import static rs.acs.uns.sw.e2e.pages.UserProfile.*;
 import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
@@ -38,7 +35,7 @@ import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
 public class UserProfileTest {
     private static WebDriver driver;
 
-    // Wait in webdriver until some condition is not satisfied
+    // Wait in web driver until some condition is not satisfied
     private static WebDriverWait wait;
 
     @BeforeClass
@@ -51,7 +48,7 @@ public class UserProfileTest {
 
     @AfterClass
     public static void closeDriver() {
-        driver.close();
+        //driver.close();
     }
 
     @Before
@@ -59,20 +56,28 @@ public class UserProfileTest {
         driver.get(SIGNING_URL);
     }
 
-    public void login(String username, String password){
+    private void login(String username, String password) {
         LoginUtil.login(username, password, driver, wait);
     }
 
 
+    /**
+     * Test editing verifier personal information
+     * <p>
+     * First we need to log in as verifier. Then we navigate to profile
+     * page and properly update his/her personal information.
+     * Expectation: After updating we expect that previous information
+     * on user profile are replaced with new one.
+     */
     @Test
     public void editVerifierProfile() {
         login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
 
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
 
-        wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
+        wait.until(urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
 
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
+        wait.until(visibilityOfElementLocated(EDIT_BUTTON));
 
         final WebElement buttonEdit = driver.findElement(EDIT_BUTTON);
         buttonEdit.click();
@@ -94,6 +99,8 @@ public class UserProfileTest {
         buttonSave.click();
 
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
+        wait.until(visibilityOfElementLocated(SUCCESS_UPDATED_INF));
+        driver.findElement(SUCCESS_UPDATED_INF).click();
 
         final WebElement displayedName = driver.findElement(DISPLAYED_NAME);
         final WebElement displayedPhone = driver.findElement(DISPLAYED_PHONE);
@@ -102,6 +109,13 @@ public class UserProfileTest {
         assertThat(displayedPhone.getText().trim()).isEqualTo(UPDATED_PHONE);
     }
 
+    /**
+     * Test cancel editing verifier personal information
+     * <p>
+     * First we need to log in as verifier. Then we navigate to profile page and properly
+     * update his/her personal information. Finally, we give up from changing information form.
+     * Expectation: We expect that previous information are not replaced with new one.
+     */
     @Test
     public void cancelEditingProfile() {
         login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
@@ -116,7 +130,7 @@ public class UserProfileTest {
         final String previousName = displayedName.getText().trim();
         final String previousPhone = displayedPhone.getText().trim();
 
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
 
         final WebElement buttonEdit = driver.findElement(EDIT_BUTTON);
         buttonEdit.click();
@@ -142,12 +156,19 @@ public class UserProfileTest {
         assertThat(displayedPhone.getText().trim()).isEqualTo(previousPhone);
     }
 
+    /**
+     * Test editing verifier personal information without setting first name
+     * <p>
+     * First we need to log in as verifier. Then we navigate to profile page and try
+     * to update personal information with setting first name to be empty.
+     * Expectation: We expect error message to be present and save button to be disabled.
+     */
     @Test
     public void editFirstNameRequired() {
         login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
 
         final WebElement buttonEdit = driver.findElement(EDIT_BUTTON);
         buttonEdit.click();
@@ -160,16 +181,26 @@ public class UserProfileTest {
         final WebElement inputFirstName = driver.findElement(EDIT_FIRST_NAME);
         inputFirstName.clear();
 
-        wait.until(ExpectedConditions.visibilityOf(errorMessage));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
         assertThat(errorMessage.isDisplayed()).isTrue();
+
+        final WebElement buttonSave = driver.findElement(SAVE_EDIT_BUTTON);
+        assertThat(buttonSave.isEnabled()).isFalse();
     }
 
+    /**
+     * Test editing verifier personal information without setting last name
+     * <p>
+     * First we need to log in as verifier. Then we navigate to profile page and try
+     * to update personal information with setting last name to be empty.
+     * Expectation: We expect error message to be present and save button to be disabled.
+     */
     @Test
     public void editLastNameRequired() {
         login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
 
         final WebElement buttonEdit = driver.findElement(EDIT_BUTTON);
         buttonEdit.click();
@@ -182,16 +213,26 @@ public class UserProfileTest {
         final WebElement inputLastName = driver.findElement(EDIT_LAST_NAME);
         inputLastName.clear();
 
-        wait.until(ExpectedConditions.visibilityOf(errorMessage));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
         assertThat(errorMessage.isDisplayed()).isTrue();
+
+        final WebElement buttonSave = driver.findElement(SAVE_EDIT_BUTTON);
+        assertThat(buttonSave.isEnabled()).isFalse();
     }
 
+    /**
+     * Test editing verifier personal information without setting phone
+     * <p>
+     * First we need to log in as verifier. Then we navigate to profile page and try
+     * to update personal information with setting phone field to be empty.
+     * Expectation: We expect error message to be present and save button to be disabled.
+     */
     @Test
     public void editPhoneRequired() {
         login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
 
         final WebElement buttonEdit = driver.findElement(EDIT_BUTTON);
         buttonEdit.click();
@@ -205,21 +246,31 @@ public class UserProfileTest {
         final WebElement inputPhone = driver.findElement(EDIT_PHONE);
         inputPhone.clear();
 
-        wait.until(ExpectedConditions.visibilityOf(errorMessage));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
         assertThat(errorMessage.isDisplayed()).isTrue();
+
+        final WebElement buttonSave = driver.findElement(SAVE_EDIT_BUTTON);
+        assertThat(buttonSave.isEnabled()).isFalse();
     }
 
+    /**
+     * Test changing profile image picture
+     * <p>
+     * First we need to log in as verifier. Then we navigate to
+     * profile page and try to upload new profile picture.
+     * Expectation: We expect success message to be shown.
+     */
     @Test
     public void changeProfileImage() throws AWTException {
         login(VERIFIER_USERNAME, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + VERIFIER_USERNAME + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + VERIFIER_USERNAME + "/"));
-        wait.until(ExpectedConditions.visibilityOf(driver.findElement(EDIT_BUTTON)));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
 
         final WebElement buttonImageChange = driver.findElement(CHANGE_PROFILE_PICTURE_BUTTON);
         buttonImageChange.click();
 
-        File file = new File("./src/test/resources/test_upload.jpg");
+        File file = new File(TEST_IMG_PATH);
 
         StringSelection ss = new StringSelection(file.getAbsolutePath());
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
@@ -236,10 +287,23 @@ public class UserProfileTest {
         robot.keyPress(KeyEvent.VK_ENTER);
         robot.delay(500);
         robot.keyRelease(KeyEvent.VK_ENTER);
+
+        wait.until(visibilityOfElementLocated(IMAGE_MSG_SUCCESS));
+        WebElement imgSuccess = driver.findElement(IMAGE_MSG_SUCCESS);
+        assertThat(imgSuccess.isDisplayed()).isTrue();
+        imgSuccess.click();
     }
 
+    /**
+     * Test changing user password
+     * <p>
+     * First we need to log in. Then we navigate to profile page and
+     * set new password. After that we log in with new password.
+     * Expectation: We expect success message to be shown
+     * and to successfully log in with new pass.
+     */
     @Test
-    public void changeUserPassword() throws AWTException, InterruptedException {
+    public void changeUserPassword() {
         login(USERNAME_FOR_PASS_CHANGING, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_PASS_CHANGING + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_PASS_CHANGING + "/"));
@@ -266,8 +330,6 @@ public class UserProfileTest {
         final WebElement successNotification = driver.findElement(CHANGE_PASSWORD_SUCCESS_MESSAGE);
         successNotification.click();
 
-        // wait for all info messages to disappear
-        Thread.sleep(3000);
         wait.until(invisibilityOfElementLocated(CHANGE_PASSWORD_SUCCESS_MESSAGE));
 
         final WebElement linkUserMenu = driver.findElement(USER_MENU);
@@ -281,8 +343,16 @@ public class UserProfileTest {
         login(USERNAME_FOR_PASS_CHANGING, UPDATED_PASSWORD);
     }
 
+    /**
+     * Test extending expiration date
+     * <p>
+     * First we need to log in. Then we navigate to profile page and
+     * extend date of announcement that user created before.
+     * Expectation: We expect success message to be shown and
+     * displayed date to be updated.
+     */
     @Test
-    public void extendExpirationDate() throws AWTException {
+    public void extendExpirationDate() {
         login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
@@ -302,10 +372,19 @@ public class UserProfileTest {
         wait.until(visibilityOfElementLocated(EXTENDED_DATE_SUCCESS_MSG));
         final WebElement successMessage = driver.findElement(EXTENDED_DATE_SUCCESS_MSG);
         assertThat(successMessage.getText()).isEqualTo(String.format(DATE_EXPIRATION_SUCCESS_MESSAGE_CONTENT, UPDATED_EXTENDED_DATE));
+        successMessage.click();
     }
 
+
+    /**
+     * Test extending expiration date before today
+     * <p>
+     * First we need to log in. Then we navigate to profile page and
+     * try to extend date of announcement that is before today.
+     * Expectation: We expect error message to be shown
+     */
     @Test
-    public void expirationDateBeforeToday() throws AWTException {
+    public void expirationDateBeforeToday() {
         login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
@@ -325,10 +404,18 @@ public class UserProfileTest {
         wait.until(visibilityOfElementLocated(EXTENDED_DATE_ERROR_MSG));
         final WebElement errorMessage = driver.findElement(EXTENDED_DATE_ERROR_MSG);
         assertThat(errorMessage.getText()).isEqualTo(DATE_EXPIRATION_ERROR_MESSAGE_CONTENT);
+        errorMessage.click();
     }
 
+    /**
+     * Test extending expiration date before previous date
+     * <p>
+     * First we need to log in. Then we navigate to profile page and
+     * try to extend date of announcement that is before previous.
+     * Expectation: We expect error message to be shown
+     */
     @Test
-    public void expirationDateBeforePreviousDate() throws AWTException {
+    public void expirationDateBeforePreviousDate() {
         login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
@@ -348,8 +435,17 @@ public class UserProfileTest {
         // TODO: check error message appear
     }
 
+
+    /**
+     * Test accepting membership request
+     * <p>
+     * First we need to log in. Then we navigate to profile page and
+     * try to accept one user's request for company membership.
+     * Expectation: We expect that success message has shown such as
+     * company link on user's profile
+     */
     @Test
-    public void acceptCompanyMembershipRequest() throws AWTException {
+    public void acceptCompanyMembershipRequest() {
         login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
@@ -366,6 +462,8 @@ public class UserProfileTest {
         acceptBtn.click();
 
         wait.until(invisibilityOfElementLocated(By.xpath(xpath)));
+        wait.until(visibilityOfElementLocated(MEM_REQ_ACCEPTED));
+        driver.findElement(MEM_REQ_ACCEPTED).click();
 
         final String userProfileUrl = URL_PREFIX + USER_MEMBERSHIP_LINK_ACCEPT.substring(0, USER_MEMBERSHIP_LINK_ACCEPT.lastIndexOf("/") + 1);
         driver.navigate().to(userProfileUrl);
@@ -375,8 +473,15 @@ public class UserProfileTest {
         assertThat(userCompany.getAttribute("href")).containsIgnoringCase(COMPANY_MEMBERS_LINK);
     }
 
+    /**
+     * Test rejecting membership request
+     * <p>
+     * First we need to log in. Then we navigate to profile page and
+     * try to reject one user's request for company membership.
+     * Expectation: We expect that success message is shown
+     */
     @Test
-    public void denyCompanyMembershipRequest() throws AWTException {
+    public void denyCompanyMembershipRequest() {
         login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
         driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
         wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
@@ -393,5 +498,7 @@ public class UserProfileTest {
         denyBtn.click();
 
         wait.until(invisibilityOfElementLocated(By.xpath(xpath)));
+        wait.until(visibilityOfElementLocated(MEM_REQ_REJECTED));
+        driver.findElement(MEM_REQ_REJECTED).click();
     }
 }

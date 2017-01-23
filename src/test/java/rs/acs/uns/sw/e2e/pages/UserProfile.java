@@ -6,7 +6,6 @@ import org.openqa.selenium.By;
 public class UserProfile {
     public static final String USER_PROFILE_URL = "http://localhost:8080/#/profile/";
 
-
     public static final By EDIT_BUTTON = By.id("edit-profile");
     public static final By CHANGE_PASSWORD_BUTTON = By.id("change-pass");
     public static final By EDIT_FIRST_NAME = By.id("form-first-name");
@@ -32,6 +31,10 @@ public class UserProfile {
     public static final By ACCEPT_REQUEST_BTN = By.id("accept-request");
     public static final By DENY_REQUEST_BTN = By.id("deny-request");
     public static final By USER_COMPANY = By.id("user-company");
+    public static final By IMAGE_MSG_SUCCESS = By.id("img-success");
+    public static final By MEM_REQ_ACCEPTED = By.id("mem-req-accept");
+    public static final By MEM_REQ_REJECTED = By.id("mem-req-reject");
+    public static final By SUCCESS_UPDATED_INF = By.id("success-updated-inf");
 
     public static final String X_PATH_ERROR_MESSAGE_P = "//p[contains(text(), \"%s\")]";
     public static final String X_PATH_ANNOUNCEMENT_FRAGMENT = "//a[contains(@href, \"%s\")]/../..";
@@ -62,4 +65,6 @@ public class UserProfile {
     public static final String EXTENDED_DATE_BEFORE_PREV = "20/10/2017";
 
     public static final String URL_PREFIX = "http://localhost:8080/";
+
+    public static final String TEST_IMG_PATH = "./src/test/resources/test_upload.jpg";
 }
