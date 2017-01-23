@@ -79,7 +79,7 @@ public class AnnouncementControllerTest {
     private static final Date DEFAULT_EXPIRATION_DATE = DateUtil.asDate(LocalDate.ofEpochDay(0L));
     private static final Date UPDATED_EXPIRATION_DATE = DateUtil.asDate(LocalDate.ofEpochDay(1L));
 
-    private static final String DEFAULT_PHONE_NUMBER = "0600000000";
+    private static final String DEFAULT_PHONE_NUMBER = "065161665";
     private static final String UPDATED_PHONE_NUMBER = "0611111111";
 
     private static final String DEFAULT_TYPE = "TYPE_AAA";
