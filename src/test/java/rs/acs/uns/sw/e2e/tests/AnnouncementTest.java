@@ -1,9 +1,6 @@
 package rs.acs.uns.sw.e2e.tests;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -28,8 +25,6 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfAllEle
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 import static rs.acs.uns.sw.e2e.pages.AnnouncementPage.*;
 import static rs.acs.uns.sw.e2e.pages.SigningPage.SIGNING_URL;
-import static rs.acs.uns.sw.e2e.pages.UserProfile.LOGOUT_LINK;
-import static rs.acs.uns.sw.e2e.pages.UserProfile.USER_MENU;
 import static rs.acs.uns.sw.e2e.util.ConditionUtil.disabledCondition;
 import static rs.acs.uns.sw.e2e.util.ConditionUtil.enabledCondition;
 import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
@@ -42,8 +37,10 @@ public class AnnouncementTest {
 
     private static WebDriver driver;
 
-    // Wait in webdriver until some condition is not satisfied
+    // Wait in web driver until some condition is not satisfied
     private static WebDriverWait wait;
+
+    private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy.");
 
     @BeforeClass
     public static void instanceDriver() {
@@ -55,7 +52,7 @@ public class AnnouncementTest {
 
     @AfterClass
     public static void closeDriver() {
-        //driver.close();
+        driver.close();
     }
 
     @Before
@@ -63,6 +60,13 @@ public class AnnouncementTest {
         driver.get(SIGNING_URL);
     }
 
+    /**
+     * Test reporting announcement as guest
+     * <p>
+     * There is no precondition. First we navigate to announcement page and click
+     * on add report button. After that we properly fill report creation form and submit it.
+     * Expectation: Success message appear.
+     */
     @Test
     public void reportAnnouncementAsGuest() throws InterruptedException {
         driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED);
@@ -70,7 +74,7 @@ public class AnnouncementTest {
         wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED));
         assertThat(driver.getCurrentUrl()).isEqualTo(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED);
 
-        wait.until(ExpectedConditions.presenceOfElementLocated(REPORT_BTN));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(REPORT_BTN));
         WebElement reportBtn = driver.findElement(REPORT_BTN);
         reportBtn.click();
 
@@ -88,8 +92,19 @@ public class AnnouncementTest {
 
         wait.until(enabledCondition(driver, ADD_REPORT_BTN));
         addReport.click();
+
+        wait.until(visibilityOfElementLocated(SUCCESS_REPORTED_MSG));
+        driver.findElement(SUCCESS_REPORTED_MSG).click();
     }
 
+    /**
+     * Test reporting announcement as guest twice
+     * <p>
+     * There is no precondition. First we navigate to announcement page and click
+     * on add report button. After that we properly fill report creation form and submit it.
+     * Finally, we try again to create report for the same announcement with th same email.
+     * Expectation: Report submit button to be disabled.
+     */
     @Test
     public void reportAnnouncementAsGuestTwice() throws InterruptedException, AWTException {
         driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED);
@@ -151,6 +166,13 @@ public class AnnouncementTest {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(MODAL_DIALOG));
     }
 
+    /**
+     * Test reporting announcement without setting content
+     * <p>
+     * There is no precondition. First we navigate to announcement page and click
+     * on add report button. After that we won't fill report content.
+     * Expectation: Submission button should be disabled.
+     */
     @Test
     public void reportWithoutContent() throws InterruptedException, AWTException {
         driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED);
@@ -184,6 +206,13 @@ public class AnnouncementTest {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(MODAL_DIALOG));
     }
 
+    /**
+     * Test reporting announcement as logged user
+     * <p>
+     * First we logged in as one of the users. Then we navigate to announcement page and
+     * click on add report button. After that we fill report form properly and submit it.
+     * Expectation: After submission report btn should be disabled.
+     */
     @Test
     public void reportAnnouncementAsLoggedUser() throws InterruptedException {
         LoginUtil.login(EMAIL, PASSWORD, driver, wait);
@@ -220,18 +249,18 @@ public class AnnouncementTest {
         successNotification.click();
         wait.until(ExpectedConditions.invisibilityOfElementLocated(SUCCESS_REPORTED_MSG));
 
-        final WebElement linkUserMenu = driver.findElement(USER_MENU);
-        linkUserMenu.click();
-
-        wait.until(visibilityOfElementLocated(LOGOUT_LINK));
-        final WebElement logoutLink = driver.findElement(LOGOUT_LINK);
-
-        logoutLink.click();
+        logout(driver, wait);
     }
 
+    /**
+     * Test adding new comment for announcement
+     * <p>
+     * There is no precondition. First we navigate to announcement page.
+     * Then we create new comment and submit it.
+     * Expectation: New comment is displayed with today creation date.
+     */
     @Test
     public void addCommentAsGuest() throws InterruptedException {
-        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy.");
         driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED);
 
         wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED));
@@ -249,12 +278,17 @@ public class AnnouncementTest {
         assertThat(date.getText()).isEqualTo(String.format(DATE_COMMENT_DISPLAY, format.format(new Date())));
     }
 
-
+    /**
+     * Test adding new comment for announcement as logged user
+     * <p>
+     * First we need to log in. Then we navigate to announcement page.
+     * Finally we create new comment and submit it.
+     * Expectation: New comment is displayed with today creation date.
+     */
     @Test
     public void addCommentAsLoggedUser() throws InterruptedException {
         LoginUtil.login(EMAIL, PASSWORD, driver, wait);
 
-        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy.");
         driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED);
 
         wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED));
@@ -274,6 +308,12 @@ public class AnnouncementTest {
         logout(driver, wait);
     }
 
+    /**
+     * Test deleting previously added comment for announcement as logged user
+     * <p>
+     * First we need to log in. Then we navigate to announcement page. Finally we delete created comment.
+     * Expectation: Deleted comment has not shown from announcement page.
+     */
     @Test
     public void deleteAddedComment() throws InterruptedException {
         LoginUtil.login(EMAIL, PASSWORD, driver, wait);
@@ -300,6 +340,13 @@ public class AnnouncementTest {
         logout(driver, wait);
     }
 
+    /**
+     * Test reporting verified announcement
+     * <p>
+     * First we need to log in. Then we navigate to page of verified
+     * announcement. Finally we try to create report for that announcement.
+     * Expectation: Report btn should be hidden.
+     */
     @Test
     public void reportVerifiedAnnouncement() throws InterruptedException {
         LoginUtil.login(EMAIL, PASSWORD, driver, wait);
@@ -313,6 +360,12 @@ public class AnnouncementTest {
         logout(driver, wait);
     }
 
+    /**
+     * Test rating announcement
+     * <p>
+     * First we need to log in. Then we navigate to announcement page and rate it.
+     * Expectation: Rated mark should be added to list of all rates.
+     */
     @Test
     public void rateAnnouncement() throws InterruptedException {
         LoginUtil.login(EMAIL, PASSWORD, driver, wait);
@@ -334,9 +387,18 @@ public class AnnouncementTest {
         wait.until(visibilityOfElementLocated(RATING_ANNOUNCEMENT_LIST));
 
         assertThat(ratingList.findElements(NUM_OF_VOTES).get(1).getText()).isEqualTo("1");
+
+        logout(driver, wait);
     }
 
+    /**
+     * Test rating own announcement
+     * <p>
+     * First we need to log in. Then we navigate to announcement page and rate it.
+     * Expectation: List of all marks should be same as previous.
+     */
     @Test
+    @Ignore
     public void rateOwnAnnouncement() throws InterruptedException {
         LoginUtil.login(EMAIL_OWNER, PASSWORD, driver, wait);
 
@@ -357,8 +419,16 @@ public class AnnouncementTest {
         wait.until(visibilityOfElementLocated(RATING_ANNOUNCEMENT_LIST));
 
         assertThat(ratingList.findElements(NUM_OF_VOTES).get(4).getText()).isEqualTo("0");
+
+        logout(driver, wait);
     }
 
+    /**
+     * Test rating announcer.
+     * <p>
+     * First we need to log in. Then we navigate to announcement page and rate it't announcer.
+     * Expectation: List of all marks should be updated.
+     */
     @Test
     public void rateAnnouncer() throws InterruptedException {
         LoginUtil.login(EMAIL, PASSWORD, driver, wait);
@@ -380,9 +450,19 @@ public class AnnouncementTest {
         wait.until(visibilityOfElementLocated(RATING_ANNOUNCER_LIST));
 
         assertThat(ratingList.findElements(NUM_OF_VOTES).get(3).getText()).isEqualTo("0");
+
+        logout(driver, wait);
     }
 
+    /**
+     * Test rating yourself as announcer.
+     * <p>
+     * First we need to log in as announcer. Then announcer navigate to
+     * announcement page and rate himself/herself as announcer.
+     * Expectation: List of all marks should not be updated.
+     */
     @Test
+    @Ignore
     public void rateYourself() throws InterruptedException {
         LoginUtil.login(EMAIL_OWNER, PASSWORD, driver, wait);
 
@@ -403,6 +483,8 @@ public class AnnouncementTest {
         wait.until(visibilityOfElementLocated(RATING_ANNOUNCER_LIST));
 
         assertThat(ratingList.findElements(NUM_OF_VOTES).get(0).getText()).isEqualTo("1");
+
+        logout(driver, wait);
     }
 
     /**

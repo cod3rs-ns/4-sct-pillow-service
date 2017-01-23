@@ -34,7 +34,7 @@ public class ReportingTest {
 
     private static WebDriver driver;
 
-    // Wait in webdriver until some condition is not satisfied
+    // Wait in web driver until some condition is not satisfied
     private static WebDriverWait wait;
 
     @BeforeClass
@@ -56,6 +56,12 @@ public class ReportingTest {
         LoginUtil.login(REPORTER_USERNAME, REPORTER_PASSWORD, driver, wait);
     }
 
+    /**
+     * Test accepting user report for one announcement
+     * <p>
+     * There is precondition to be logged in. First we navigate to reporting page and accept one report
+     * Expectation: Report has shown in the accepted reports tab
+     */
     @Test
     public void acceptReport() {
         driver.navigate().to(REPORTING_URL);
@@ -73,8 +79,16 @@ public class ReportingTest {
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(PENDING_REPORT_ID)));
         assertThat(driver.findElement(By.id(PENDING_REPORT_ID)).isDisplayed()).isTrue();
+
+        // TODO: Can't find reported announcement
     }
 
+    /**
+     * Test rejecting user report for one announcement
+     * <p>
+     * There is precondition to be logged in. First we navigate to reporting page and accept one report
+     * Expectation: Report has shown in the accepted reports tab
+     */
     @Test
     public void rejectReport() {
         driver.navigate().to(REPORTING_URL);
@@ -93,8 +107,15 @@ public class ReportingTest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(REPORT_TO_BE_REJECTED)));
     }
 
+    /**
+     * Test searching pending reports
+     * <p>
+     * There is precondition to be logged. First we navigate to reporting page and then
+     * fill the email search box with reporter email. Finally we click on search btn.
+     * Expectation: Every report that has shown is reported by specified reporter.
+     */
     @Test
-    public void searchPendingReports() {
+    public void searchPendingReports() throws InterruptedException {
         driver.navigate().to(REPORTING_URL);
         wait.until(ExpectedConditions.urlToBe(REPORTING_URL));
         assertThat(driver.getCurrentUrl()).isEqualTo(REPORTING_URL);
@@ -105,12 +126,21 @@ public class ReportingTest {
         WebElement searchBtn = driver.findElement(SEARCH_BTN);
         searchBtn.click();
 
+        // Wait for search result to be shown
+        Thread.sleep(1000);
         List<WebElement> pendingReports = driver.findElement(ACTIVE_REPORTS_CONTAINER).findElements(By.xpath("*"));
         for (WebElement report : pendingReports) {
             assertThat(report.findElement(REPORTER_EMAIL_DISPLAY).getText()).isEqualTo(EMAIL_PENDING);
         }
     }
 
+    /**
+     * Test searching rejected reports
+     * <p>
+     * There is precondition to be logged. First we navigate to reporting page on tab with rejected
+     * reports and then fill the email search box with reporter email. Finally we click on search btn.
+     * Expectation: Every report that has shown is reported by specified reporter.
+     */
     @Test
     public void searchRejectedReports() throws InterruptedException {
         driver.navigate().to(REPORTING_URL);
@@ -125,12 +155,21 @@ public class ReportingTest {
         searchBtn.click();
 
         List<WebElement> pendingReports = driver.findElement(ACTIVE_REPORTS_CONTAINER).findElements(By.xpath("*"));
-        Thread.sleep(3000);
+
+        // Wait for page to show filtered data
+        Thread.sleep(1000);
         for (WebElement report : pendingReports) {
             assertThat(report.findElement(REPORTER_EMAIL_DISPLAY).getText()).isEqualTo(EMAIL_REJECTED);
         }
     }
 
+    /**
+     * Test searching accepted reports
+     * <p>
+     * There is precondition to be logged. First we navigate to reporting page on tab with accepted
+     * reports and then fill the email search box with reporter email. Finally we click on search btn.
+     * Expectation: Every report that has shown is reported by specified reporter.
+     */
     @Test
     public void searchAcceptedReports() throws InterruptedException {
         driver.navigate().to(REPORTING_URL);
@@ -143,14 +182,24 @@ public class ReportingTest {
         reporterQuery.sendKeys(EMAIL_ACCEPTED);
         searchBtn.click();
 
+        // Wait for search result to be updated
+        Thread.sleep(1000);
+
         WebElement activeContainer = driver.findElement(ACTIVE_REPORTS_CONTAINER);
         List<WebElement> pendingReports = activeContainer.findElements(By.xpath("*"));
-        Thread.sleep(3000);
+
         for (WebElement report : pendingReports) {
             assertThat(report.findElement(REPORTER_EMAIL_DISPLAY).getText()).isEqualTo(EMAIL_ACCEPTED);
         }
     }
 
+    /**
+     * Test sorting by date
+     * <p>
+     * There is precondition to be logged. First we navigate to
+     * reporting page and then sort all reports by date of creation.
+     * Expectation: List of reports that has shown is sorted by date.
+     */
     @Test
     public void sortByDate() throws ParseException {
         SimpleDateFormat dt = new SimpleDateFormat("dd.MM.yyyy");

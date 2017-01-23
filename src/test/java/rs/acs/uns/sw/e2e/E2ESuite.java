@@ -17,8 +17,8 @@ import static rs.acs.uns.sw.e2e.util.Constants.PROFILE_NAME;
         AnnouncementTest.class,
         AddingAnnouncementTest.class,
         UpdatingAnnouncementTest.class,
-        CompanyTest.class
-
+        CompanyTest.class,
+        SearchingTest.class
 })
 public class E2ESuite {
 

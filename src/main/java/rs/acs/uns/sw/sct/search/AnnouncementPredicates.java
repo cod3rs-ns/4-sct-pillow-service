@@ -28,7 +28,7 @@ public final class AnnouncementPredicates {
         if (searchWrapper.getStartPrice() != null || searchWrapper.getEndPrice() != null)
             where.and(announcement.price.between(searchWrapper.getStartPrice(), searchWrapper.getEndPrice()));
         if (searchWrapper.getPhoneNumber() != null)
-            where.and(announcement.phoneNumber.containsIgnoreCase(searchWrapper.getPhoneNumber()));
+            where.and(announcement.author.phoneNumber.containsIgnoreCase(searchWrapper.getPhoneNumber()));
         if (searchWrapper.getType() != null)
             where.and(announcement.type.containsIgnoreCase(searchWrapper.getType()));
         if (searchWrapper.getAuthorName() != null)

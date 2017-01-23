@@ -30,6 +30,8 @@ public class SigningPage {
     public static final By EMAIL_SUCCESS_MESSAGE = By.id("email-sent");
     public static final By EMAIL_EXISTS = By.id("email-already-exists");
 
+
+    public static final By SUCCESS_REGISTRATION_MSG = By.id("success-registration");
     public static final String WRONG_LOGIN_DIALOG_MESSAGE = "Uneseno korisničko ime i/ili lozinka su pogrešni. Pokušajte ponovo.";
 
     // Fixed data for populating textboxes on page
@@ -61,7 +63,6 @@ public class SigningPage {
 
     public static final class ValidationMessages {
         public static final String USERNAME_EXISTS = "Korisničko ime je već zauzeto.";
-        public static final String EMAIL_EXISTS = "Navedena email adresa već postoji.";
         public static final String WRONG_EMAIL = "Nepravilno formirana email adresa.";
         public static final String WEAK_PASSWORD = "Šifra mora sadržati bar 6 karaktera.";
         public static final String PASSWORD_DOES_NOT_MATCH = "Šifra se ne poklapa.";
@@ -71,7 +72,7 @@ public class SigningPage {
         public static final String LAST_NAME_REQUIRED = "Prezime je obavezno.";
         public static final String PHONE_REQUIRED = "Telefon je obavezan.";
 
-        private ValidationMessages(){
+        private ValidationMessages() {
         }
     }
 }

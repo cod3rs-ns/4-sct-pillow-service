@@ -20,14 +20,14 @@ import rs.acs.uns.sw.sct.users.User;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
-import java.io.File;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 import static rs.acs.uns.sw.e2e.pages.HomePage.HOME_URL;
 import static rs.acs.uns.sw.e2e.pages.HomePage.VERIFICATION_SUCCESS_URL;
 import static rs.acs.uns.sw.e2e.pages.SigningPage.*;
-import static rs.acs.uns.sw.e2e.util.Constants.*;
+import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
 
 /**
  * Signing tests.
@@ -40,7 +40,7 @@ public class SigningTest {
 
     private static WebDriver driver;
 
-    // Wait in webdriver until some condition is not satisfied
+    // Wait in web driver until some condition is not satisfied
     private static WebDriverWait wait;
 
     @BeforeClass
@@ -72,6 +72,11 @@ public class SigningTest {
                 .phoneNumber(REGISTRATION_PHONE);
     }
 
+    /**
+     * Util method for filling registration form
+     *
+     * @param user information that will be filled in form
+     */
     private static void fillRegistrationForm(User user) {
         // Input username
         final WebElement inputUsername = driver.findElement(INPUT_USERNAME);
@@ -168,6 +173,13 @@ public class SigningTest {
         assertThat(inputPassword.getAttribute("value")).isEqualTo("");
     }
 
+    /**
+     * Test registering new user successfully
+     * <p>
+     * First we navigate to signing page. Then we properly fill registration form
+     * and after that click on register button.
+     * Expectation: Success message to be shown
+     */
     @Test
     public void registerSuccessfully() {
         User user = createDefaultUser();
@@ -181,9 +193,18 @@ public class SigningTest {
         assertThat(buttonSubmit.isEnabled()).isTrue();
 
         buttonSubmit.click();
+
+        wait.until(visibilityOfElementLocated(SUCCESS_REGISTRATION_MSG));
+        driver.findElement(SUCCESS_REGISTRATION_MSG).click();
     }
 
-
+    /**
+     * Test registering new user with username that already exists.
+     * <p>
+     * First we navigate to signing page. Then we try to register
+     * new user with username that already exists.
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
     public void usernameExist() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
@@ -199,10 +220,19 @@ public class SigningTest {
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
 
         assertThat(errorMessage.isDisplayed()).isTrue();
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user with email that already exists.
+     * <p>
+     * First we navigate to signing page. Then we try to register
+     * new user with email that already exists.
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
-    public void emailExist() {
+    public void emailExist() throws InterruptedException {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
         final WebElement errorMessage = registrationForm.findElement(EMAIL_EXISTS);
 
@@ -211,10 +241,21 @@ public class SigningTest {
         final WebElement inputEmail = driver.findElement(INPUT_EMAIL);
         inputEmail.sendKeys(EMAIL_IN_USE);
 
+        Thread.sleep(1000);
+
         // Wait until error message appear
-        wait.until(ExpectedConditions.visibilityOfElementLocated(EMAIL_EXISTS));
+        wait.until(visibilityOfElementLocated(EMAIL_EXISTS));
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user with wrong format of email.
+     * <p>
+     * First we navigate to signing page. Then we try to register
+     * new user with wrong format of email.
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
     public void wrongEmailFormat() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
@@ -230,8 +271,17 @@ public class SigningTest {
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
 
         assertThat(errorMessage.isDisplayed()).isTrue();
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user with weak password.
+     * <p>
+     * First we navigate to signing page. Then we try to register
+     * new user with weak password (less than 6 characters).
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
     public void weakPassword() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
@@ -247,8 +297,17 @@ public class SigningTest {
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
 
         assertThat(errorMessage.isDisplayed()).isTrue();
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user when passwords does not match.
+     * <p>
+     * First we navigate to signing page. Then we try to register
+     * new user when passwords does not match.
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
     public void passwordDoesNotMatch() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
@@ -267,8 +326,17 @@ public class SigningTest {
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
 
         assertThat(errorMessage.isDisplayed()).isTrue();
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user without setting username.
+     * <p>
+     * First we navigate to signing page. Then we try to
+     * register new user without setting username.
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
     public void usernameRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
@@ -283,8 +351,18 @@ public class SigningTest {
 
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
         assertThat(errorMessage.isDisplayed()).isTrue();
+
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user without setting password.
+     * <p>
+     * First we navigate to signing page. Then we try to
+     * register new user without setting password.
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
     public void passwordRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
@@ -300,8 +378,19 @@ public class SigningTest {
 
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
         assertThat(errorMessage.isDisplayed()).isTrue();
+
+
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user without setting name.
+     * <p>
+     * First we navigate to signing page. Then we try to
+     * register new user without setting name.
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
     public void firstNameRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
@@ -317,8 +406,18 @@ public class SigningTest {
 
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
         assertThat(errorMessage.isDisplayed()).isTrue();
+
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user without setting last name.
+     * <p>
+     * First we navigate to signing page. Then we try to
+     * register new user without setting last name.
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
     public void lastNameRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
@@ -334,8 +433,18 @@ public class SigningTest {
 
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
         assertThat(errorMessage.isDisplayed()).isTrue();
+
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user without setting phone.
+     * <p>
+     * First we navigate to signing page. Then we try to
+     * register new user without setting phone number.
+     * Expectation: Error message to be shown and register button to be disabled
+     */
     @Test
     public void phoneRequired() {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
@@ -351,8 +460,18 @@ public class SigningTest {
 
         wait.until(ExpectedConditions.visibilityOf(errorMessage));
         assertThat(errorMessage.isDisplayed()).isTrue();
+
+        final WebElement buttonSubmit = driver.findElement(BUTTON_REGISTER);
+        assertThat(buttonSubmit.isEnabled()).isFalse();
     }
 
+    /**
+     * Test registering new user and verifying its account via mail.
+     * <p>
+     * First we navigate to signing page. Then we register properly and wait until mail
+     * is sent for verification. Then we extract token from mail and verify account.
+     * Expectation: User can login successfully.
+     */
     @Test
     public void registerWithToken() throws IOException, MessagingException {
         User user = createDefaultUser();
@@ -399,6 +518,13 @@ public class SigningTest {
         assertThat(driver.findElements(LOGGED_USER_NAVBAR).get(0).getText()).isEqualTo(loggedUserFormatter(REGISTRATION_USERNAME, REGISTRATION_TYPE));
     }
 
+    /**
+     * Util method for formatting user name in navigation bar
+     *
+     * @param username user's username
+     * @param role     user's role
+     * @return formatted string with username and role
+     */
     private String loggedUserFormatter(String username, String role) {
         return String.format("Ulogovan kao %s (%s)", username, role);
     }
