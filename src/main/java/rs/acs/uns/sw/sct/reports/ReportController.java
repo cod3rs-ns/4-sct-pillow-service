@@ -315,13 +315,16 @@ public class ReportController {
     public ResponseEntity<Boolean> alreadyReported(@RequestParam(value = "email", required = false) String email,
                                                    @RequestParam(value = "id") Long announcementId,
                                                    @RequestParam(value = "username", required = false) String username) {
+        String userEmail = null;
         if (username != null) {
             User user = userService.getUserByUsername(username);
             if (user != null)
-                email = user.getEmail();
+                userEmail = user.getEmail();
         }
 
-        Report exists = reportService.findByReporterEmailAndStatusAndAnnouncementId(email, Constants.ReportStatus.PENDING, announcementId);
+        userEmail = (userEmail != null) ? userEmail : email;
+
+        Report exists = reportService.findByReporterEmailAndStatusAndAnnouncementId(userEmail, Constants.ReportStatus.PENDING, announcementId);
         boolean retVal = exists != null;
         return new ResponseEntity<>(retVal, HttpStatus.OK);
     }

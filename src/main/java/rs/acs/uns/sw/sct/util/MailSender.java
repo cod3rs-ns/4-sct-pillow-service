@@ -48,9 +48,10 @@ public class MailSender {
         model.put("name", name);
 
         try {
+            String newTokenValue = tokenValue;
             if (tokenValue == null)
-                tokenValue = generateToken(address);
-            model.put("link", Constants.MailParameters.TOKEN_CONFIRM_LINK + tokenValue);
+                newTokenValue = generateToken(address);
+            model.put("link", Constants.MailParameters.TOKEN_CONFIRM_LINK + newTokenValue);
 
             // Rendering html page for email
             String html = Jade4J.render("./src/main/resources/templates/mail-template.jade", model);

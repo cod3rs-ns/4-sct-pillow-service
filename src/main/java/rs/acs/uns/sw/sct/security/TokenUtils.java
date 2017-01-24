@@ -11,6 +11,8 @@ import rs.acs.uns.sw.sct.users.SecurityUser;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utility class for token manipulation.
@@ -21,6 +23,7 @@ public class TokenUtils {
     private static final String CREATED = "created";
     private static final String SUBJECT = "sub";
     private static final String ROLE = "role";
+    private Logger logger = Logger.getLogger(getClass().getName());
 
     @Value("${sct.token.secret}")
     private String secret;
@@ -40,6 +43,7 @@ public class TokenUtils {
             final Claims claims = this.getClaimsFromToken(token);
             username = claims.getSubject();
         } catch (Exception e) {
+            logger.log(Level.WARNING, "TokenUtils expected error");
             username = null;
         }
         return username;
@@ -57,6 +61,7 @@ public class TokenUtils {
             final Claims claims = this.getClaimsFromToken(token);
             expirationDate = claims.getExpiration();
         } catch (Exception e) {
+            logger.log(Level.WARNING, "TokenUtils expected error");
             expirationDate = null;
         }
         return expirationDate;
@@ -76,6 +81,7 @@ public class TokenUtils {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
+            logger.log(Level.WARNING, "TokenUtils expected error");
             claims = null;
         }
         return claims;
@@ -95,6 +101,7 @@ public class TokenUtils {
             return expirationDate.before(this.generateCurrentDate());
         }
         catch (Exception e) {
+            logger.log(Level.WARNING, "TokenUtils expected error");
             return true;
         }
     }
@@ -137,6 +144,7 @@ public class TokenUtils {
             refreshedToken = this.generateToken(claims);
         }
         catch (Exception e) {
+            logger.log(Level.WARNING, "TokenUtils expected error");
             refreshedToken = null;
         }
         return refreshedToken;
