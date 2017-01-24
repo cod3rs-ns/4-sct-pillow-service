@@ -4,13 +4,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public interface UserConstants {
-    int DB_COUNT = 16;
+    int DB_COUNT = 17;
 
     Long USER_ID = 7L;
     String USER_FIRST_NAME = "Andrew";
     String USER_LAST_NAME = "Wiggins";
     String USER_EMAIL = "wiggins@gmail.com";
-    String USER_PASSWORD = "$10$wDeKOR2hyQaoEQSw827CHubLgjV5F2fOeKm.tIu1QDszHHUdr.Rjq";
+    String USER_PASSWORD = "$2a$10$iZ.kdcySt1n2BnLIkksLdOSe22jVI4kUYa1OBpZ64QboxruXetmFO";
     String USER_TELEPHONE = "065161665";
     String USER_TYPE = "verifier";
     String USER_USERNAME = "wiggins";
@@ -31,7 +31,8 @@ public interface UserConstants {
     String UPDATED_USER_TYPE = "oglašavač";
     String UPDATED_USER_USERNAME = "steve";
 
-    String ADVERTISER_USERNAME = "james";
+    String ADVERTISER_USERNAME = "lbj";
+    String ADMIN_USERNAME = "admin";
     String ADVERTISER_COMPANY_USERNAME = "damian";
     String VERIFIER_ISCO_USERNAME = "isco";
 
@@ -43,7 +44,7 @@ public interface UserConstants {
     // Number of "deleted = true" database records
     Long DB_COUNT_USERS_DELETED_TRUE  = 2L;
     // Number of "deleted = false" database records
-    Long DB_COUNT_USERS_DELETED_FALSE = 14L;
+    Long DB_COUNT_USERS_DELETED_FALSE = 15L;
 
     // Number of "companyStatus = 'status'" database records for Company (ID = 3)
     Long USER_COMPANY_ID = 3L;

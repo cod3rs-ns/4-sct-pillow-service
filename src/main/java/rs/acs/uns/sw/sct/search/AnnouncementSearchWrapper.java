@@ -19,6 +19,12 @@ public class AnnouncementSearchWrapper {
     private String city;
     private String street;
     private String streetNumber;
+    private Boolean intercom;
+    private Boolean internet;
+    private Boolean phone;
+    private Boolean airConditioner;
+    private Boolean videoSurveillance;
+    private Boolean cableTV;
 
     /**
      * Setter used for 'method chaining'.
@@ -185,6 +191,72 @@ public class AnnouncementSearchWrapper {
         return this;
     }
 
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param intercom real estate has intercom
+     * @return AnnouncementSearchWrapper (this)
+     */
+    public AnnouncementSearchWrapper intercom(Boolean intercom) {
+        this.intercom = intercom;
+        return this;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param internet real estate has internet
+     * @return AnnouncementSearchWrapper (this)
+     */
+    public AnnouncementSearchWrapper internet(Boolean internet) {
+        this.internet = internet;
+        return this;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param phone real estate has phone
+     * @return AnnouncementSearchWrapper (this)
+     */
+    public AnnouncementSearchWrapper phone(Boolean phone) {
+        this.phone = phone;
+        return this;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param airConditioner real estate has airConditioner
+     * @return AnnouncementSearchWrapper (this)
+     */
+    public AnnouncementSearchWrapper airConditioner(Boolean airConditioner) {
+        this.airConditioner = airConditioner;
+        return this;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param videoSurveillance real estate has videoSurveillance
+     * @return AnnouncementSearchWrapper (this)
+     */
+    public AnnouncementSearchWrapper videoSurveillance(Boolean videoSurveillance) {
+        this.videoSurveillance = videoSurveillance;
+        return this;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param cableTV real estate has cableTV
+     * @return AnnouncementSearchWrapper (this)
+     */
+    public AnnouncementSearchWrapper cableTV(Boolean cableTV) {
+        this.cableTV = cableTV;
+        return this;
+    }
+
     public Double getStartPrice() {
         return startPrice;
     }
@@ -303,5 +375,53 @@ public class AnnouncementSearchWrapper {
 
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
+    }
+
+    public Boolean getIntercom() {
+        return intercom;
+    }
+
+    public void setIntercom(Boolean intercom) {
+        this.intercom = intercom;
+    }
+
+    public Boolean getInternet() {
+        return internet;
+    }
+
+    public void setInternet(Boolean internet) {
+        this.internet = internet;
+    }
+
+    public Boolean getPhone() {
+        return phone;
+    }
+
+    public void setPhone(Boolean phone) {
+        this.phone = phone;
+    }
+
+    public Boolean getAirConditioner() {
+        return airConditioner;
+    }
+
+    public void setAirConditioner(Boolean airConditioner) {
+        this.airConditioner = airConditioner;
+    }
+
+    public Boolean getVideoSurveillance() {
+        return videoSurveillance;
+    }
+
+    public void setVideoSurveillance(Boolean videoSurveillance) {
+        this.videoSurveillance = videoSurveillance;
+    }
+
+    public Boolean getCableTV() {
+        return cableTV;
+    }
+
+    public void setCableTV(Boolean cableTV) {
+        this.cableTV = cableTV;
     }
 }

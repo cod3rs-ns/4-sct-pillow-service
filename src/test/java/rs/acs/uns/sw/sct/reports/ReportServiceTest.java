@@ -7,12 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -20,7 +21,7 @@ import static rs.acs.uns.sw.sct.constants.ReportConstants.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
-@TestPropertySource(locations = "classpath:application.properties")
+@ActiveProfiles("test")
 public class ReportServiceTest {
     @Autowired
     private ReportService reportService;
@@ -44,9 +45,7 @@ public class ReportServiceTest {
         assertThat(report1.getType()).isEqualTo(report2.getType());
         assertThat(report1.getAnnouncement().getId()).isEqualTo(report2.getAnnouncement().getId());
         if (report1.getEmail() != null && report2.getEmail() != null)
-            System.out.println(report1.getEmail());
-        System.out.println(report2.getEmail());
-        assertThat(report1.getEmail()).isEqualTo(report2.getEmail());
+            assertThat(report1.getEmail()).isEqualTo(report2.getEmail());
         if (report1.getReporter() != null && report2.getReporter() != null)
             assertThat(report1.getReporter().getId()).isEqualTo(report2.getReporter().getId());
         assertThat(report1.getContent()).isEqualTo(report2.getContent());
@@ -65,7 +64,8 @@ public class ReportServiceTest {
                 .content(CONTENT)
                 .status(STATUS)
                 .reporter(REPORTER)
-                .announcement(DEFAULT_ANNOUNCEMENT);
+                .announcement(DEFAULT_ANNOUNCEMENT)
+                .createdAt(new Date());
         newReport = new Report()
                 .id(null)
                 .email(NEW_EMAIL)
@@ -73,7 +73,8 @@ public class ReportServiceTest {
                 .content(NEW_CONTENT)
                 .status(NEW_STATUS)
                 .reporter(NEW_REPORTER)
-                .announcement(DEFAULT_ANNOUNCEMENT);
+                .announcement(DEFAULT_ANNOUNCEMENT)
+                .createdAt(new Date());
         updatedReport = new Report()
                 .id(null)
                 .email(UPDATED_EMAIL)
@@ -81,7 +82,8 @@ public class ReportServiceTest {
                 .content(UPDATED_CONTENT)
                 .status(UPDATED_STATUS)
                 .reporter(UPDATED_REPORTER)
-                .announcement(DEFAULT_ANNOUNCEMENT);
+                .announcement(DEFAULT_ANNOUNCEMENT)
+                .createdAt(new Date());
     }
 
     /**

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
@@ -16,6 +17,7 @@ import rs.acs.uns.sw.sct.realestates.RealEstate;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -24,6 +26,7 @@ import static rs.acs.uns.sw.sct.constants.CompanyConstants.PAGEABLE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class AnnouncementServiceTest {
 
     @Autowired
@@ -40,7 +43,7 @@ public class AnnouncementServiceTest {
      * Asserts equality of two Announcements.
      *
      * @param ann1 One of the Announcements to be compared
-     * @param ann2 The other Annoucement to be compared
+     * @param ann2 The other Announcement to be compared
      */
     private void compareAnnouncements(Announcement ann1, Announcement ann2) {
         if (ann1.getId() != null && ann2.getId() != null)
@@ -93,6 +96,7 @@ public class AnnouncementServiceTest {
 
     /**
      * Creates an Announcement object
+     *
      * @return a new Announcement object
      */
     private Announcement createNewEntity() {
@@ -101,10 +105,11 @@ public class AnnouncementServiceTest {
                 .cityRegion(CITY_REGION)
                 .country(COUNTRY)
                 .street(STREET)
-                .streetNumber(STREET_NUMBER);
+                .streetNumber(STREET_NUMBER)
+                .latitude(90.)
+                .longitude(90.);
+
         RealEstate NEW_REAL_ESTATE = new RealEstate().id(null)
-                .equipment(RE_EQUIPMENT)
-                .name(RE_NAME)
                 .type(RE_TYPE)
                 .area(RE_AREA)
                 .heatingType(RE_HEATING_TYPE)
@@ -113,6 +118,8 @@ public class AnnouncementServiceTest {
         return new Announcement()
                 .id(null)
                 .price(NEW_PRICE)
+                .name(NEW_NAME)
+                .description(NEW_DESCRIPTION)
                 .dateAnnounced(NEW_DATE_ANNOUNCED)
                 .dateModified(NEW_DATE_MODIFIED)
                 .expirationDate(NEW_EXPIRATION_DATE)
@@ -203,6 +210,8 @@ public class AnnouncementServiceTest {
         Announcement dbAnnouncement = announcementService.findOne(ID);
 
         dbAnnouncement.setPrice(UPDATED_PRICE);
+        dbAnnouncement.setName(UPDATED_NAME);
+        dbAnnouncement.setDescription(UPDATED_DESCRIPTION);
         dbAnnouncement.setDateAnnounced(UPDATED_DATE_ANNOUNCED);
         dbAnnouncement.setDateModified(UPDATED_DATE_MODIFIED);
         dbAnnouncement.setExpirationDate(UPDATED_EXPIRATION_DATE);
@@ -244,20 +253,18 @@ public class AnnouncementServiceTest {
      * <p>
      * This test searches for all Announcements by a Company.
      * It then asserts that the company of every Announcement
-     * in the results matches the one we searched by and that
-     * the number of results matches the expected number of
-     * Announcements by the Company.
+     * in the results matches the one we searched by
      */
     @Test
     public void testAnnouncementsByAuthorId() {
+        Date today = new Date();
         Page<Announcement> dbAnnouncements = announcementService.findAllByCompany(COMPANY_ID, PAGEABLE);
         List<Announcement> content = dbAnnouncements.getContent();
 
         for (Announcement ann : content) {
             assertThat(ann.getAuthor().getCompany().getId()).isEqualTo(COMPANY_ID);
+            assertThat(ann.getDateAnnounced().after(today));
         }
-
-        assertThat(content.size()).isEqualTo(COUNT_OF_COMPANY_ANN);
     }
 
     /**
@@ -359,6 +366,38 @@ public class AnnouncementServiceTest {
         announcementService.save(newAnnouncement);
     }
 
+
+    /**
+     * Tests adding an Announcement with a null name value
+     * <p>
+     * This test sets an Announcement's name to null, then
+     * attempts to add it to the database. As name is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullName() {
+        newAnnouncement.setName(null);
+        announcementService.save(newAnnouncement);
+    }
+
+
+    /**
+     * Tests adding an Announcement with a null description value
+     * <p>
+     * This test sets an Announcement's description to null, then
+     * attempts to add it to the database. As description is a
+     * non-nullable field, the test receives a Constraint
+     * Violation exception.
+     */
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void testAddNullDescription() {
+        newAnnouncement.setDescription(null);
+        announcementService.save(newAnnouncement);
+    }
+
     /**
      * Tests finding deleted Announcements
      * <p>
@@ -410,6 +449,7 @@ public class AnnouncementServiceTest {
      * the number of returned results matches the number of undeleted
      * Announcements on the database or the number of results on a page,
      * whichever is smaller.
+     *
      * @throws Exception
      */
     @Test
@@ -418,7 +458,7 @@ public class AnnouncementServiceTest {
         final int dbSize = announcementService.findAllByStatus(false, null).getContent().size();
         final int requiredSize = dbSize < PAGEABLE.getPageSize() ? dbSize : PAGEABLE.getPageSize();
 
-        List<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), PAGEABLE);
+        Page<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), PAGEABLE);
         assertThat(result).hasSize(requiredSize);
     }
 
@@ -429,6 +469,7 @@ public class AnnouncementServiceTest {
      * then uses its Area value to search the database.
      * Then it asserts that the Area of all results is equal
      * to the area specified.
+     *
      * @throws Exception
      */
     @Test
@@ -442,7 +483,7 @@ public class AnnouncementServiceTest {
                 .startArea(area)
                 .endArea(area);
 
-        List<Announcement> result = announcementService.findBySearchTerm(wrapper, PAGEABLE);
+        Page<Announcement> result = announcementService.findBySearchTerm(wrapper, PAGEABLE);
 
         for (Announcement ann : result) {
             assertThat(ann.getRealEstate().getArea()).isBetween(area, area);
@@ -456,6 +497,7 @@ public class AnnouncementServiceTest {
      * then saves it to the database. Then it searches the database
      * with no arguments and asserts that none of the returned results
      * match the deleted Announcement's id.
+     *
      * @throws Exception
      */
     @Test
@@ -464,10 +506,38 @@ public class AnnouncementServiceTest {
         Announcement persisted = announcementRepository.saveAndFlush(
                 newAnnouncement.deleted(true));
 
-        List<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), AnnouncementConstants.PAGEABLE);
+        Page<Announcement> result = announcementService.findBySearchTerm(new AnnouncementSearchWrapper(), AnnouncementConstants.PAGEABLE);
 
         for (Announcement ann : result) {
             assertThat(ann.getId()).isNotEqualTo(persisted.getId());
         }
     }
+
+    /**
+     * Tests searching for all announcements in provided area
+     * <p>
+     * This test search for all announcements which longitude and latitude is
+     * in provided square and then asserts if size of resulting list is same as
+     * number of announcements in database which satisfies this condition.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    public void searchAnnouncementsInArea() throws Exception {
+
+        final Double topRightLong = 20.0;
+        final Double topRightLat = 46.0;
+        final Double bottomLeftLong = 18.0;
+        final Double bottomLeftLat = 45.0;
+
+        final List<Announcement> announcements = announcementService.findAllInArea(topRightLong, topRightLat, bottomLeftLong, bottomLeftLat, PAGEABLE).getContent();
+
+        assertThat(announcements.size()).isEqualTo(ANNOUNCEMENTS_IN_AREA);
+
+        for (final Announcement announcement : announcements) {
+            assertThat(announcement.getRealEstate().getLocation().isInArea(topRightLong, topRightLat, bottomLeftLong, bottomLeftLat));
+        }
+    }
+
 }

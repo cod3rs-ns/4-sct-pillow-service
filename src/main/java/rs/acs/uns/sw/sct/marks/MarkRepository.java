@@ -16,5 +16,14 @@ public interface MarkRepository extends JpaRepository<Mark, Long> {
          * @param pageable the pagination information
          * @return list of marks
          */
-        Page<Mark> findByAnnouncement_Id(Long announcementId, Pageable pageable); // NOSONAR - invalid warning
+        Page<Mark> findByAnnouncement_Id(Long announcementId, Pageable pageable);
+
+        /**
+         * Get all marks that is referenced for an announcer.
+         *
+         * @param userId the id of the announcer
+         * @param pageable the pagination information
+         * @return list of marks
+         */
+        Page<Mark> findByGradedAnnouncer_Id(Long userId, Pageable pageable);
 }

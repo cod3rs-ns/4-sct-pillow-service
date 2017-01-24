@@ -31,7 +31,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
      *
      * @param email  email of reporter
      * @param status status of report
+     * @param id     announcement id
      * @return list of announcements
      */
-    Report findByEmailAndStatusAndAnnouncement_Id(String email, String status, Long id); // NOSONAR - invalid warning
+    Report findByEmailAndStatusAndAnnouncement_Id(String email, String status, Long id);
 }

@@ -1,6 +1,5 @@
 package rs.acs.uns.sw.sct.comments;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.users.User;
 
@@ -31,14 +30,27 @@ public class Comment implements Serializable {
     @Column(nullable = false)
     private Date date;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn()
     private Announcement announcement;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REFRESH)
     @JoinColumn()
     private User author;
+
+    /**
+     * Converts Comment to DTO entity
+     *
+     * @return CommentDTO for further use
+     */
+    public CommentDTO convertToDTO() {
+        return new CommentDTO()
+                .id(id)
+                .content(content)
+                .date(date)
+                .author((author != null) ? author.convertToDTO() : null)
+                .announcement(announcement.convertToDTO());
+    }
 
     public Long getId() {
         return id;

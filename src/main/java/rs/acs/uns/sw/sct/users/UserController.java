@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Report.
@@ -90,14 +91,14 @@ public class UserController {
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) throws URISyntaxException {
+    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody User user) throws URISyntaxException {
         if (user.getId() == null) {
             return registerUser(user);
         }
 
-        User result = userService.save(user);
+        UserDTO result = userService.save(user).convertToDTO();
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.USER, user.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.USER, result.getId().toString()))
                 .body(result);
     }
 
@@ -112,9 +113,10 @@ public class UserController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/users/company/{companyId}")
-    public ResponseEntity<List<User>> getAllUsersByCompanyId(@PathVariable Long companyId, Pageable pageable)
+    public ResponseEntity<List<UserDTO>> getAllUsersByCompanyId(@PathVariable Long companyId, Pageable pageable)
             throws URISyntaxException {
-        Page<User> page = userService.findAllByCompany(companyId, pageable);
+        Page<UserDTO> page = userService.findAllByCompanyMembershipStatus(companyId, Constants.CompanyStatus.ACCEPTED, pageable)
+                .map(user -> user.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users/company");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -128,8 +130,7 @@ public class UserController {
      */
     @PreAuthorize("permitAll()")
     @PostMapping("/users/")
-    public ResponseEntity<User> registerUser(@Valid @RequestBody User user) throws URISyntaxException {
-        // TODO 6 - this method should be allowed only for guests - not logged in users
+    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody User user) throws URISyntaxException {
         if (user.getId() != null) {
             return ResponseEntity
                     .badRequest()
@@ -165,12 +166,11 @@ public class UserController {
         user.setVerified(false);
         User result = userService.save(user);
 
-        // TODO 7 - this code is probably commented for development purpose
-        // mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail());
+        mailSender.sendRegistrationMail(user.getFirstName(), user.getEmail(), null);
 
         return ResponseEntity.created(new URI("/api/users/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.USER, result.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
     /**
@@ -182,14 +182,16 @@ public class UserController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/users/deleted/{status}")
-    public ResponseEntity<List<User>> getUsersByStatus(@PathVariable Boolean status, Pageable pageable)
+    public ResponseEntity<List<UserDTO>> getUsersByStatus(@PathVariable Boolean status, Pageable pageable)
             throws URISyntaxException {
 
         // If User is not ADMIN and want to get DELETED users
         if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && status)
             return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
 
-        Page<User> page = userService.findAllByStatus(status, pageable);
+        Page<UserDTO> page = userService.findAllByStatus(status, pageable)
+                .map(user -> user.convertToDTO());
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users/deleted");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -197,16 +199,19 @@ public class UserController {
     /**
      * GET  /users/:id : get the "id" user.
      *
-     * @param id the id of the user to retrieve
+     * @param username the username of the user to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the user, or with status 404 (Not Found)
      */
     @PreAuthorize("permitAll()")
-    @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
-        User user = userService.findOne(id);
+    @GetMapping("/users/{username}")
+    public ResponseEntity getUser(@PathVariable String username) {
+
+        final User logged = userSecurityUtil.getLoggedUser();
+
+        User user = userService.getUserByUsername(username);
         return Optional.ofNullable(user)
                 .map(result -> new ResponseEntity<>(
-                        result,
+                        (logged != null && user.getUsername().equals(logged.getUsername())) ? result : result.convertToDTO(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -225,7 +230,7 @@ public class UserController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/users/search")
-    public ResponseEntity<List<User>> search(@RequestParam(value = "username", required = false) String username,
+    public ResponseEntity<List<UserDTO>> search(@RequestParam(value = "username", required = false) String username,
                                              @RequestParam(value = "email", required = false) String email,
                                              @RequestParam(value = "firstName", required = false) String firstName,
                                              @RequestParam(value = "lastName", required = false) String lastName,
@@ -233,9 +238,29 @@ public class UserController {
                                              @RequestParam(value = "companyName", required = false) String companyName,
                                              Pageable pageable) {
 
-        List<User> list = userService.findBySearchTerm(username, email, firstName, lastName, phoneNumber, companyName, pageable);
+        List<UserDTO> list = userService.findBySearchTerm(username, email, firstName, lastName, phoneNumber, companyName, pageable)
+                .stream().map(user -> user.convertToDTO()).collect(Collectors.toList());
+
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+
+    /**
+     * GET  /users/search/typeAhead : get all the users that satisfied search params.
+     *
+     * @param firstName   first name of the user
+     * @param lastName    last name of the user
+     * @return the ResponseEntity with status 200 (OK) and the list of users in body
+     */
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
+    @GetMapping("/users/search/type-ahead")
+    public ResponseEntity<List<UserDTO>> searchTypeAhead(@RequestParam(value = "firstName", required = false) String firstName,
+                                             @RequestParam(value = "lastName", required = false) String lastName) {
+        List<UserDTO> list = userService.findBySearchTermOR(firstName, lastName)
+                .stream().map(user -> user.convertToDTO())
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
 
     /**
      * Method that checks if provided username is available for use by new user.

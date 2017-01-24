@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,7 +19,8 @@ import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.constants.CommentConstants;
-import rs.acs.uns.sw.sct.users.UserService;
+import rs.acs.uns.sw.sct.constants.UserConstants;
+import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.DBUserMocker;
 import rs.acs.uns.sw.sct.util.DateUtil;
@@ -44,6 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class CommentControllerTest {
 
     private static final String DEFAULT_CONTENT = "CONTENT_AAA";
@@ -51,15 +54,17 @@ public class CommentControllerTest {
 
     private static final Date DEFAULT_DATE = DateUtil.asDate(LocalDate.ofEpochDay(0L));
     private static final Date UPDATED_DATE = DateUtil.asDate(LocalDate.now(ZoneId.systemDefault()));
+    private static final Long DEFAULT_USER = 1L;
+    private static final Long DEFAULT_ANNOUNCEMENT = 1L;
 
     @Autowired
     private CommentRepository commentRepository;
+
     @Autowired
     private CommentService commentService;
+
     @Autowired
     private WebApplicationContext context;
-    @Autowired
-    private UserService userService;
 
     private MockMvc restCommentMockMvc;
 
@@ -72,8 +77,15 @@ public class CommentControllerTest {
      * if they test an entity which requires the current entity.
      */
     public static Comment createEntity() {
+
+        Announcement announcement = new Announcement()
+                .id(DEFAULT_ANNOUNCEMENT)
+                .author(new User().id(DEFAULT_USER));
+
         return new Comment()
                 .content(DEFAULT_CONTENT)
+                .author(new User().id(DEFAULT_USER))
+                .announcement(announcement)
                 .date(DEFAULT_DATE);
     }
 
@@ -112,7 +124,7 @@ public class CommentControllerTest {
      */
     @Test
     @Transactional
-    @WithMockUser(authorities = AuthorityRoles.ADMIN)
+    @WithMockUser(authorities = AuthorityRoles.ADMIN, username = UserConstants.ADMIN_USERNAME)
     public void createComment() throws Exception {
         int databaseSizeBeforeCreate = commentRepository.findAll().size();
 
@@ -170,8 +182,6 @@ public class CommentControllerTest {
         int databaseSizeBeforeTest = commentRepository.findAll().size();
         // set the field null
         comment.setDate(null);
-
-        // create the Comment, which fails.
 
         restCommentMockMvc.perform(post("/api/comments")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -554,8 +564,9 @@ public class CommentControllerTest {
     public void getAllCommentsForAnnouncementAsGuest() throws Exception {
         // initialize the database
         long announcementId = 1L;
+        long userId = 1L;
 
-        comment.announcement(new Announcement().id(announcementId));
+        comment.announcement(new Announcement().id(announcementId).author(new User().id(userId)));
         commentService.save(comment);
 
         final Long commentsCount = commentRepository.findByAnnouncement_Id(announcementId, CommentConstants.PAGEABLE).getTotalElements();
@@ -565,9 +576,9 @@ public class CommentControllerTest {
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(Math.toIntExact(commentsCount))))
-                .andExpect(jsonPath("$.[*].id").value(comment.getId().intValue()))
-                .andExpect(jsonPath("$.[*].content").value(DEFAULT_CONTENT))
-                .andExpect(jsonPath("$.[*].date").value((int) DEFAULT_DATE.getTime()));
+                .andExpect(jsonPath("$.[*].id").value(hasItem(comment.getId().intValue())))
+                .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)))
+                .andExpect(jsonPath("$.[*].date").value(hasItem((int) DEFAULT_DATE.getTime())));
     }
 
     /**

@@ -76,9 +76,11 @@ public final class Constants {
      * Constants representing file paths for image upload.
      */
     public static final class FilePaths {
+        public static final String IMAGES_URL = "http://localhost:8091/api/images/";
         public static final String ANNOUNCEMENTS = "announcements";
         public static final String COMPANIES = "companies";
         public static final String USERS = "users";
+        public static final String REAL_ESTATES = "real_estates";
         private FilePaths() {
         }
     }
@@ -93,8 +95,21 @@ public final class Constants {
         public static final int HOST_PORT = 587;
         public static final String AUTH_USER = "bacovakuhinja@gmail.com";
         public static final String AUTH_PASS = "jedanjebaco";
+        public static final String ANNOUNCEMENT_CLIENT = "http://localhost:8080/index.html#!/announcement/";
 
         private MailParameters(){
+        }
+    }
+
+    /**
+     * Constants for Verification through email.
+     */
+    public static final class VerificationPages {
+        public static final String SUCCESS = "http://localhost:8080/#/registration-confirm-success";
+        public static final String WRONG = "http://localhost:8080/#/registration-wrong-token";
+        public static final String EXPIRED = "http://localhost:8080/#/registration-token-expired";
+
+        private VerificationPages(){
         }
     }
 }

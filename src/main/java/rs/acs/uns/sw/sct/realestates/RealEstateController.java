@@ -1,13 +1,17 @@
 package rs.acs.uns.sw.sct.realestates;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.Constants;
@@ -15,6 +19,10 @@ import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -33,6 +41,9 @@ public class RealEstateController {
 
     @Autowired
     private UserSecurityUtil userSecurityUtil;
+
+    @Value("${sct.file_upload.path}")
+    private String uploadPath;
 
     /**
      * POST  /real-estates : Create a new realEstate.
@@ -73,7 +84,6 @@ public class RealEstateController {
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/real-estates")
     public ResponseEntity<RealEstate> updateRealEstate(@Valid @RequestBody RealEstate realEstate) throws URISyntaxException {
-        // TODO 4 - this feature need further discussion
         if (realEstate.getId() == null) {
             return createRealEstate(realEstate);
         }
@@ -189,4 +199,44 @@ public class RealEstateController {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(Constants.EntityNames.REAL_ESTATE, id.toString())).build();
     }
 
+    /**
+     * GET  /real-estates/:id/image
+     *
+     * @param id Id of real estate
+     * @return the ResponseEntity with status 200 (OK) and the image path
+     * @throws IOException if there is an error to read image from path
+     */
+    @RequestMapping("/real-estates/{id}/image")
+    public ResponseEntity<byte[]> realEstateImage(@PathVariable Long id) throws IOException {
+        RealEstate realEstate = realEstateService.findOne(id);
+
+        if (realEstate == null)
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .headers(HeaderUtil.failure(
+                            Constants.EntityNames.REAL_ESTATE,
+                            HeaderUtil.ERROR_CODE_NON_EXISTING_ENTITY,
+                            HeaderUtil.ERROR_MSG_NON_EXISTING_ENTITY))
+                    .body(null);
+
+        Announcement ann = realEstate.getAnnouncements().iterator().next();
+        String imageURL = ann.getImages().iterator().next().getImagePath();
+        String fileName = imageURL.substring(imageURL.lastIndexOf('/') + 1);
+
+        File f = new File(uploadPath + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + fileName);
+        if (!f.exists()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        }
+
+        InputStream in = new FileInputStream(f);
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        byte[] result = IOUtils.toByteArray(in);
+        in.close();
+
+        return new ResponseEntity<>(result, headers, HttpStatus.OK);
+    }
 }

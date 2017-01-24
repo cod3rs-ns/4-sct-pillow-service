@@ -3,6 +3,7 @@ package rs.acs.uns.sw.sct.util;
 import de.neuland.jade4j.Jade4J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import rs.acs.uns.sw.sct.users.UserService;
@@ -31,25 +32,59 @@ public class MailSender {
     @Autowired
     UserService userService;
 
+    @Autowired
+    SimpMessagingTemplate template;
+
     private Logger logger = Logger.getLogger(getClass().getName());
 
     /**
-     * Sends email to newly registerd users.
-     * @param name name of the user
-     * @param address email address of the user
+     * Sends email to newly registered users.
+     *
+     * @param name       name of the user
+     * @param address    email address of the user
+     * @param tokenValue value of verification token
      */
     @Async
-    public void sendRegistrationMail(String name, String address){
+    public void sendRegistrationMail(String name, String address, String tokenValue) {
         Map<String, Object> model = new HashMap<>();
         model.put("name", name);
 
         try {
-            String tokenValue = generateToken(address);
-            model.put("link", Constants.MailParameters.TOKEN_CONFIRM_LINK + tokenValue);
+            String newTokenValue = tokenValue;
+            if (tokenValue == null)
+                newTokenValue = generateToken(address);
+            model.put("link", Constants.MailParameters.TOKEN_CONFIRM_LINK + newTokenValue);
 
             // Rendering html page for email
             String html = Jade4J.render("./src/main/resources/templates/mail-template.jade", model);
             sendMail(address, "Potvrda registracije", html);
+            template.convertAndSend("/subscribe/email-sent/" + address, "true");
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "", e);
+        } catch (MessagingException e) {
+            logger.log(Level.WARNING, "", e);
+        }
+    }
+
+    /**
+     * Send mail to advertiser upon resolving report of his announcement
+     *
+     * @param reportContent    content of report attached to announcement
+     * @param announcementID   ID of reported announcement
+     * @param announcementName name of the reported announcement
+     * @param address          address of the announcement's author
+     */
+    @Async
+    public void sendReportAcceptedMail(String reportContent, Long announcementID, String announcementName, String address) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("reportContent", reportContent);
+        model.put("announcementLink", Constants.MailParameters.ANNOUNCEMENT_CLIENT + String.valueOf(announcementID));
+        model.put("announcementName", announcementName);
+
+        try {
+            // Rendering html page for email
+            String html = Jade4J.render("./src/main/resources/templates/report-mail-template.jade", model);
+            sendMail(address, "Prijava oglasa", html);
         } catch (IOException e) {
             logger.log(Level.SEVERE, "", e);
         } catch (MessagingException e) {
@@ -83,7 +118,7 @@ public class MailSender {
         transport.close();
     }
 
-    private String generateToken(String userMail){
+    private String generateToken(String userMail) {
         // Generate VerificationToken
         Date date = new Date();
         date.setTime(date.getTime() + Constants.MailParameters.TOKEN_EXPIRE_TIME);

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +27,7 @@ import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.*;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
-@TestPropertySource("classpath:application.properties")
+@ActiveProfiles("test")
 public class ReportControllerTest {
 
     private static final String DEFAULT_EMAIL = "a@gmail.com";
@@ -87,14 +88,16 @@ public class ReportControllerTest {
      */
     public static Report createEntity() {
         Announcement announcement = new Announcement()
-                .id(AnnouncementConstants.ID);
+                .id(AnnouncementConstants.ID)
+                .author(new User().id(1L));
 
         return new Report()
                 .email(DEFAULT_EMAIL)
                 .type(DEFAULT_TYPE)
                 .status(DEFAULT_STATUS)
                 .content(DEFAULT_CONTENT)
-                .announcement(announcement);
+                .announcement(announcement)
+                .createdAt(new Date());
     }
 
     /**
@@ -112,7 +115,8 @@ public class ReportControllerTest {
                 .type(UPDATED_TYPE)
                 .status(UPDATED_STATUS)
                 .content(UPDATED_CONTENT)
-                .announcement(announcement);
+                .announcement(announcement)
+                .createdAt(new Date());
     }
 
     @PostConstruct
@@ -193,7 +197,8 @@ public class ReportControllerTest {
                 .email(report.getEmail())
                 .type(report.getType())
                 .content(report.getContent())
-                .status(report.getStatus());
+                .status(report.getStatus())
+                .createdAt(new Date());
 
         // Create the Report
         MvcResult result = restReportMockMvc.perform(post("/api/reports")
@@ -683,10 +688,12 @@ public class ReportControllerTest {
 
 
         persistReport.setStatus(UPDATED_STATUS);
+        persistReport.setAnnouncement(new Announcement().id(1L).author(new User().id(1L)));
         reportRepository.saveAndFlush(persistReport);
 
         // Create another report to have reports of two different statuses
-        reportRepository.saveAndFlush(anotherReport.status(DEFAULT_STATUS));
+        reportRepository.saveAndFlush(anotherReport.status(DEFAULT_STATUS)
+        .announcement(new Announcement().id(1L).author(new User().id(1L))));
 
 
         // When report is solved (change its status), then it is not in the previous list
@@ -713,6 +720,7 @@ public class ReportControllerTest {
      */
     @Test
     @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADMIN)
     public void getReportsByAuthor() throws Exception {
         
         // Initialize the database
@@ -824,8 +832,7 @@ public class ReportControllerTest {
                 .param("status", status))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(jsonPath("$.status").value(equalTo(status)))
-                .andExpect(jsonPath("$.announcement.deleted").value(equalTo(true)));
+                .andExpect(jsonPath("$.status").value(equalTo(status)));
     }
 
     /**

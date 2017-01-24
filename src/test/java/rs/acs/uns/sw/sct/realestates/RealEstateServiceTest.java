@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import rs.acs.uns.sw.sct.SctServiceApplication;
@@ -20,6 +21,7 @@ import static rs.acs.uns.sw.sct.constants.RealEstateConstants.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class RealEstateServiceTest {
 
     @Autowired
@@ -43,7 +45,6 @@ public class RealEstateServiceTest {
             assertThat(re1.getId()).isEqualTo(re2.getId());
         assertThat(re1.getArea()).isEqualTo(re2.getArea());
         assertThat(re1.getHeatingType()).isEqualTo(re2.getHeatingType());
-        assertThat(re1.getName()).isEqualTo(re2.getName());
         assertThat(re1.getType()).isEqualTo(re2.getType());
     }
 
@@ -54,21 +55,18 @@ public class RealEstateServiceTest {
     public void initTest() {
         existingRealEstate = new RealEstate()
                 .id(ID)
-                .name(NAME)
                 .type(TYPE)
                 .area(AREA)
                 .heatingType(HEATING_TYPE)
                 .deleted(DEFAULT_DELETED);
         newRealEstate = new RealEstate()
                 .id(null)
-                .name(NEW_NAME)
                 .type(NEW_TYPE)
                 .area(NEW_AREA)
                 .heatingType(NEW_HEATING_TYPE)
                 .deleted(DEFAULT_DELETED);
         updatedRealEstate = new RealEstate()
                 .id(null)
-                .name(UPDATED_NAME)
                 .type(UPDATED_TYPE)
                 .area(UPDATED_AREA)
                 .heatingType(UPDATED_HEATING_TYPE)
@@ -155,7 +153,6 @@ public class RealEstateServiceTest {
 
         dbRealEstate.setArea(UPDATED_AREA);
         dbRealEstate.setHeatingType(UPDATED_HEATING_TYPE);
-        dbRealEstate.setName(UPDATED_NAME);
         dbRealEstate.setType(UPDATED_TYPE);
 
         RealEstate updatedDbRealEstate = realEstateService.save(dbRealEstate);
@@ -189,23 +186,6 @@ public class RealEstateServiceTest {
     /*
      * Negative tests
 	 */
-
-    /**
-     * Tests adding a RealEstate with a null name value
-     * <p>
-     * This test sets a RealEstate's name to null, then
-     * attempts to add it to the database. As name is a
-     * non-nullable field, the test receives a
-     * Constraint Violation exception.
-     */
-    @Test(expected = ConstraintViolationException.class)
-    @Transactional
-    public void testAddNullName() {
-        newRealEstate.setName(null);
-        realEstateService.save(newRealEstate);
-        // rollback previous name
-        newRealEstate.setName(NEW_NAME);
-    }
 
     /**
      * Tests adding a RealEstate with a null type value

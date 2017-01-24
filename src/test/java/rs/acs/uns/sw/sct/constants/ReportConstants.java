@@ -8,13 +8,13 @@ import rs.acs.uns.sw.sct.users.User;
 
 public interface ReportConstants {
     int PAGE_SIZE = 1;
-    int DB_COUNT_REPORTS = 1;
+    int DB_COUNT_REPORTS = 5;
 
     Long ID = 1L;
 
     String TYPE = "admin";
     String CONTENT = "Inappropriate content";
-    String STATUS = "active";
+    String STATUS = "accepted";
     User REPORTER = new User().id(6L);
     String EMAIL = "user6@mail.com";
 

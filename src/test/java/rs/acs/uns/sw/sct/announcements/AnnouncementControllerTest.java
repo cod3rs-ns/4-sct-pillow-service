@@ -11,6 +11,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import rs.acs.uns.sw.sct.SctServiceApplication;
+import rs.acs.uns.sw.sct.conf.PropertyMockingApplicationContextInitializer;
 import rs.acs.uns.sw.sct.constants.RealEstateConstants;
 import rs.acs.uns.sw.sct.constants.UserConstants;
 import rs.acs.uns.sw.sct.realestates.Location;
@@ -42,9 +45,8 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.COMPANY_ID;
-import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.FILE_TO_BE_UPLOAD;
-import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.NEW_BASE_DIR;
+import static rs.acs.uns.sw.sct.constants.AnnouncementConstants.*;
+import static rs.acs.uns.sw.sct.constants.CompanyConstants.PAGEABLE;
 import static rs.acs.uns.sw.sct.util.ContainsIgnoreCase.containsIgnoringCase;
 import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
 
@@ -54,8 +56,16 @@ import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
  * @see AnnouncementController
  */
 @RunWith(SpringRunner.class)
+@ContextConfiguration(initializers = PropertyMockingApplicationContextInitializer.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class AnnouncementControllerTest {
+
+    private static final String DEFAULT_NAME = "name_default";
+    private static final String UPDATED_NAME = "name_updated";
+
+    private static final String DEFAULT_DESC = "desc_default";
+    private static final String UPDATED_DESC = "desc_updated";
 
     private static final Double DEFAULT_PRICE = 150D;
     private static final Double UPDATED_PRICE = 1D;
@@ -69,14 +79,13 @@ public class AnnouncementControllerTest {
     private static final Date DEFAULT_EXPIRATION_DATE = DateUtil.asDate(LocalDate.ofEpochDay(0L));
     private static final Date UPDATED_EXPIRATION_DATE = DateUtil.asDate(LocalDate.ofEpochDay(1L));
 
-    private static final String DEFAULT_PHONE_NUMBER = "0600000000";
+    private static final String DEFAULT_PHONE_NUMBER = "065161665";
     private static final String UPDATED_PHONE_NUMBER = "0611111111";
 
     private static final String DEFAULT_TYPE = "TYPE_AAA";
     private static final String UPDATED_TYPE = "TYPE_BBB";
 
     private static final Boolean DEFAULT_DELETED = false;
-    private static final Boolean UPDATED_DELETED = true;
 
     private static final String DEFAULT_VERIFIED = "not-verified";
     private static final String UPDATED_VERIFIED = "verified";
@@ -127,9 +136,12 @@ public class AnnouncementControllerTest {
     public static Announcement createEntity() {
         return new Announcement()
                 .price(DEFAULT_PRICE)
+                .name(DEFAULT_NAME)
+                .description(DEFAULT_DESC)
                 .dateAnnounced(DEFAULT_DATE_ANNOUNCED)
                 .dateModified(DEFAULT_DATE_MODIFIED)
                 .expirationDate(DEFAULT_EXPIRATION_DATE)
+                .author(new User().id(8L))
                 .phoneNumber(DEFAULT_PHONE_NUMBER)
                 .type(DEFAULT_TYPE)
                 .verified(DEFAULT_VERIFIED)
@@ -154,7 +166,7 @@ public class AnnouncementControllerTest {
         ReflectionTestUtils.setField(announcementCtrl, "announcementService", announcementService);
         ReflectionTestUtils.setField(announcementCtrl, "userService", userService);
 
-        ReflectionTestUtils.setField(AnnouncementController.class, "uploadPath", NEW_BASE_DIR);
+        //ReflectionTestUtils.setField(AnnouncementController.class, "uploadPath", NEW_BASE_DIR);
 
         this.restAnnouncementMockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -215,6 +227,8 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeCreate + 1);
         Announcement testAnnouncement = announcements.get(announcements.size() - 1);
         assertThat(testAnnouncement.getPrice()).isEqualTo(DEFAULT_PRICE);
+        assertThat(testAnnouncement.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testAnnouncement.getDescription()).isEqualTo(DEFAULT_DESC);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(DEFAULT_EXPIRATION_DATE);
         assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(DEFAULT_PHONE_NUMBER);
         assertThat(testAnnouncement.getType()).isEqualTo(DEFAULT_TYPE);
@@ -348,6 +362,63 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeTest);
     }
 
+
+    /**
+     * Tests whether the "Name" field is nullable
+     * <p>
+     * This test attempts to add an Announcement object with a null "Name" value to the database,
+     * this is forbidden as the "Name" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    public void checkNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = announcementRepository.findAll().size();
+        // set the field null
+        announcement.setName(null);
+
+        // Create the Announcement, which fails.
+
+        restAnnouncementMockMvc.perform(post("/api/announcements")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(announcement)))
+                .andExpect(status().isBadRequest());
+
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeTest);
+    }
+
+
+    /**
+     * Tests whether the "Description" field is nullable
+     * <p>
+     * This test attempts to add an Announcement object with a null "Description" value to the database,
+     * this is forbidden as the "Description" field is non-nullable. Other than expecting a "Bad request" status,
+     * the test compares the number of objects in database before and after the attempted addition.
+     *
+     * @throws Exception
+     */
+
+    @Test
+    @Transactional
+    public void checkDescritpionIsRequired() throws Exception {
+        int databaseSizeBeforeTest = announcementRepository.findAll().size();
+        // set the field null
+        announcement.setDescription(null);
+
+        // Create the Announcement, which fails.
+
+        restAnnouncementMockMvc.perform(post("/api/announcements")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(announcement)))
+                .andExpect(status().isBadRequest());
+
+        List<Announcement> announcements = announcementRepository.findAll();
+        assertThat(announcements).hasSize(databaseSizeBeforeTest);
+    }
+
     /**
      * Tests getting Announcements as an Admin
      * <p>
@@ -370,13 +441,13 @@ public class AnnouncementControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
                 .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
+                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+                .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESC)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
-                .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
-                .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)));
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
     }
 
     /**
@@ -420,12 +491,12 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.id").value(announcement.getId().intValue()))
                 .andExpect(jsonPath("$.price").value(DEFAULT_PRICE))
                 .andExpect(jsonPath("$.dateAnnounced").value(String.valueOf(DEFAULT_DATE_ANNOUNCED.getTime())))
-                .andExpect(jsonPath("$.dateModified").value(String.valueOf(DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.expirationDate").value(String.valueOf(DEFAULT_EXPIRATION_DATE.getTime())))
+                .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
+                .andExpect(jsonPath("$.description").value(DEFAULT_DESC))
                 .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER))
                 .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
-                .andExpect(jsonPath("$.verified").value(DEFAULT_VERIFIED))
-                .andExpect(jsonPath("$.deleted").value(DEFAULT_DELETED));
+                .andExpect(jsonPath("$.verified").value(DEFAULT_VERIFIED));
     }
 
     /**
@@ -460,6 +531,7 @@ public class AnnouncementControllerTest {
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DBUserMocker.ADVERTISER_USERNAME)
     public void updateAnnouncement() throws Exception {
         announcement.setAuthor(DBUserMocker.ADVERTISER);
+        announcement.setDeleted(false);
         announcementService.save(announcement);
 
         int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
@@ -468,15 +540,16 @@ public class AnnouncementControllerTest {
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
                 .price(UPDATED_PRICE)
+                .name(UPDATED_NAME)
+                .description(UPDATED_DESC)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
-                .dateModified(UPDATED_DATE_MODIFIED)
                 .expirationDate(UPDATED_EXPIRATION_DATE)
                 .phoneNumber(UPDATED_PHONE_NUMBER)
                 .type(UPDATED_TYPE);
 
         restAnnouncementMockMvc.perform(put("/api/announcements")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedAnnouncement)))
+                .content(TestUtil.convertObjectToJsonBytes(updatedAnnouncement.convertToDTO())))
                 .andExpect(status().isOk());
 
         // Validate the Announcement in the database
@@ -484,8 +557,9 @@ public class AnnouncementControllerTest {
         assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
         Announcement testAnnouncement = announcements.get(announcements.size() - 1);
         assertThat(testAnnouncement.getPrice()).isEqualTo(UPDATED_PRICE);
+        assertThat(testAnnouncement.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testAnnouncement.getDescription()).isEqualTo(UPDATED_DESC);
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(UPDATED_DATE_ANNOUNCED);
-        assertThat(testAnnouncement.getDateModified()).isEqualTo(UPDATED_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(UPDATED_EXPIRATION_DATE);
         assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(UPDATED_PHONE_NUMBER);
         assertThat(testAnnouncement.getType()).isEqualTo(UPDATED_TYPE);
@@ -512,9 +586,10 @@ public class AnnouncementControllerTest {
         // Update the announcement
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
+                .name(UPDATED_NAME)
+                .description(UPDATED_DESC)
                 .price(UPDATED_PRICE)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
-                .dateModified(UPDATED_DATE_MODIFIED)
                 .expirationDate(UPDATED_EXPIRATION_DATE)
                 .phoneNumber(UPDATED_PHONE_NUMBER)
                 .type(UPDATED_TYPE);
@@ -530,9 +605,10 @@ public class AnnouncementControllerTest {
         List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(databaseSizeBeforeUpdate);
         Announcement testAnnouncement = announcements.get(announcements.size() - 1);
+        assertThat(testAnnouncement.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testAnnouncement.getDescription()).isEqualTo(UPDATED_DESC);
         assertThat(testAnnouncement.getPrice()).isEqualTo(UPDATED_PRICE);
         assertThat(testAnnouncement.getDateAnnounced()).isEqualTo(UPDATED_DATE_ANNOUNCED);
-        assertThat(testAnnouncement.getDateModified()).isEqualTo(UPDATED_DATE_MODIFIED);
         assertThat(testAnnouncement.getExpirationDate()).isEqualTo(UPDATED_EXPIRATION_DATE);
         assertThat(testAnnouncement.getPhoneNumber()).isEqualTo(UPDATED_PHONE_NUMBER);
         assertThat(testAnnouncement.getType()).isEqualTo(UPDATED_TYPE);
@@ -556,11 +632,11 @@ public class AnnouncementControllerTest {
         // Initialize the database
         announcementService.save(announcement);
 
-        int databaseSizeBeforeUpdate = announcementRepository.findAll().size();
-
         // Update the announcement
         Announcement updatedAnnouncement = announcementRepository.findOne(announcement.getId());
         updatedAnnouncement
+                .name(UPDATED_NAME)
+                .description(UPDATED_DESC)
                 .price(UPDATED_PRICE)
                 .dateAnnounced(UPDATED_DATE_ANNOUNCED)
                 .dateModified(UPDATED_DATE_MODIFIED)
@@ -569,9 +645,11 @@ public class AnnouncementControllerTest {
                 .type(UPDATED_TYPE)
                 .images(null);
 
+        announcementDTO = updatedAnnouncement.convertToDTO();
+
         restAnnouncementMockMvc.perform(put("/api/announcements")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedAnnouncement)))
+                .content(TestUtil.convertObjectToJsonBytes(announcementDTO)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -599,7 +677,7 @@ public class AnnouncementControllerTest {
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
 
-        // Validate the database is empty
+        // Validate the database has one announcement less than before
         List<Announcement> announcements = announcementRepository.findAll();
         assertThat(announcements).hasSize(databaseSizeBeforeDelete - 1);
     }
@@ -767,20 +845,16 @@ public class AnnouncementControllerTest {
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
     public void uploadFile() throws Exception {
-        MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
+        MvcResult result = restAnnouncementMockMvc.perform(fileUpload("/api/images/announcements/")
                 .file(fileToBeUpload)
                 .contentType(MediaType.IMAGE_PNG))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        System.out.println(context.getEnvironment().getProperty("sct.file_upload.path"));
-
-
-        String newFileName = result.getResponse().getContentAsString();
-        String filePath = NEW_BASE_DIR + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + newFileName;
+        String newImageURL = result.getResponse().getContentAsString();
+        String imagePath = newImageURL.substring(newImageURL.lastIndexOf('/') + 1);
+        String filePath = NEW_BASE_DIR + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator + imagePath;
         File newFile = new File(filePath);
-
-        System.out.println(newFile.getAbsolutePath());
 
         assertThat(newFile.exists()).isTrue();
 
@@ -810,7 +884,7 @@ public class AnnouncementControllerTest {
         // Assert that folder does not exist anymore
         assertThat(f.exists()).isFalse();
 
-        restAnnouncementMockMvc.perform(fileUpload("/api/announcements/upload")
+        restAnnouncementMockMvc.perform(fileUpload("/api/images/announcements/")
                 .file(fileToBeUpload))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -1102,13 +1176,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
                 .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
-                .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
-                .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED)))
-                .andReturn();
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
     }
 
     /**
@@ -1142,12 +1213,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
                 .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
-                .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
-                .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
     }
 
     /**
@@ -1202,12 +1271,10 @@ public class AnnouncementControllerTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
                 .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
                 .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
-                .andExpect(jsonPath("$.[*].dateModified").value(hasItem((int) DEFAULT_DATE_MODIFIED.getTime())))
                 .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
                 .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)))
-                .andExpect(jsonPath("$.[*].deleted").value(hasItem(ANNOUNCEMENT_DELETED)));
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
     }
 
 
@@ -1218,6 +1285,7 @@ public class AnnouncementControllerTest {
      * authors are members of the same company using an Verifier's authority.
      * It then checks whether the objects' company ids are equals to path
      * param that was passed.
+     *
      * @throws Exception
      */
     @Test
@@ -1234,12 +1302,56 @@ public class AnnouncementControllerTest {
     }
 
     /**
+     * Tests getting all Announcements from same user as an Avertiser
+     * <p>
+     * This test retrieves all Announcement objects from the specified author with an Advertiser's authority.
+     * It then checks whether the objects' author ids are equals to path
+     * param that was passed.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member" )
+    public void getAllAnnouncementsByAuthorId() throws Exception {
+        // Get all announcements from same company
+        restAnnouncementMockMvc.perform(get("/api/announcements/user/{authorId}", 12L))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].author.id").value(everyItem(comparesEqualTo(12))))
+                .andReturn();
+    }
+
+    /**
+     * Tests getting all Announcements from same user as an Avertiser with provided status - deleted
+     * <p>
+     * This test retrieves all Announcement objects from the specified author with an Advertiser's authority.
+     * It then checks whether the objects' author ids are equals to path
+     * param that was passed and count them.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = "test_advertiser_company_member" )
+    public void getAllAnnouncementsByAuthorIdAndStatus() throws Exception {
+        // Get all announcements from same company
+        restAnnouncementMockMvc.perform(get("/api/announcements/user/{authorId}/{deleted}", 12L, false))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].author.id").value(everyItem(comparesEqualTo(12))))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andReturn();
+    }
+
+    /**
      * Tests getting top three Announcements from same company as an Admin
      * <p>
      * This test retrieves all Announcement objects from the database whose
      * authors are members of the same company and their prices are in top three
      * using an Verifier's authority. It then checks whether the objects' company
      * ids are equals to path param that was passed.
+     *
      * @throws Exception
      */
     @Test
@@ -1577,5 +1689,69 @@ public class AnnouncementControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[*].id", everyItem(not(comparesEqualTo(Integer.valueOf(persisted.getId().intValue()))))))
                 .andReturn();
+    }
+
+    /**
+     * Tests searching for Announcements that were deleted
+     * <p>
+     * Test saves announcement with provided location and then retrieves
+     * all tests in provided rectangle area. Assert if count is equal and
+     * if exists in result.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    public void findAnnouncementsInArea() throws Exception {
+
+        final Double topRightLong = 11.0;
+        final Double topRightLat = 24.0;
+        final Double bottomLeftLong = 9.0;
+        final Double bottomLeftLat = 20.0;
+
+        final Location location = new Location()
+                .id(99L)
+                .country(COUNTRY)
+                .city(CITY)
+                .cityRegion(CITY_REGION)
+                .street(STREET)
+                .streetNumber(STREET_NUMBER)
+                .latitude(21.)
+                .longitude(10.);
+
+        RealEstate realEstate = new RealEstate()
+                .id(99L)
+                .deleted(false)
+                .area(99.)
+                .type("AAA")
+                .heatingType("BBB")
+                .location(location);
+
+        RealEstate realEstateSaved = realEstateService.save(realEstate);
+        // Initialize the database
+        announcement.realEstate(realEstateSaved);
+
+        announcementRepository.saveAndFlush(announcement);
+
+        final Long size = announcementService.findAllInArea(topRightLong, topRightLat, bottomLeftLong, bottomLeftLat, PAGEABLE).getTotalElements();
+
+        // Get all the announcements
+        restAnnouncementMockMvc.perform(get("/api/announcements/location-search")
+                .param("topRightLong", String.valueOf(topRightLong))
+                .param("topRightLat", String.valueOf(topRightLat))
+                .param("bottomLeftLong", String.valueOf(bottomLeftLong))
+                .param("bottomLeftLat", String.valueOf(bottomLeftLat)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*]", hasSize(Math.toIntExact(size))))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(announcement.getId().intValue())))
+                .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
+                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+                .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESC)))
+                .andExpect(jsonPath("$.[*].dateAnnounced").value(hasItem((int) DEFAULT_DATE_ANNOUNCED.getTime())))
+                .andExpect(jsonPath("$.[*].expirationDate").value(hasItem((int) DEFAULT_EXPIRATION_DATE.getTime())))
+                .andExpect(jsonPath("$.[*].phoneNumber").value(hasItem(DEFAULT_PHONE_NUMBER)))
+                .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+                .andExpect(jsonPath("$.[*].verified").value(hasItem(DEFAULT_VERIFIED)));
     }
 }

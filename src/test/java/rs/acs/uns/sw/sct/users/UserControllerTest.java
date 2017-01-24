@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -50,6 +51,7 @@ import static rs.acs.uns.sw.sct.util.TestUtil.getRandomCaseInsensitiveSubstring;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class UserControllerTest {
 
     private static final String DEFAULT_EMAIL = "user@email.com";
@@ -298,7 +300,7 @@ public class UserControllerTest {
         // Add user to database first
         userService.save(advertiser);
 
-        mockMvc.perform(get("/api/users/{id}", advertiser.getId()))
+        mockMvc.perform(get("/api/users/{username}", advertiser.getUsername()))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(advertiser.getId().intValue()))
@@ -319,18 +321,49 @@ public class UserControllerTest {
     @Test
     @Transactional
     @WithMockUser(authorities = AuthorityRoles.ADVERTISER)
-    public void getExistingUserAsGuestAsAdvertiser() throws Exception {
+    public void getExistingUserAsAdvertiser() throws Exception {
         // Add user to database first
         userService.save(advertiser);
 
-        mockMvc.perform(get("/api/users/{id}", advertiser.getId()))
+        mockMvc.perform(get("/api/users/{username}", advertiser.getUsername()))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(advertiser.getId().intValue()))
                 .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME))
                 .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
                 .andExpect(jsonPath("$.type").value(Constants.Roles.ADVERTISER))
-                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER));
+                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER))
+                .andExpect(jsonPath("$.verified").doesNotExist())
+                .andExpect(jsonPath("$.deleted").doesNotExist())
+                .andExpect(jsonPath("$.password").doesNotExist());
+    }
+
+    /**
+     * Tests retrieval of ME by username as an Advertiser
+     * <p>
+     * This test saves a User to the database, then searches for it
+     * by id using a mocked Advertiser user. It then asserts that the object
+     * the search returned matches the saved User.
+     * @throws Exception
+     */
+    @Test
+    @Transactional
+    @WithMockUser(authorities = AuthorityRoles.ADVERTISER, username = DEFAULT_USERNAME)
+    public void getMyProfileAsAdvertiser() throws Exception {
+        // Add user to database first
+        userService.save(advertiser);
+
+        mockMvc.perform(get("/api/users/{username}", advertiser.getUsername()))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.id").value(advertiser.getId().intValue()))
+                .andExpect(jsonPath("$.username").value(DEFAULT_USERNAME))
+                .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
+                .andExpect(jsonPath("$.type").value(Constants.Roles.ADVERTISER))
+                .andExpect(jsonPath("$.phoneNumber").value(DEFAULT_PHONE_NUMBER))
+                .andExpect(jsonPath("$.verified").value(true))
+                .andExpect(jsonPath("$.deleted").value(false))
+                .andExpect(jsonPath("$.password").exists());
     }
 
     /**
@@ -345,6 +378,7 @@ public class UserControllerTest {
     @Transactional
     public void getUsersByCompanyId() throws Exception {
         // Add user to database first
+        advertiser.setCompanyVerified(Constants.CompanyStatus.ACCEPTED);
         userService.save(advertiser);
 
         mockMvc.perform(get("/api/users/company/{companyId}", advertiser.getCompany().getId()))
@@ -772,8 +806,9 @@ public class UserControllerTest {
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(advertiser)))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.verified", is(false)));
+                .andExpect(status().isCreated());
+                // FIXME UserDTO doesn't contain 'verified'
+                //.andExpect(jsonPath("$.verified", is(false)));
     }
 
     /**

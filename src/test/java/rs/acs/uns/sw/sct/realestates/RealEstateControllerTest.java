@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,10 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class RealEstateControllerTest {
-
-    private static final String DEFAULT_NAME = "NAME_AAA";
-    private static final String UPDATED_NAME = "NAME_BBB";
 
     private static final String DEFAULT_TYPE = "TYPE_AAA";
     private static final String UPDATED_TYPE = "TYPE_BBB";
@@ -74,7 +73,6 @@ public class RealEstateControllerTest {
      */
     public static RealEstate createEntity() {
         return new RealEstate()
-                .name(DEFAULT_NAME)
                 .type(DEFAULT_TYPE)
                 .area(DEFAULT_AREA)
                 .heatingType(DEFAULT_HEATING_TYPE)
@@ -129,7 +127,6 @@ public class RealEstateControllerTest {
         List<RealEstate> realEstates = realEstateRepository.findAll();
         assertThat(realEstates).hasSize(databaseSizeBeforeCreate + 1);
         RealEstate testRealEstate = realEstates.get(realEstates.size() - 1);
-        assertThat(testRealEstate.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testRealEstate.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testRealEstate.getArea()).isEqualTo(DEFAULT_AREA);
         assertThat(testRealEstate.getHeatingType()).isEqualTo(DEFAULT_HEATING_TYPE);
@@ -183,32 +180,6 @@ public class RealEstateControllerTest {
         // Validate the RealEstate in the database
         List<RealEstate> realEstates = realEstateRepository.findAll();
         assertThat(realEstates).hasSize(databaseSizeBeforeCreate);
-    }
-
-    /**
-     * Tests whether the "Name" field is nullable
-     * <p>
-     * This test attempts to add a RealEstate object with a null "Name" value to the database,
-     * this is forbidden as the "Name" field is non-nullable. Other than expecting a "Bad request" status,
-     * the test asserts that the number of objects in database has not changed.
-     * @throws Exception
-     */
-    @Test
-    @Transactional
-    public void checkNameIsRequired() throws Exception {
-        int databaseSizeBeforeTest = realEstateRepository.findAll().size();
-        // set the field null
-        realEstate.setName(null);
-
-        // Create the RealEstate, which fails.
-
-        restRealEstateMockMvc.perform(post("/api/real-estates")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(realEstate)))
-                .andExpect(status().isBadRequest());
-
-        List<RealEstate> realEstates = realEstateRepository.findAll();
-        assertThat(realEstates).hasSize(databaseSizeBeforeTest);
     }
 
     /**
@@ -335,7 +306,6 @@ public class RealEstateControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(realEstate.getId().intValue())))
-                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].area").value(hasItem(DEFAULT_AREA)))
                 .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE)))
@@ -398,7 +368,6 @@ public class RealEstateControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.id").value(realEstate.getId().intValue()))
-                .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
                 .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
                 .andExpect(jsonPath("$.area").value(DEFAULT_AREA))
                 .andExpect(jsonPath("$.heatingType").value(DEFAULT_HEATING_TYPE))
@@ -443,7 +412,6 @@ public class RealEstateControllerTest {
         // Update the realEstate
         RealEstate updatedRealEstate = realEstateRepository.findOne(realEstate.getId());
         updatedRealEstate
-                .name(UPDATED_NAME)
                 .type(UPDATED_TYPE)
                 .area(UPDATED_AREA)
                 .heatingType(UPDATED_HEATING_TYPE)
@@ -458,7 +426,6 @@ public class RealEstateControllerTest {
         List<RealEstate> realEstates = realEstateRepository.findAll();
         assertThat(realEstates).hasSize(databaseSizeBeforeUpdate);
         RealEstate testRealEstate = realEstates.get(realEstates.size() - 1);
-        assertThat(testRealEstate.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testRealEstate.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testRealEstate.getArea()).isEqualTo(UPDATED_AREA);
         assertThat(testRealEstate.getHeatingType()).isEqualTo(UPDATED_HEATING_TYPE);
@@ -485,7 +452,6 @@ public class RealEstateControllerTest {
         // Update the realEstate
         RealEstate updatedRealEstate = realEstateRepository.findOne(realEstate.getId());
         updatedRealEstate
-                .name(UPDATED_NAME)
                 .type(UPDATED_TYPE)
                 .area(UPDATED_AREA)
                 .heatingType(UPDATED_HEATING_TYPE)
@@ -612,7 +578,6 @@ public class RealEstateControllerTest {
                 .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(realEstate.getId().intValue())))
-                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].area").value(hasItem(DEFAULT_AREA)))
                 .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE)))
@@ -644,7 +609,6 @@ public class RealEstateControllerTest {
                 .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(realEstate.getId().intValue())))
-                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
                 .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
                 .andExpect(jsonPath("$.[*].area").value(hasItem(DEFAULT_AREA)))
                 .andExpect(jsonPath("$.[*].heatingType").value(hasItem(DEFAULT_HEATING_TYPE)))

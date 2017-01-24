@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static rs.acs.uns.sw.sct.search.UserPredicates.search;
+import static rs.acs.uns.sw.sct.search.UserPredicates.searchOR;
 
 /**
  * Service Implementation for managing Report.
@@ -139,6 +140,20 @@ public class UserService {
                                        String lastName, String phoneNumber, String companyName, Pageable pageable) {
         Predicate searchPredicate = search(username, email, firstName, lastName, phoneNumber, companyName);
         Iterable<User> searchResults = userRepository.findAll(searchPredicate, pageable);
+        return IteratorUtils.toList(searchResults.iterator());
+    }
+
+    /**
+     * Find all users that satisfied criteria defined by query params.
+     *
+     * @param firstName user first name
+     * @param lastName  user last name
+     * @return List of Users that match search criteria.
+     */
+    @Transactional(readOnly = true)
+    public List<User> findBySearchTermOR(String firstName, String lastName) {
+        Predicate searchPredicate = searchOR(firstName, lastName);
+        Iterable<User> searchResults = userRepository.findAll(searchPredicate);
         return IteratorUtils.toList(searchResults.iterator());
     }
 }

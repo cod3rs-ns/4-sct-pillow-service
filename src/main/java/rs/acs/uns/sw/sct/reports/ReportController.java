@@ -15,11 +15,13 @@ import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.users.UserService;
 import rs.acs.uns.sw.sct.util.Constants;
 import rs.acs.uns.sw.sct.util.HeaderUtil;
+import rs.acs.uns.sw.sct.util.MailSender;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +45,9 @@ public class ReportController {
     @Autowired
     private UserSecurityUtil userSecurityUtil;
 
+    @Autowired
+    private MailSender mailSender;
+
     /**
      * POST  /reports : Create a new report.
      *
@@ -52,7 +57,7 @@ public class ReportController {
      */
     @PreAuthorize("permitAll()")
     @PostMapping("/reports")
-    public ResponseEntity<Report> createReport(@Valid @RequestBody Report report) throws URISyntaxException {
+    public ResponseEntity<ReportDTO> createReport(@Valid @RequestBody Report report) throws URISyntaxException {
         if (report.getId() != null) {
             return ResponseEntity
                     .badRequest()
@@ -67,6 +72,7 @@ public class ReportController {
         if (user != null)
             report.setEmail(user.getEmail());
 
+        report.setCreatedAt(new Date());
         report.setReporter(user);
         report.setStatus(Constants.ReportStatus.PENDING);
 
@@ -110,7 +116,7 @@ public class ReportController {
         return ResponseEntity
                 .created(new URI("/api/reports/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(Constants.EntityNames.REPORT, result.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
 
@@ -125,15 +131,14 @@ public class ReportController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/reports")
-    public ResponseEntity<Report> updateReport(@Valid @RequestBody Report report) throws URISyntaxException {
+    public ResponseEntity<ReportDTO> updateReport(@Valid @RequestBody Report report) throws URISyntaxException {
         if (report.getId() == null) {
             return createReport(report);
         }
-        // TODO 5 - existing of this method should be considered
         Report result = reportService.save(report);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
     /**
@@ -143,11 +148,12 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/reports")
-    public ResponseEntity<List<Report>> getAllReports(Pageable pageable)
+    public ResponseEntity<List<ReportDTO>> getAllReports(Pageable pageable)
             throws URISyntaxException {
-        Page<Report> page = reportService.findAll(pageable);
+        Page<ReportDTO> page = reportService.findAll(pageable)
+                .map(report -> report.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -158,13 +164,13 @@ public class ReportController {
      * @param id the id of the report to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the report, or with status 404 (Not Found)
      */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/reports/{id}")
-    public ResponseEntity<Report> getReport(@PathVariable Long id) {
+    public ResponseEntity<ReportDTO> getReport(@PathVariable Long id) {
         Report report = reportService.findOne(id);
         return Optional.ofNullable(report)
                 .map(result -> new ResponseEntity<>(
-                        result,
+                        result.convertToDTO(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -200,11 +206,12 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/reports/status/{status}")
-    public ResponseEntity<List<Report>> getAllReportsByStatus(Pageable pageable, @PathVariable String status)
+    public ResponseEntity<List<ReportDTO>> getAllReportsByStatus(Pageable pageable, @PathVariable String status)
             throws URISyntaxException {
-        Page<Report> page = reportService.findByStatus(status, pageable);
+        Page<ReportDTO> page = reportService.findByStatus(status, pageable)
+                .map(report -> report.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports/status");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -217,11 +224,12 @@ public class ReportController {
      * @return the ResponseEntity with status 200 (OK) and the list of reports in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @GetMapping("/reports/author/{email:.+}")
-    public ResponseEntity<List<Report>> getAllReportsByAuthorEmail(Pageable pageable, @PathVariable String email)
+    public ResponseEntity<List<ReportDTO>> getAllReportsByAuthorEmail(Pageable pageable, @PathVariable String email)
             throws URISyntaxException {
-        Page<Report> page = reportService.findByAuthorEmail(email, pageable);
+        Page<ReportDTO> page = reportService.findByAuthorEmail(email, pageable)
+                .map(report -> report.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/reports/author");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -236,7 +244,7 @@ public class ReportController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/reports/resolve/{id}")
-    public ResponseEntity<Report> resolveReport(@PathVariable Long id, @RequestParam(value = "status") String status) {
+    public ResponseEntity<ReportDTO> resolveReport(@PathVariable Long id, @RequestParam(value = "status") String status) {
         Report report = reportService.findOne(id);
         // OPTION 1 - user is trying to resolve report that doesn't exist
         if (report == null)
@@ -277,9 +285,46 @@ public class ReportController {
         }
 
         Report result = reportService.save(report);
+
+        // send email to author
+        if (result.getStatus().equals(Constants.ReportStatus.ACCEPTED)) {
+            mailSender.sendReportAcceptedMail(
+                    report.getContent(),
+                    report.getAnnouncement().getId(),
+                    report.getAnnouncement().getName(),
+                    report.getAnnouncement().getAuthor().getEmail());
+        }
+
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
+    }
+
+    /**
+     * GET  /reports/exists : check if report already exists.
+     *
+     * @param email          the author email
+     * @param announcementId the id of announcement that should be reported
+     * @param username       the author username
+     * @return the ResponseEntity with status 200 (OK) and the boolean value in body
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/reports/exists")
+    public ResponseEntity<Boolean> alreadyReported(@RequestParam(value = "email", required = false) String email,
+                                                   @RequestParam(value = "id") Long announcementId,
+                                                   @RequestParam(value = "username", required = false) String username) {
+        String userEmail = null;
+        if (username != null) {
+            User user = userService.getUserByUsername(username);
+            if (user != null)
+                userEmail = user.getEmail();
+        }
+
+        userEmail = (userEmail != null) ? userEmail : email;
+
+        Report exists = reportService.findByReporterEmailAndStatusAndAnnouncementId(userEmail, Constants.ReportStatus.PENDING, announcementId);
+        boolean retVal = exists != null;
+        return new ResponseEntity<>(retVal, HttpStatus.OK);
     }
 }

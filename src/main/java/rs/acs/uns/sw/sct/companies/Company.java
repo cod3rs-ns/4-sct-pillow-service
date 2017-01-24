@@ -1,6 +1,6 @@
 package rs.acs.uns.sw.sct.companies;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import rs.acs.uns.sw.sct.users.User;
 
 import javax.persistence.*;
@@ -34,7 +34,9 @@ public class Company implements Serializable {
     @Column(nullable = false)
     private String phoneNumber;
 
-    @JsonIgnore
+    private String imagePath;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>(0);
 
@@ -131,6 +133,14 @@ public class Company implements Serializable {
     public Company users(Set<User> users) {
         this.users = users;
         return this;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     @Override

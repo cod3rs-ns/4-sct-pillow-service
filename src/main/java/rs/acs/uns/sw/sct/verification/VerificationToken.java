@@ -3,6 +3,7 @@ package rs.acs.uns.sw.sct.verification;
 import rs.acs.uns.sw.sct.users.User;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "verification_tokens")
-public class VerificationToken {
+public class VerificationToken implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,6 +27,13 @@ public class VerificationToken {
     @JoinColumn(name = "vt_user_id")
     @OneToOne(cascade = CascadeType.REFRESH)
     private User user;
+
+    /**
+     * Verification token empty constructor
+     */
+    public VerificationToken() {
+
+    }
 
     /**
      * Constructor

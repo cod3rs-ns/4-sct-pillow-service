@@ -25,7 +25,8 @@ public class Mark implements Serializable {
     @Column(nullable = false)
     private Integer value;
 
-    @ManyToOne
+    @NotNull
+    @ManyToOne(cascade = CascadeType.REFRESH)
     private User grader;
 
     @ManyToOne
@@ -33,6 +34,20 @@ public class Mark implements Serializable {
 
     @ManyToOne
     private Announcement announcement;
+
+    /**
+     * Converts DTO to Mark entity
+     *
+     * @return MarkDTO for further use
+     */
+    public MarkDTO convertToDTO() {
+        return new MarkDTO()
+                .id(id)
+                .value(value)
+                .grader(grader.convertToDTO())
+                .gradedAnnouncer((gradedAnnouncer != null) ? gradedAnnouncer.convertToDTO() : null)
+                .announcement((announcement != null) ? announcement.convertToDTO() : null);
+    }
 
     public Long getId() {
         return id;

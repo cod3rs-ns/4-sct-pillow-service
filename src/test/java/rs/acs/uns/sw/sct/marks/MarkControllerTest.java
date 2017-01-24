@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,6 +19,7 @@ import rs.acs.uns.sw.sct.SctServiceApplication;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 import rs.acs.uns.sw.sct.announcements.AnnouncementService;
 import rs.acs.uns.sw.sct.constants.MarkConstants;
+import rs.acs.uns.sw.sct.users.User;
 import rs.acs.uns.sw.sct.util.AuthorityRoles;
 import rs.acs.uns.sw.sct.util.DBUserMocker;
 import rs.acs.uns.sw.sct.util.TestUtil;
@@ -39,10 +41,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SctServiceApplication.class)
+@ActiveProfiles("test")
 public class MarkControllerTest {
 
     private static final Integer DEFAULT_VALUE = 1;
     private static final Integer UPDATED_VALUE = 2;
+    private static final Long DEFAULT_USER = 1L;
+    private static final Long GRADED_USER = 2L;
+    private static final Long DEFAULT_ANNOUNCEMENT = 1L;
 
     @Autowired
     private MarkRepository markRepository;
@@ -67,8 +73,16 @@ public class MarkControllerTest {
      * if they test an entity which requires the current entity.
      */
     public static Mark createEntity() {
+        Announcement announcement = new Announcement()
+                .id(DEFAULT_ANNOUNCEMENT)
+                .author(new User().id(DEFAULT_USER));
+        announcement.getImages();
+
         return new Mark()
-                .value(DEFAULT_VALUE);
+                .value(DEFAULT_VALUE)
+                .announcement(announcement)
+                .grader(new User().id(DEFAULT_USER))
+                .gradedAnnouncer(new User().id(GRADED_USER));
     }
 
     @PostConstruct
@@ -401,9 +415,10 @@ public class MarkControllerTest {
     public void getAllMarksForAnnouncementAsAdvertiser() throws Exception {
 
         final Long announcementId = 1L;
+        final Long userId = 1L;
 
         // Initialize the database
-        mark.setAnnouncement(new Announcement().id(announcementId));
+        mark.setAnnouncement(new Announcement().id(announcementId).author(new User().id(userId)));
         markRepository.saveAndFlush(mark);
 
         final Long count = markRepository.findByAnnouncement_Id(announcementId, MarkConstants.PAGEABLE).getTotalElements();
@@ -413,7 +428,7 @@ public class MarkControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(Math.toIntExact(count))))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(jsonPath("$.[*].id").value(mark.getId().intValue()))
-                .andExpect(jsonPath("$.[*].value").value(DEFAULT_VALUE));
+                .andExpect(jsonPath("$.[*].id").value(hasItem(mark.getId().intValue())))
+                .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)));
     }
 }

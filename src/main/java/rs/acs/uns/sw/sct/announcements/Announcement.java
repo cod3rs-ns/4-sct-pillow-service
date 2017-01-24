@@ -28,6 +28,14 @@ public class Announcement implements Serializable {
 
     @NotNull
     @Column(nullable = false)
+    private String name;
+
+    @NotNull
+    @Column(nullable = false)
+    private String description;
+
+    @NotNull
+    @Column(nullable = false)
     private Double price;
 
     @NotNull
@@ -57,7 +65,7 @@ public class Announcement implements Serializable {
     @Column(nullable = false)
     private Boolean deleted;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn()
     private RealEstate realEstate;
 
@@ -73,8 +81,29 @@ public class Announcement implements Serializable {
     @OneToMany(mappedBy = "announcement", fetch = FetchType.LAZY)
     private Set<Comment> comments = new HashSet<>(0);
 
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Image> images = new HashSet<>(0);
+
+    /**
+     * Converting announcement to DTO object
+     *
+     * @return AnnouncementDTO (dto)
+     */
+    public AnnouncementDTO convertToDTO() {
+        return new AnnouncementDTO()
+                .id(id)
+                .name(name)
+                .description(description)
+                .type(type)
+                .dateAnnounced(dateAnnounced)
+                .expirationDate(expirationDate)
+                .images(images)
+                .phoneNumber(phoneNumber)
+                .price(price)
+                .realEstate(realEstate)
+                .author(author.convertToDTO())
+                .verified(verified);
+    }
 
     public Long getId() {
         return id;
@@ -106,7 +135,7 @@ public class Announcement implements Serializable {
     /**
      * Setter used for 'method chaining'.
      *
-     * @param price announcement rice
+     * @param price announcement price
      * @return Announcement (this)
      */
     public Announcement price(Double price) {
@@ -343,6 +372,45 @@ public class Announcement implements Serializable {
         return this;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param name name of announcement
+     * @return Announcement (this)
+     */
+    public Announcement name(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Setter used for 'method chaining'.
+     *
+     * @param description description of announcement
+     * @return Announcement (this)
+     */
+    public Announcement description(String description) {
+        this.description = description;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Announcement{" +
@@ -357,23 +425,5 @@ public class Announcement implements Serializable {
                 ", deleted=" + deleted +
                 ", realEstate=" + realEstate +
                 "}";
-    }
-
-    /**
-     * Converting announcement to DTO object
-     *
-     * @return AnnouncementDTO (dto)
-     */
-    public AnnouncementDTO convertToDTO() {
-        AnnouncementDTO dto = new AnnouncementDTO();
-        dto.setType(this.type);
-        dto.setId(id);
-        dto.setExpirationDate(expirationDate);
-        dto.setImages(images);
-        dto.setPhoneNumber(phoneNumber);
-        dto.setPrice(price);
-        dto.setRealEstate(realEstate);
-
-        return dto;
     }
 }

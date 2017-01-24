@@ -11,6 +11,8 @@ import rs.acs.uns.sw.sct.users.SecurityUser;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Utility class for token manipulation.
@@ -18,9 +20,11 @@ import java.util.Map;
 @Component
 public class TokenUtils {
 
-    private static final String AUDIENCE_MOBILE = "mobile";
-    private static final String AUDIENCE_TABLET = "tablet";
+    private static final String TOKEN_UTIL_ERROR = "TokenUtils expected error";
     private static final String CREATED = "created";
+    private static final String SUBJECT = "sub";
+    private static final String ROLE = "role";
+    private Logger logger = Logger.getLogger(getClass().getName());
 
     @Value("${sct.token.secret}")
     private String secret;
@@ -35,29 +39,16 @@ public class TokenUtils {
      * @return username
      */
     public String getUsernameFromToken(String token) {
-        String username = null;
-        if (token != null && !"null".equals(token)) {
+        String username;
+        try {
             final Claims claims = this.getClaimsFromToken(token);
             username = claims.getSubject();
+        } catch (Exception e) {
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
+            username = null;
         }
         return username;
     }
-
-    /**
-     * Extracts Date of creation from token.
-     *
-     * @param token authentication token
-     * @return Date of creation
-     */
-    public Date getCreatedDateFromToken(String token) {
-        Date created = null;
-        if (token != null && !"null".equals(token)) {
-            final Claims claims = this.getClaimsFromToken(token);
-            created = new Date((Long) claims.get(CREATED));
-        }
-        return created;
-    }
-
 
     /**
      * Extracts Date of expiration from token.
@@ -66,27 +57,15 @@ public class TokenUtils {
      * @return Date of expiration
      */
     public Date getExpirationDateFromToken(String token) {
-        Date expirationDate = null;
-        if (token != null && !"null".equals(token)) {
+        Date expirationDate;
+        try {
             final Claims claims = this.getClaimsFromToken(token);
             expirationDate = claims.getExpiration();
+        } catch (Exception e) {
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
+            expirationDate = null;
         }
         return expirationDate;
-    }
-
-    /**
-     * Extracts Audience from token.
-     *
-     * @param token authentication token
-     * @return Audience - String
-     */
-    public String getAudienceFromToken(String token) {
-        String audience = null;
-        if (token != null && !"null".equals(token)) {
-            final Claims claims = this.getClaimsFromToken(token);
-            audience = (String) claims.get("audience");
-        }
-        return audience;
     }
 
     /**
@@ -96,12 +75,15 @@ public class TokenUtils {
      * @return Claims
      */
     private Claims getClaimsFromToken(String token) {
-        Claims claims = null;
-        if (token != null && !"null".equals(token)) {
+        Claims claims;
+        try {
             claims = Jwts.parser()
                     .setSigningKey(this.secret)
                     .parseClaimsJws(token)
                     .getBody();
+        } catch (Exception e) {
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
+            claims = null;
         }
         return claims;
     }
@@ -111,21 +93,17 @@ public class TokenUtils {
     }
 
     private Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + this.expiration * 1000);
+        return new Date(System.currentTimeMillis() + this.expiration);
     }
 
     private Boolean isTokenExpired(String token) {
-        final Date expirationDate = this.getExpirationDateFromToken(token);
-        return expirationDate.before(this.generateCurrentDate());
-    }
-
-    private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
-        return lastPasswordReset != null && created.before(lastPasswordReset);
-    }
-
-    private Boolean ignoreTokenExpiration(String token) {
-        String audience = this.getAudienceFromToken(token);
-        return AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience);
+        try {
+            final Date expirationDate = this.getExpirationDateFromToken(token);
+            return expirationDate.before(this.generateCurrentDate());
+        } catch (Exception e) {
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
+            return true;
+        }
     }
 
     /**
@@ -136,9 +114,10 @@ public class TokenUtils {
      */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("user", userDetails.getUsername());
+
+        claims.put(SUBJECT, userDetails.getUsername());
         // Set Role of User to token. Our user has only one role.
-        claims.put("role", userDetails.getAuthorities().toArray()[0]);
+        claims.put(ROLE, userDetails.getAuthorities().toArray()[0]);
         claims.put(CREATED, this.generateCurrentDate());
         return this.generateToken(claims);
     }
@@ -152,29 +131,20 @@ public class TokenUtils {
     }
 
     /**
-     * Checks if token can be refreshed.
-     *
-     * @param token             authentication token
-     * @param lastPasswordReset Date of last password reset
-     * @return true if token can be refreshed, false otherwise
-     */
-    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
-        final Date created = this.getCreatedDateFromToken(token);
-        return !(this.isCreatedBeforeLastPasswordReset(created, lastPasswordReset)) && (!(this.isTokenExpired(token)) || this.ignoreTokenExpiration(token));
-    }
-
-    /**
      * Creates refreshed token
      *
      * @param token current authentication token
      * @return new refreshed token
      */
     public String refreshToken(String token) {
-        String refreshedToken = null;
-        if (token != null && !"null".equals(token)) {
+        String refreshedToken;
+        try {
             final Claims claims = this.getClaimsFromToken(token);
             claims.put(CREATED, this.generateCurrentDate());
             refreshedToken = this.generateToken(claims);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
+            refreshedToken = null;
         }
         return refreshedToken;
     }
@@ -190,9 +160,12 @@ public class TokenUtils {
         SecurityUser user = (SecurityUser) userDetails;
         final String username = this.getUsernameFromToken(token);
 
-        String refreshedToken = "";
+        final String refreshedToken;
+
         if (this.isTokenExpired(token)) {
             refreshedToken = refreshToken(token);
+        } else {
+            refreshedToken = token;
         }
 
         return username.equals(user.getUsername()) && !(this.isTokenExpired(refreshedToken));

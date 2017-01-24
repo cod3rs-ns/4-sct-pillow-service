@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import rs.acs.uns.sw.sct.realestates.RealEstate;
+import rs.acs.uns.sw.sct.realestates.RealEstateService;
 import rs.acs.uns.sw.sct.search.AnnouncementSearchWrapper;
 import rs.acs.uns.sw.sct.security.UserSecurityUtil;
 import rs.acs.uns.sw.sct.users.User;
@@ -20,14 +21,15 @@ import rs.acs.uns.sw.sct.util.HeaderUtil;
 import rs.acs.uns.sw.sct.util.PaginationUtil;
 
 import javax.validation.Valid;
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Announcement.
@@ -41,6 +43,9 @@ public class AnnouncementController {
     private AnnouncementService announcementService;
 
     @Autowired
+    private RealEstateService realEstateService;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -50,8 +55,7 @@ public class AnnouncementController {
     private UserSecurityUtil userSecurityUtil;
 
     @Value("${sct.file_upload.path}")
-    public static String uploadPath;  // NOSONAR
-
+    private String uploadPath;
 
     /**
      * POST  /announcements : Create a new announcement.
@@ -63,7 +67,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PostMapping("/announcements")
-    public ResponseEntity<Announcement> createAnnouncement(@Valid @RequestBody AnnouncementDTO annDTO) throws URISyntaxException {
+    public ResponseEntity<AnnouncementDTO> createAnnouncement(@Valid @RequestBody AnnouncementDTO annDTO) throws URISyntaxException {
         if (annDTO.getId() != null) {
             return ResponseEntity
                     .badRequest()
@@ -77,9 +81,23 @@ public class AnnouncementController {
         final User user = userSecurityUtil.getLoggedUser();
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        } else {
+            annDTO.setAuthor(user.convertToDTO());
         }
 
-        Announcement announcement = annDTO.convertToAnnouncement(user);
+        if (annDTO.getRealEstate() != null && annDTO.getRealEstate().getId() != null) {
+            RealEstate realEstate = realEstateService.findOne(annDTO.getRealEstate().getId());
+            if (realEstate != null) {
+                annDTO.setRealEstate(realEstate);
+            }
+        }
+
+        Announcement announcement = annDTO.convertToAnnouncement();
+
+        // set default values
+        announcement.setDeleted(false);
+        announcement.setDateAnnounced(new Date());
+        announcement.setVerified(Constants.VerifiedStatuses.NOT_VERIFIED);
 
         Announcement result = announcementService.save(announcement);
         return ResponseEntity
@@ -87,13 +105,13 @@ public class AnnouncementController {
                 .headers(HeaderUtil.createEntityCreationAlert(
                         Constants.EntityNames.ANNOUNCEMENT,
                         result.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
     /**
      * PUT  /announcements : Updates an existing announcement.
      *
-     * @param announcement the announcement to update
+     * @param announcementDTO the announcement to update
      * @return the ResponseEntity with status 200 (OK) and with body the updated announcement,
      * or with status 400 (Bad Request) if the announcement is not valid,
      * or with status 500 (Internal Server Error) if the announcement couldn't be updated
@@ -101,14 +119,14 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements")
-    public ResponseEntity<Announcement> updateAnnouncement(@Valid @RequestBody Announcement announcement) throws URISyntaxException {
-        if (announcement.getId() == null) {
-            return createAnnouncement(announcement.convertToDTO());
+    public ResponseEntity<AnnouncementDTO> updateAnnouncement(@Valid @RequestBody AnnouncementDTO announcementDTO) throws URISyntaxException {
+        if (announcementDTO.getId() == null) {
+            return createAnnouncement(announcementDTO);
         }
 
         // check if user has no rights to update
         // if current use of type Advertiser is not the author of the announcement
-        String authorUsername = announcementService.findOne(announcement.getId()).getAuthor().getUsername();
+        String authorUsername = announcementService.findOne(announcementDTO.getId()).getAuthor().getUsername();
         if (!userSecurityUtil.checkPermission(authorUsername, AuthorityRoles.ADVERTISER)) {
             return ResponseEntity
                     .badRequest()
@@ -119,12 +137,21 @@ public class AnnouncementController {
                     .body(null);
         }
 
+        // get not-changeable properties
+        Announcement previousAnnouncement = announcementService.findOne(announcementDTO.getId());
+
+        Announcement announcement = announcementDTO.convertToAnnouncement();
+
+        // set default values
+        announcement.setDateModified(new Date());
+        announcement.setDeleted(previousAnnouncement.isDeleted());
+
         Announcement result = announcementService.save(announcement);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(
                         Constants.EntityNames.ANNOUNCEMENT,
                         announcement.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
     /**
@@ -139,7 +166,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements/{id}")
-    public ResponseEntity<Announcement> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException { // NOSONAR
+    public ResponseEntity<AnnouncementDTO> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException {
         if (id == null || !data.containsKey("expirationDate"))
             return ResponseEntity
                     .badRequest()
@@ -205,7 +232,7 @@ public class AnnouncementController {
                 .headers(HeaderUtil.createEntityUpdateAlert(
                         Constants.EntityNames.ANNOUNCEMENT,
                         persistedAnnouncement.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
     /**
@@ -217,9 +244,10 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements")
-    public ResponseEntity<List<Announcement>> getAllAnnouncements(Pageable pageable)
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncements(Pageable pageable)
             throws URISyntaxException {
-        Page<Announcement> page = announcementService.findAll(pageable);
+        Page<AnnouncementDTO> page = announcementService.findAll(pageable)
+                .map(announcement -> announcement.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -234,14 +262,15 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/deleted/{status}")
-    public ResponseEntity<List<Announcement>> getAllAnnouncementsByStatus(Pageable pageable, @PathVariable Boolean status)
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsByStatus(Pageable pageable, @PathVariable Boolean status)
             throws URISyntaxException {
 
         // If User is not ADMIN and want to get DELETED announcements
         if (!userSecurityUtil.checkAuthType(AuthorityRoles.ADMIN) && status)
             return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
 
-        Page<Announcement> page = announcementService.findAllByStatus(status, pageable);
+        Page<AnnouncementDTO> page = announcementService.findAllByStatus(status, pageable)
+                .map(announcement -> announcement.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/deleted");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -256,10 +285,50 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/company/{companyId}")
-    public ResponseEntity<List<Announcement>> getAllAnnouncementsByCompanyId(@PathVariable Long companyId, Pageable pageable)
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsByCompanyId(@PathVariable Long companyId, Pageable pageable)
             throws URISyntaxException {
-        Page<Announcement> page = announcementService.findAllByCompany(companyId, pageable);
+        Page<AnnouncementDTO> page = announcementService.findAllByCompany(companyId, pageable)
+                .map(announcement -> announcement.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/company");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET  /announcements/user/:authorId : get all the announcements created by specified User ID
+     *
+     * @param authorId the id of the announcements author
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/announcements/user/{authorId}")
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsByAuthor(@PathVariable Long authorId, Pageable pageable)
+            throws URISyntaxException {
+        Page<AnnouncementDTO> page = announcementService.findAllByAuthor(authorId, pageable)
+                .map(Announcement::convertToDTO);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/user");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET  /announcements/user/:authorId/:deleted : get all the announcements created by specified User ID and status - deleted
+     *
+     * @param authorId the id of the announcements author
+     * @param deleted  announcement's deleted status
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @PreAuthorize("permitAll()")
+    @GetMapping("/announcements/user/{authorId}/{deleted}")
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsByAuthorAndStatus(
+            @PathVariable Long authorId,
+            @PathVariable Boolean deleted,
+            Pageable pageable) throws URISyntaxException {
+        Page<AnnouncementDTO> page = announcementService.findAllByAuthorAndStatus(authorId, deleted, pageable)
+                .map(Announcement::convertToDTO);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/user");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
@@ -272,9 +341,11 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/top/company/{companyId}")
-    public ResponseEntity<List<Announcement>> getTopAnnouncementsByCompanyId(@PathVariable Long companyId)
+    public ResponseEntity<List<AnnouncementDTO>> getTopAnnouncementsByCompanyId(@PathVariable Long companyId)
             throws URISyntaxException {
-        List<Announcement> list = announcementService.findTopByCompany(companyId);
+        List<AnnouncementDTO> list = announcementService.findTopByCompany(companyId)
+                .stream().map(announcement -> announcement.convertToDTO())
+                .collect(Collectors.toList());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -286,11 +357,11 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/{id}")
-    public ResponseEntity<Announcement> getAnnouncement(@PathVariable Long id) {
+    public ResponseEntity<AnnouncementDTO> getAnnouncement(@PathVariable Long id) {
         final Announcement announcement = announcementService.findOne(id);
         return Optional.ofNullable(announcement)
                 .map(result -> new ResponseEntity<>(
-                        result,
+                        result.convertToDTO(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -333,40 +404,6 @@ public class AnnouncementController {
     }
 
     /**
-     * POST  /announcements/:id : upload file for announcement.
-     *
-     * @param file the file to be upload
-     * @return the ResponseEntity with status 201 (Created) and with body the new file name,
-     * or with status 400 (Bad Request) if the upload failed, or with status 204 (No content)
-     */
-    @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
-    @PostMapping("/announcements/upload")
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
-        if (!file.isEmpty()) {
-            try {
-                String originalFileName = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.'));
-                String originalFileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
-                String newFilename = originalFileName + UUID.randomUUID().toString() + originalFileExtension;
-
-                // transfer to upload folder
-                File dir = new File(uploadPath + File.separator + Constants.FilePaths.ANNOUNCEMENTS + File.separator);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                File newFile = new File(dir + File.separator + newFilename);
-                file.transferTo(newFile);
-
-                return new ResponseEntity<>(newFilename, HttpStatus.OK);
-            } catch (Exception e) {
-                Logger.getLogger(getClass().getName()).log(Level.INFO, "Unable to create folders.", e);
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-    }
-
-    /**
      * PUT  /announcements/:announcementId/verify : Updates an existing announcement.
      *
      * @param announcementId the announcement to update
@@ -377,7 +414,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PutMapping("/announcements/{announcementId}/verify")
-    public ResponseEntity<Announcement> verifyAnnouncement(@PathVariable Long announcementId) throws URISyntaxException {
+    public ResponseEntity<AnnouncementDTO> verifyAnnouncement(@PathVariable Long announcementId) throws URISyntaxException {
         Announcement announcement = announcementService.findOne(announcementId);
         if (announcement == null) {
             return ResponseEntity
@@ -408,49 +445,62 @@ public class AnnouncementController {
                 .headers(HeaderUtil.createEntityUpdateAlert(
                         Constants.EntityNames.ANNOUNCEMENT,
                         announcement.getId().toString()))
-                .body(result);
+                .body(result.convertToDTO());
     }
 
 
     /**
      * GET  /announcements/search : get all the announcements that satisfied search params.
      *
-     * @param startPrice    low limit of announcement price requirements
-     * @param endPrice      top limit of announcement price requirements
-     * @param phoneNumber   phone number of the Announcer
-     * @param type          type of announcement
-     * @param authorName    first name of the Announcer
-     * @param authorSurname last name of the Announcer
-     * @param startArea     low limit of real estate square area
-     * @param endArea       tip limit of real estate square area
-     * @param heatingType   type of heating in real estate
-     * @param name          name of the announcement
-     * @param country       country where real estate is located
-     * @param cityRegion    city region where real estate is located
-     * @param city          city where real estate is located
-     * @param street        street where real estate is located
-     * @param streetNumber  street number of building where is real estate
-     * @param pageable      the pagination information
+     * @param startPrice        low limit of announcement price requirements
+     * @param endPrice          top limit of announcement price requirements
+     * @param phoneNumber       phone number of the Announcer
+     * @param type              type of announcement
+     * @param authorName        first name of the Announcer
+     * @param authorSurname     last name of the Announcer
+     * @param startArea         low limit of real estate square area
+     * @param endArea           tip limit of real estate square area
+     * @param heatingType       type of heating in real estate
+     * @param name              name of the announcement
+     * @param country           country where real estate is located
+     * @param cityRegion        city region where real estate is located
+     * @param city              city where real estate is located
+     * @param street            street where real estate is located
+     * @param streetNumber      street number of building where is real estate
+     * @param intercom          intercom equipment
+     * @param internet          internet equipment
+     * @param phone             phone equipment
+     * @param airConditioner    airConditioner equipment
+     * @param videoSurveillance videoSurveillance equipment
+     * @param cableTV           cableTV equipment
+     * @param pageable          the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/search")
-    public ResponseEntity<List<Announcement>> search(@RequestParam(value = "startPrice", required = false) Double startPrice, //NOSONAR - there is no other way
-                                                     @RequestParam(value = "endPrice", required = false) Double endPrice,
-                                                     @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
-                                                     @RequestParam(value = "type", required = false) String type,
-                                                     @RequestParam(value = "authorName", required = false) String authorName,
-                                                     @RequestParam(value = "authorSurname", required = false) String authorSurname,
-                                                     @RequestParam(value = "startArea", required = false) Double startArea,
-                                                     @RequestParam(value = "endArea", required = false) Double endArea,
-                                                     @RequestParam(value = "heatingType", required = false) String heatingType,
-                                                     @RequestParam(value = "name", required = false) String name,
-                                                     @RequestParam(value = "country", required = false) String country,
-                                                     @RequestParam(value = "cityRegion", required = false) String cityRegion,
-                                                     @RequestParam(value = "city", required = false) String city,
-                                                     @RequestParam(value = "street", required = false) String street,
-                                                     @RequestParam(value = "streetNumber", required = false) String streetNumber,
-                                                     Pageable pageable) {
+    public ResponseEntity<List<AnnouncementDTO>> search(@RequestParam(value = "startPrice", required = false) Double startPrice,
+                                                        @RequestParam(value = "endPrice", required = false) Double endPrice,
+                                                        @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
+                                                        @RequestParam(value = "type", required = false) String type,
+                                                        @RequestParam(value = "authorName", required = false) String authorName,
+                                                        @RequestParam(value = "authorSurname", required = false) String authorSurname,
+                                                        @RequestParam(value = "startArea", required = false) Double startArea,
+                                                        @RequestParam(value = "endArea", required = false) Double endArea,
+                                                        @RequestParam(value = "heatingType", required = false) String heatingType,
+                                                        @RequestParam(value = "name", required = false) String name,
+                                                        @RequestParam(value = "country", required = false) String country,
+                                                        @RequestParam(value = "cityRegion", required = false) String cityRegion,
+                                                        @RequestParam(value = "city", required = false) String city,
+                                                        @RequestParam(value = "street", required = false) String street,
+                                                        @RequestParam(value = "streetNumber", required = false) String streetNumber,
+                                                        @RequestParam(value = "intercom", required = false) Boolean intercom,
+                                                        @RequestParam(value = "internet", required = false) Boolean internet,
+                                                        @RequestParam(value = "phone", required = false) Boolean phone,
+                                                        @RequestParam(value = "airConditioner", required = false) Boolean airConditioner,
+                                                        @RequestParam(value = "videoSurveillance", required = false) Boolean videoSurveillance,
+                                                        @RequestParam(value = "cableTV", required = false) Boolean cableTV,
+                                                        Pageable pageable) throws URISyntaxException {
 
         AnnouncementSearchWrapper wrap = new AnnouncementSearchWrapper()
                 .startPrice(startPrice).endPrice(endPrice)
@@ -460,9 +510,45 @@ public class AnnouncementController {
                 .heatingType(heatingType).name(name)
                 .country(country).cityRegion(cityRegion)
                 .city(city).street(street)
-                .streetNumber(streetNumber);
+                .streetNumber(streetNumber)
+                .intercom(intercom)
+                .internet(internet)
+                .phone(phone)
+                .airConditioner(airConditioner)
+                .videoSurveillance(videoSurveillance)
+                .cableTV(cableTV);
 
-        List<Announcement> list = announcementService.findBySearchTerm(wrap, pageable);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        Page<AnnouncementDTO> page = announcementService.findBySearchTerm(wrap, pageable)
+                .map(announcement -> announcement.convertToDTO());
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/search");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET  /announcements/location-search
+     *
+     * @param topRightLat    Top right corner latitude
+     * @param topRightLong   Top right corner longitude
+     * @param bottomLeftLat  Bottom left corner latitude
+     * @param bottomLeftLong Bottom left corner longitude
+     * @param pageable       the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of announcements which contains real estate in provided area
+     * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
+     */
+    @GetMapping("/announcements/location-search")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<List<AnnouncementDTO>> getAllAnnouncementsInArea(@RequestParam(value = "topRightLat") Double topRightLat,
+                                                                           @RequestParam(value = "topRightLong") Double topRightLong,
+                                                                           @RequestParam(value = "bottomLeftLat") Double bottomLeftLat,
+                                                                           @RequestParam(value = "bottomLeftLong") Double bottomLeftLong,
+                                                                           Pageable pageable)
+            throws URISyntaxException {
+
+        Page<AnnouncementDTO> page = announcementService.findAllInArea(topRightLong, topRightLat, bottomLeftLong, bottomLeftLat, pageable)
+                .map(announcement -> announcement.convertToDTO());
+
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/announcements/location-search");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

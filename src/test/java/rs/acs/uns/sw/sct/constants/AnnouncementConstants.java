@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 
 public interface AnnouncementConstants {
 
-    int DB_COUNT_ANNOUNCEMENT = 3;
+    int DB_COUNT_ANNOUNCEMENT = 5;
     int PAGE_SIZE = 2;
 
     Long ID = 1L;
@@ -33,6 +33,8 @@ public interface AnnouncementConstants {
     Timestamp NEW_DATE_ANNOUNCED = DateUtil.date("01-01-1995");
     Timestamp NEW_DATE_MODIFIED = DateUtil.date("03-01-1995");
     Timestamp NEW_EXPIRATION_DATE = DateUtil.date("20-01-1995");
+    String NEW_NAME = "new name";
+    String NEW_DESCRIPTION= "new desc";
 
     Long UPDATED_ID = 1L;
     Double UPDATED_PRICE = 15D;
@@ -43,6 +45,9 @@ public interface AnnouncementConstants {
     Timestamp UPDATED_DATE_ANNOUNCED = DateUtil.date("01-01-1996");
     Timestamp UPDATED_DATE_MODIFIED = DateUtil.date("03-01-1996");
     Timestamp UPDATED_EXPIRATION_DATE = DateUtil.date("20-01-1996");
+    String UPDATED_NAME = "updated name";
+    String UPDATED_DESCRIPTION= "updated desc";
+
 
     String DEFAULT_VERIFIED = "not-verified";
     Boolean DEFAULT_DELETED = false;
@@ -64,7 +69,7 @@ public interface AnnouncementConstants {
 
     // Companies
     Long COMPANY_ID = 1L;
-    Integer COUNT_OF_COMPANY_ANN = 3;
+    Integer COUNT_OF_COMPANY_ANN = 2;
 
     // 1st page with 10 elements
     Pageable PAGEABLE = new PageRequest(0, 10, Sort.Direction.ASC, "dateAnnounced", "price");
@@ -73,14 +78,16 @@ public interface AnnouncementConstants {
     Integer TOP = 3;
 
     // Number of "deleted = true" database records
-    Long DB_COUNT_ANNOUNCEMENT_DELETED_TRUE  = 1L;
+    Long DB_COUNT_ANNOUNCEMENT_DELETED_TRUE = 1L;
     // Number of "deleted = false" database records
-    Long DB_COUNT_ANNOUNCEMENT_DELETED_FALSE = 2L;
+    Long DB_COUNT_ANNOUNCEMENT_DELETED_FALSE = 4L;
     // Number of "deleted = false" database records
+
+    Integer ANNOUNCEMENTS_IN_AREA = 3;
 
 
     // file to be upload
     String FILE_TO_BE_UPLOAD = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "test_upload.jpg";
 
-    public final String NEW_BASE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "uploads";
+    String NEW_BASE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator + "uploads";
 }
