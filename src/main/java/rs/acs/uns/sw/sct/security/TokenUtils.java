@@ -43,7 +43,7 @@ public class TokenUtils {
             final Claims claims = this.getClaimsFromToken(token);
             username = claims.getSubject();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error");
+            logger.log(Level.WARNING, "TokenUtils expected error", e);
             username = null;
         }
         return username;
@@ -61,7 +61,7 @@ public class TokenUtils {
             final Claims claims = this.getClaimsFromToken(token);
             expirationDate = claims.getExpiration();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error");
+            logger.log(Level.WARNING, "TokenUtils expected error", e);
             expirationDate = null;
         }
         return expirationDate;
@@ -81,7 +81,7 @@ public class TokenUtils {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error");
+            logger.log(Level.WARNING, "TokenUtils expected error", e);
             claims = null;
         }
         return claims;
@@ -101,7 +101,7 @@ public class TokenUtils {
             return expirationDate.before(this.generateCurrentDate());
         }
         catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error");
+            logger.log(Level.WARNING, "TokenUtils expected error", e);
             return true;
         }
     }
@@ -144,7 +144,7 @@ public class TokenUtils {
             refreshedToken = this.generateToken(claims);
         }
         catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error");
+            logger.log(Level.WARNING, "TokenUtils expected error", e);
             refreshedToken = null;
         }
         return refreshedToken;

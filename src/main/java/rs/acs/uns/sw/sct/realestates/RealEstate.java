@@ -1,6 +1,7 @@
 package rs.acs.uns.sw.sct.realestates;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Objects;
 import rs.acs.uns.sw.sct.announcements.Announcement;
 
 import javax.persistence.*;
@@ -72,7 +73,11 @@ public class RealEstate implements Serializable {
         if (location != null ? !location.equals(that.location) : that.location != null) return false;
 
         return true;
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getId(), this.getLocation(), this.getArea(), this.getType());
     }
 
     /**

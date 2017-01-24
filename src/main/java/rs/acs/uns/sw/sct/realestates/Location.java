@@ -1,8 +1,11 @@
 package rs.acs.uns.sw.sct.realestates;
 
+import com.google.common.base.Objects;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+
 
 /**
  * A location
@@ -56,6 +59,11 @@ public class Location implements Serializable {
         if (cityRegion != null ? !cityRegion.toLowerCase().contains(location.cityRegion.trim().toLowerCase()) : location.cityRegion != null) return false;
         if (street != null ? !street.toLowerCase().contains(location.street.trim().toLowerCase()) : location.street != null) return false;
         return streetNumber != null ? streetNumber.equals(location.streetNumber.toLowerCase()) : location.streetNumber == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getId(), this.getLongitude(), this.getLatitude());
     }
 
     public Long getId() {
