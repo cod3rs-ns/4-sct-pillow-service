@@ -8,13 +8,13 @@ import org.openqa.selenium.By;
 public final class AddingAnnouncementPage {
 
     /**
-     * Private constructor to enable instatiating constant's class
+     * Private constructor to enable instantiating constant's class
      */
     private AddingAnnouncementPage() {}
 
     // Constant element ids
-    public static final String ADDING_ANNOUCEMENT_URL = "http://localhost:8080/#/announcement-add";
-    public static final String ADDED_ANNOUCEMENT_URL  = "http://localhost:8080/#/announcement/";
+    public static final String ADDING_ANNOUNCEMENT_URL = "http://localhost:8080/#/announcement-add";
+    public static final String ADDED_ANNOUNCEMENT_URL = "http://localhost:8080/#/announcement/";
     public static final String UNAUTHORIZED_URL = "http://localhost:8080/#/unauthorized";
 
     public static final By ADD_ANNOUNCEMENT_LINK = By.id("add-announcement");
@@ -23,12 +23,11 @@ public final class AddingAnnouncementPage {
     public static final By ANNOUNCEMENT_PHONE       = By.id("ann-phone");
     public static final By ANNOUNCEMENT_PRICE       = By.id("ann-price");
     public static final By DATE_PICKER_BUTTON       = By.id("date-picker-btn");
-    // public static final By ANNOUNCEMENT_DESCRIPTION = By.id("trix-input-1");
+
     // Announcement type 'SALE'
     public static final By ANNOUNCEMENT_TYPE        = By.id("type-sale");
     public static final By IMAGES_DROP_ZONE         = By.id("drop-images");
     public static final By IMAGES_UPLOAD_PROGRESS   = By.id("progress-bar");
-
 
     public static final By REAL_ESTATE_AREA      = By.id("re-area");
     public static final By REAL_ESTATE_HEATING   = By.id("re-heating-type");
@@ -39,7 +38,6 @@ public final class AddingAnnouncementPage {
     public static final By REAL_ESTATE_REGION    = By.id("re-region");
     public static final By REAL_ESTATE_STREET    = By.id("re-street");
     public static final By REAL_ESTATE_STREET_NO = By.id("re-street-no");
-    // TODO Checkboxes
 
     // Similar real estate
     public static final By SIMILAR_REAL_ESTATE  = By.name("similar-real-estate");
@@ -50,14 +48,12 @@ public final class AddingAnnouncementPage {
 
     // Error toaster ids and messages
     public static final By ERROR_ADDRESS            = By.id("wrong-address");
-    public static final By ERROR_REQUIRED_FIELDS    = By.id("required-fields");
     public static final By ERROR_MAX_FILE_SIZE      = By.id("wrong-file-size");
     public static final By ERROR_MAX_IMAGE_NUMBERS  = By.id("wrong-number-image");
 
     public static final String ERROR_ADDRESS_MSG     = "Adresa koju ste unijeli je nevalidna.";
     public static final String ERROR_FILE_OVER_5MB   = "Veličina fajla mora biti manja od 5MB.";
     public static final String ERROR_FILE_NUMBER_MSG = "Ne možete postaviti više od 4 slike.";
-
 
     // Fixed data for populating tests
     public static final String ADVERTISER_USERNAME = "david";
@@ -68,8 +64,6 @@ public final class AddingAnnouncementPage {
     public static final String ANN_PHONE_VALUE       = "0641234567";
     public static final String ANN_PRICE_VALUE       = "666666";
     public static final String WRONG_ANN_PRICE_VALUE = "Cijena oglasa";
-
-    public static final String ANN_DESCRIPTION_VALUE = "Očuvana kuća na Pejićevim Salašima. Uz kuću dolazi i farma pilića <b>Čvarkov i baba</b>.";
 
     public static final String RE_AREA_VALUE       = "73";
     public static final String RE_HEATING_TYPE     = "remote";
@@ -91,11 +85,10 @@ public final class AddingAnnouncementPage {
     public static final String EXISTING_RE_STREET_NO_VALUE  = "15";
     public static final String EXISTING_RE_AREA_VALUE       = "213";
 
-    public static final String IMAGE_PATH_1 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/pejicevi-salasi-1.jpg";
-    public static final String IMAGE_PATH_2 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/pejicevi-salasi-2.jpg";
-    public static final String IMAGE_PATH_3 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/3.png";
-    public static final String IMAGE_PATH_4 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/4.jpg";
-    public static final String IMAGE_PATH_5 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/5jpg";
+    public static final String IMAGE_PATH_1 = "src/test/resources/pejicevi-salasi-1.jpg";
+    public static final String IMAGE_PATH_2 = "src/test/resources/pejicevi-salasi-2.jpg";
+    public static final String IMAGE_PATH_3 = "src/test/resources/3.png";
+    public static final String IMAGE_PATH_4 = "src/test/resources/4.jpg";
 
-    public static final String IMAGE_PATH_OVER_5MB = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/5mb.jpg";
+    public static final String IMAGE_PATH_OVER_5MB = "src/test/resources/5mb.jpg";
 }

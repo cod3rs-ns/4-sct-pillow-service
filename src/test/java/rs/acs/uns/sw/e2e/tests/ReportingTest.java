@@ -26,7 +26,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static rs.acs.uns.sw.e2e.pages.ReportingPage.*;
 import static rs.acs.uns.sw.e2e.pages.SigningPage.SIGNING_URL;
-import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
+import static rs.acs.uns.sw.e2e.util.Constants.WEB_DRIVER_TIMEOUT;
 
 @ActiveProfiles("test")
 @SpringBootTest(classes = SctServiceApplication.class)
@@ -42,7 +42,7 @@ public class ReportingTest {
         ChromeOptions options = ConfigUtil.chromeOptions();
         options.addArguments("incognito");
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+        wait = new WebDriverWait(driver, WEB_DRIVER_TIMEOUT);
     }
 
     @AfterClass
@@ -68,6 +68,7 @@ public class ReportingTest {
         wait.until(ExpectedConditions.urlToBe(REPORTING_URL));
         assertThat(driver.getCurrentUrl()).isEqualTo(REPORTING_URL);
 
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(PENDING_REPORT_ID)));
         WebElement report = driver.findElement(By.id(PENDING_REPORT_ID));
         WebElement acceptBtn = report.findElement((By.id(String.format(ACCEPT_REPORT_BTN_ID, PENDING_REPORT_ID))));
         acceptBtn.click();
@@ -79,8 +80,6 @@ public class ReportingTest {
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(PENDING_REPORT_ID)));
         assertThat(driver.findElement(By.id(PENDING_REPORT_ID)).isDisplayed()).isTrue();
-
-        // TODO: Can't find reported announcement
     }
 
     /**
@@ -95,8 +94,11 @@ public class ReportingTest {
         wait.until(ExpectedConditions.urlToBe(REPORTING_URL));
         assertThat(driver.getCurrentUrl()).isEqualTo(REPORTING_URL);
 
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(REPORT_TO_BE_REJECTED)));
         WebElement report = driver.findElement(By.id(REPORT_TO_BE_REJECTED));
-        WebElement rejectBtn = report.findElement((By.id(String.format(REJECT_BTN_ID, REPORT_TO_BE_REJECTED))));
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(String.format(REJECT_BTN_ID, REPORT_TO_BE_REJECTED))));
+        WebElement rejectBtn = report.findElement(By.id(String.format(REJECT_BTN_ID, REPORT_TO_BE_REJECTED)));
         rejectBtn.click();
 
         wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id(REPORT_TO_BE_REJECTED)));

@@ -5,7 +5,6 @@ import org.openqa.selenium.By;
 
 public class ReportingPage {
 
-
     public static final String REPORTING_URL = "http://localhost:8080/#/reports";
 
     public static final By ACTIVE_REPORTS_CONTAINER = By.id("pendingReports");
@@ -24,7 +23,6 @@ public class ReportingPage {
 
     public static final String REPORT_TO_BE_REJECTED = "4";
     public static final String PENDING_REPORT_ID = "3";
-    public static final int NUM_OF_PENDING_REPORTS = 2;
 
     public static final String EMAIL_PENDING = "user53@mail.com";
     public static final String EMAIL_ACCEPTED = "user6@mail.com";

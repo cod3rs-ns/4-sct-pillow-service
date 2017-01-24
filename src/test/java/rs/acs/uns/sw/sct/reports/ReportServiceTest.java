@@ -45,9 +45,7 @@ public class ReportServiceTest {
         assertThat(report1.getType()).isEqualTo(report2.getType());
         assertThat(report1.getAnnouncement().getId()).isEqualTo(report2.getAnnouncement().getId());
         if (report1.getEmail() != null && report2.getEmail() != null)
-            System.out.println(report1.getEmail());
-        System.out.println(report2.getEmail());
-        assertThat(report1.getEmail()).isEqualTo(report2.getEmail());
+            assertThat(report1.getEmail()).isEqualTo(report2.getEmail());
         if (report1.getReporter() != null && report2.getReporter() != null)
             assertThat(report1.getReporter().getId()).isEqualTo(report2.getReporter().getId());
         assertThat(report1.getContent()).isEqualTo(report2.getContent());

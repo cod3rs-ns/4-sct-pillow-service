@@ -44,7 +44,6 @@ public class AnnouncementPage {
     public static final String REPORT_CONTENT = "Wrong announcement";
     public static final String REPORTER_EMAIL = "reporter@reporter.com";
     public static final String REPORTER_EMAIL_TWICE = "twice@twice.com";
-    public static final String REPORTER_EMAIL_WITHOUT_CONTENT = "content@content.com";
     public static final String COMMENT_TEXT = "New comment";
     public static final String DATE_COMMENT_DISPLAY = "Objavljen: %s";
     public static final String ANNOUNCEMENT_TO_BE_COMMENTED = "3";

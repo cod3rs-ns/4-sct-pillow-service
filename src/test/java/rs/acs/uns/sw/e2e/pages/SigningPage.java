@@ -10,10 +10,10 @@ public class SigningPage {
     public static final String SIGNING_URL = "http://localhost:8080/#/login";
 
     public static final By BUTTON_LOGIN = By.id("login-button");
-    public static final By TEXTBOX_USERNAME = By.id("form-username");
-    public static final By TEXTBOX_PASSWORD = By.id("form-password");
+    public static final By TEXT_BOX_USERNAME = By.id("form-username");
+    public static final By TEXT_BOX_PASSWORD = By.id("form-password");
 
-    public static final By LOGGED_USER_NAVBAR = By.cssSelector(".nav.navbar-nav.navbar-right.ng-scope > li > a");
+    public static final By LOGGED_USER_NAV_BAR = By.cssSelector(".nav.navbar-nav.navbar-right.ng-scope > li > a");
     public static final By WRONG_LOGIN_DIALOG = By.cssSelector(".alert.alert-danger");
 
     // Registration fields
@@ -34,7 +34,7 @@ public class SigningPage {
     public static final By SUCCESS_REGISTRATION_MSG = By.id("success-registration");
     public static final String WRONG_LOGIN_DIALOG_MESSAGE = "Uneseno korisničko ime i/ili lozinka su pogrešni. Pokušajte ponovo.";
 
-    // Fixed data for populating textboxes on page
+    // Fixed data for populating text boxes on page
     public static final String ADMIN_USERNAME = "b";
     public static final String ADMIN_PASSWORD = "123456";
 

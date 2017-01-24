@@ -29,7 +29,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * @param pageable  the pagination information
      * @return list of announcements
      */
-    Page<Announcement> findByAuthor_Company_IdAndExpirationDateAfter(Long companyId, Date date, Pageable pageable); // NOSONAR - invalid warning
+    Page<Announcement> findByAuthor_Company_IdAndExpirationDateAfter(Long companyId, Date date, Pageable pageable);
 
     /**
      * Get all announcements created by specified Author ID.
@@ -38,7 +38,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * @param pageable the pagination information
      * @return list of announcements
      */
-    Page<Announcement> findByAuthor_Id(Long authorId, Pageable pageable); // NOSONAR - invalid warning
+    Page<Announcement> findByAuthor_Id(Long authorId, Pageable pageable);
 
     /**
      * Get all announcements created by specified Author ID and deletion status.
@@ -48,7 +48,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * @param pageable the pagination information
      * @return list of announcements
      */
-    Page<Announcement> findByAuthor_Id_AndDeleted(Long authorId, Boolean deleted, Pageable pageable); // NOSONAR
+    Page<Announcement> findByAuthor_Id_AndDeleted(Long authorId, Boolean deleted, Pageable pageable);
 
     /**
      * Get first 3 announcements by Company order by price ascending.
@@ -56,6 +56,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * @param companyId the id of the company
      * @return list of announcements
      */
-    List<Announcement> findFirst3ByAuthor_Company_IdAndExpirationDateAfterOrderByPriceAsc(Long companyId, Date date); //NOSONAR - invalid warning
+    List<Announcement> findFirst3ByAuthor_Company_IdAndExpirationDateAfterOrderByPriceAsc(Long companyId, Date date);
 
 }

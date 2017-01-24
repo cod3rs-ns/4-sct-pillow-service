@@ -16,6 +16,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
      * @param pageable       the pagination information
      * @return list of comments
      */
-    Page<Comment> findByAnnouncement_Id(Long announcementId, Pageable pageable); // NOSONAR - invalid warning
+    Page<Comment> findByAnnouncement_Id(Long announcementId, Pageable pageable);
 
 }

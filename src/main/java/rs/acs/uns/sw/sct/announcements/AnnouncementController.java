@@ -166,7 +166,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/announcements/{id}")
-    public ResponseEntity<AnnouncementDTO> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException { // NOSONAR
+    public ResponseEntity<AnnouncementDTO> extendExpirationDate(@PathVariable Long id, @RequestBody Map<String, String> data) throws URISyntaxException {
         if (id == null || !data.containsKey("expirationDate"))
             return ResponseEntity
                     .badRequest()
@@ -473,7 +473,7 @@ public class AnnouncementController {
      */
     @PreAuthorize("permitAll()")
     @GetMapping("/announcements/search")
-    public ResponseEntity<List<AnnouncementDTO>> search(@RequestParam(value = "startPrice", required = false) Double startPrice, //NOSONAR - there is no other way
+    public ResponseEntity<List<AnnouncementDTO>> search(@RequestParam(value = "startPrice", required = false) Double startPrice,
                                                         @RequestParam(value = "endPrice", required = false) Double endPrice,
                                                         @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
                                                         @RequestParam(value = "type", required = false) String type,

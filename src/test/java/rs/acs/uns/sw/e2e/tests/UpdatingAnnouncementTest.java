@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.e2e.tests;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.NoSuchElementException;
@@ -20,7 +21,7 @@ import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static rs.acs.uns.sw.e2e.pages.UpdatingAnnouncementPage.*;
-import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
+import static rs.acs.uns.sw.e2e.util.Constants.WEB_DRIVER_TIMEOUT;
 
 /**
  * Update announcements tests.
@@ -33,27 +34,32 @@ public class UpdatingAnnouncementTest {
 
     private static WebDriver driver;
 
-    // Wait in webdriver until some condition is not satisfied
+    // Wait in web driver until some condition is not satisfied
     private static WebDriverWait wait;
 
     /**
-     *  Creates instace of Chrome Driver
+     * Creates instance of Chrome Driver
      */
     @BeforeClass
     public static void instanceDriver() {
         ChromeOptions options = ConfigUtil.chromeOptions();
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+        wait = new WebDriverWait(driver, WEB_DRIVER_TIMEOUT);
+    }
+
+    @AfterClass
+    public static void closeDriver() {
+        driver.close();
     }
 
     /**
      * Test which successfully updates announcement.
-     *
+     * <p>
      * First we logged as 'advertiser', then we open one our announcement.
      * We change values we want and click button 'Nastavi'.
      * Then we creates add images of real estate that will be bonded to our annoucement.
      * We finish updating announement clicking on button 'Zavrsi'.
-     *
+     * <p>
      * Then we open our announcement page again and check for updates.
      */
     @Test
@@ -101,7 +107,7 @@ public class UpdatingAnnouncementTest {
         final WebElement finishButton = driver.findElement(FINISH_BUTTON);
         finishButton.click();
 
-        // Wait to redirect to added annoucement page
+        // Wait to redirect to added announcement page
         wait.until(ExpectedConditions.urlContains(ADVERTISER_ANNOUNCEMENT_URL));
 
         assertThat(driver.getCurrentUrl()).isEqualTo(ADVERTISER_ANNOUNCEMENT_URL);
@@ -110,15 +116,15 @@ public class UpdatingAnnouncementTest {
 
     /**
      * Test which successfully add announcement with existing real estate.
-     *
+     * <p>
      * First we logged as 'advertiser', then we open one our announcement.
      * We change values to an existing real estate values and click button 'Nastavi'.
      * Then we choose existing real estate and bond it to our announcement
-     *
+     * <p>
      * Then we open our announcement page again and check for updates.
      */
     @Test
-    public void successufullyUpdateRealEstate() {
+    public void successfullyUpdateRealEstate() {
         LoginUtil.login(ADVERTISER_WITH_ANNOUNCEMENT_USERNAME, ADVERTISER_WITH_ANNOUNCEMENT_PASSWORD, driver, wait);
 
         driver.navigate().to(ADVERTISER_ANNOUNCEMENT_URL);
@@ -133,7 +139,7 @@ public class UpdatingAnnouncementTest {
 
         // We need to populate same address for our real estate because our 'algorithm' works on that way.
         final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
-        final WebElement realEstateCountry = driver.findElement(REAL_ESTATE_CONUTRY);
+        final WebElement realEstateCountry = driver.findElement(REAL_ESTATE_COUNTRY);
         final WebElement realEstateCity = driver.findElement(REAL_ESTATE_CITY);
         final WebElement realEstateRegion = driver.findElement(REAL_ESTATE_REGION);
         final WebElement realEstateStreet = driver.findElement(REAL_ESTATE_STREET);
@@ -163,7 +169,7 @@ public class UpdatingAnnouncementTest {
         continueButton.click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(SIMILAR_REAL_ESTATE));
-
+        wait.until(ExpectedConditions.visibilityOfElementLocated(SIMILAR_REAL_ESTATE));
         // We choose similar real estate
         final WebElement firstSimilarRealEstate = driver.findElement(SIMILAR_REAL_ESTATE);
         firstSimilarRealEstate.click();
@@ -184,15 +190,14 @@ public class UpdatingAnnouncementTest {
         final WebElement finishButton = driver.findElement(FINISH_BUTTON);
         finishButton.click();
 
-        // Wait to redirect to added annoucement page
+        // Wait to redirect to added announcement page
         wait.until(ExpectedConditions.urlContains(ADVERTISER_ANNOUNCEMENT_URL));
     }
 
 
-
     /**
-     * Test which tries to delete annoucement name and submit update
-     *
+     * Test which tries to delete announcement name and submit update
+     * <p>
      * When we logged as advertiser we try to submit empty announcement from.
      * We check if 'Nastavi' button is disabled.
      */
@@ -225,8 +230,8 @@ public class UpdatingAnnouncementTest {
     }
 
     /**
-     * Test which tries to update annoucement without added images.
-     *
+     * Test which tries to update announcement without added images.
+     * <p>
      * We fill first part of form properly, and try to submit without added images.
      * Then we check if 'Zavrsi' button is disabled.
      */
@@ -256,15 +261,14 @@ public class UpdatingAnnouncementTest {
         driver.findElements(DELETE_UPLOADED_IMAGE).forEach(button -> button.click());
 
         final WebElement finishButton = driver.findElement(FINISH_BUTTON);
-        finishButton.click();
 
-        assertThat(finishButton.isEnabled()).isTrue();
+        assertThat(finishButton.isEnabled()).isFalse();
     }
 
     /**
      * Test which tries to submit announcement with wrong address.
      * Wrong address is when Google Map service can't provide latitude and longitude.
-     *
+     * <p>
      * We input non existing address and try to submit it.
      * Then we check if toaster is presented and if error message is correct.
      */
@@ -282,7 +286,7 @@ public class UpdatingAnnouncementTest {
         final WebElement updateButton = driver.findElement(UPDATE_BUTTON);
         updateButton.click();
 
-        final WebElement realEstateCountry = driver.findElement(REAL_ESTATE_CONUTRY);
+        final WebElement realEstateCountry = driver.findElement(REAL_ESTATE_COUNTRY);
         final WebElement realEstateCity = driver.findElement(REAL_ESTATE_CITY);
         final WebElement realEstateRegion = driver.findElement(REAL_ESTATE_REGION);
         final WebElement realEstateStreet = driver.findElement(REAL_ESTATE_STREET);
@@ -311,7 +315,7 @@ public class UpdatingAnnouncementTest {
 
     /**
      * Test which tries to add image with size over 5 MB
-     *
+     * <p>
      * We try to add image, but then we assert if error toast message is displayed with
      * proper test defined.
      */
@@ -326,9 +330,11 @@ public class UpdatingAnnouncementTest {
 
         assertThat(driver.getCurrentUrl()).isEqualTo(ADVERTISER_ANNOUNCEMENT_URL);
 
+        wait.until(ExpectedConditions.visibilityOfElementLocated(UPDATE_BUTTON));
         final WebElement updateButton = driver.findElement(UPDATE_BUTTON);
         updateButton.click();
 
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlToBe(ADVERTISER_ANNOUNCEMENT_URL)));
         final WebElement continueButton = driver.findElement(CONTINUE_BUTTON);
         continueButton.click();
 
@@ -343,14 +349,14 @@ public class UpdatingAnnouncementTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(ERROR_MAX_FILE_SIZE));
         final WebElement errorToaster = driver.findElement(ERROR_MAX_FILE_SIZE);
-
         assertThat(errorToaster.getText()).isEqualTo(ERROR_FILE_OVER_5MB);
+        errorToaster.click();
     }
 
 
     /**
-     * Test which tries to add more than 4 iamges
-     *
+     * Test which tries to add more than 4 images
+     * <p>
      * We try to add more than 4 images, but then we assert if error toast message is displayed with
      * proper test defined.
      */
@@ -390,8 +396,8 @@ public class UpdatingAnnouncementTest {
     }
 
     /**
-     * Test which tries to update other user annoucement
-     *
+     * Test which tries to update other user announcement
+     * <p>
      * We check if update button doesn't exist.
      */
     @Test(expected = NoSuchElementException.class)
@@ -407,8 +413,8 @@ public class UpdatingAnnouncementTest {
     }
 
     /**
-     * Test which tries to update other user annoucement directly
-     *
+     * Test which tries to update other user announcement directly
+     * <p>
      * It's forbidden and we check if we get 'page not found' as answer.
      */
     @Test

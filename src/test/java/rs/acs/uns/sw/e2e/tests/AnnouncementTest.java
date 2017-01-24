@@ -1,6 +1,9 @@
 package rs.acs.uns.sw.e2e.tests;
 
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -27,7 +30,7 @@ import static rs.acs.uns.sw.e2e.pages.AnnouncementPage.*;
 import static rs.acs.uns.sw.e2e.pages.SigningPage.SIGNING_URL;
 import static rs.acs.uns.sw.e2e.util.ConditionUtil.disabledCondition;
 import static rs.acs.uns.sw.e2e.util.ConditionUtil.enabledCondition;
-import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
+import static rs.acs.uns.sw.e2e.util.Constants.WEB_DRIVER_TIMEOUT;
 import static rs.acs.uns.sw.e2e.util.LoginUtil.logout;
 
 @SuppressWarnings("Duplicates")
@@ -47,7 +50,7 @@ public class AnnouncementTest {
         ChromeOptions options = ConfigUtil.chromeOptions();
         options.addArguments("incognito");
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+        wait = new WebDriverWait(driver, WEB_DRIVER_TIMEOUT);
     }
 
     @AfterClass
@@ -155,46 +158,8 @@ public class AnnouncementTest {
         reportContent = modalDialog.findElement(REPORT_CONTENT_INPUT);
         reportContent.sendKeys(REPORT_CONTENT);
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(ALREADY_REPORTED_MSG));
 
-        assertThat(addReport.getAttribute("disabled")).isEqualTo("true");
-
-        // close dialog
-        Robot robot = new Robot();
-        robot.keyPress(KeyEvent.VK_ESCAPE);
-
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(MODAL_DIALOG));
-    }
-
-    /**
-     * Test reporting announcement without setting content
-     * <p>
-     * There is no precondition. First we navigate to announcement page and click
-     * on add report button. After that we won't fill report content.
-     * Expectation: Submission button should be disabled.
-     */
-    @Test
-    public void reportWithoutContent() throws InterruptedException, AWTException {
-        driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED);
-
-        wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED));
-        assertThat(driver.getCurrentUrl()).isEqualTo(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED);
-
-        // Wait report btn to be clickable
-        Thread.sleep(2000);
-
-        wait.until(ExpectedConditions.presenceOfElementLocated(REPORT_BTN));
-        WebElement reportBtn = driver.findElement(REPORT_BTN);
-
-        reportBtn.click();
-
-        wait.until(ExpectedConditions.presenceOfElementLocated(MODAL_DIALOG));
-        WebElement modalDialog = driver.findElement(MODAL_DIALOG);
-
-        WebElement addReport = modalDialog.findElement(ADD_REPORT_BTN);
-
-        WebElement reporter = modalDialog.findElement(REPORTER_EMAIL_INPUT);
-        reporter.sendKeys(REPORTER_EMAIL_WITHOUT_CONTENT);
+        wait.until(ExpectedConditions.presenceOfElementLocated(ALREADY_REPORTED_MSG));
 
         wait.until(disabledCondition(driver, ADD_REPORT_BTN));
         assertThat(addReport.getAttribute("disabled")).isEqualTo("true");
@@ -260,7 +225,7 @@ public class AnnouncementTest {
      * Expectation: New comment is displayed with today creation date.
      */
     @Test
-    public void addCommentAsGuest() throws InterruptedException {
+    public void addCommentAsGuest() {
         driver.get(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED);
 
         wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + ANNOUNCEMENT_TO_BE_REPORTED));
@@ -394,11 +359,10 @@ public class AnnouncementTest {
     /**
      * Test rating own announcement
      * <p>
-     * First we need to log in. Then we navigate to announcement page and rate it.
-     * Expectation: List of all marks should be same as previous.
+     * First we need to log in. Then we navigate to announcement page and try to rate it.
+     * Expectation: Element for rating should be hidden.
      */
     @Test
-    @Ignore
     public void rateOwnAnnouncement() throws InterruptedException {
         LoginUtil.login(EMAIL_OWNER, PASSWORD, driver, wait);
 
@@ -406,20 +370,8 @@ public class AnnouncementTest {
         wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT));
         assertThat(driver.getCurrentUrl()).isEqualTo(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT);
 
-        wait.until(visibilityOfElementLocated(RATING_ANNOUNCEMENT_UPDATE));
-        WebElement ratings = driver.findElement(RATING_ANNOUNCEMENT_UPDATE);
 
-        // Set rating to 1
-        ratings.findElements(By.xpath("ul/li")).get(0).click();
-
-        // hover ratings
-        Actions action = new Actions(driver);
-        WebElement ratingList = driver.findElement(RATING_ANNOUNCEMENT_LIST);
-        action.moveToElement(ratingList).perform();
-        wait.until(visibilityOfElementLocated(RATING_ANNOUNCEMENT_LIST));
-
-        assertThat(ratingList.findElements(NUM_OF_VOTES).get(4).getText()).isEqualTo("0");
-
+        assertThat(driver.findElements(RATING_ANNOUNCEMENT_UPDATE).size()).isEqualTo(0);
         logout(driver, wait);
     }
 
@@ -458,11 +410,10 @@ public class AnnouncementTest {
      * Test rating yourself as announcer.
      * <p>
      * First we need to log in as announcer. Then announcer navigate to
-     * announcement page and rate himself/herself as announcer.
-     * Expectation: List of all marks should not be updated.
+     * announcement page and try to rate himself/herself as announcer.
+     * Expectation: The panel with stars should be hidden.
      */
     @Test
-    @Ignore
     public void rateYourself() throws InterruptedException {
         LoginUtil.login(EMAIL_OWNER, PASSWORD, driver, wait);
 
@@ -470,26 +421,14 @@ public class AnnouncementTest {
         wait.until(ExpectedConditions.urlToBe(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT));
         assertThat(driver.getCurrentUrl()).isEqualTo(ANNOUNCEMENT_PAGE_URL + VERIFIED_ANNOUNCEMENT);
 
-        wait.until(visibilityOfElementLocated(RATING_ANNOUNCER_UPDATE));
-        WebElement ratings = driver.findElement(RATING_ANNOUNCER_UPDATE);
-
-        // Set rating to 5
-        ratings.findElements(By.xpath("ul/li")).get(4).click();
-
-        // hover ratings
-        Actions action = new Actions(driver);
-        WebElement ratingList = driver.findElement(RATING_ANNOUNCER_LIST);
-        action.moveToElement(ratingList).perform();
-        wait.until(visibilityOfElementLocated(RATING_ANNOUNCER_LIST));
-
-        assertThat(ratingList.findElements(NUM_OF_VOTES).get(0).getText()).isEqualTo("1");
+        assertThat(driver.findElements(RATING_ANNOUNCER_UPDATE).size()).isEqualTo(0);
 
         logout(driver, wait);
     }
 
     /**
      * Test which verifies announcement
-     *
+     * <p>
      * First, we login as verifier, then we open unverified announcement and click on button for verifiying.
      * Then we check for message and check for message content.
      * Also, now button for verifying shouldn't be displayed.
@@ -515,7 +454,7 @@ public class AnnouncementTest {
 
     /**
      * Test which verifies announcement
-     *
+     * <p>
      * First, we login as verifier, then we open verified announcement.
      * We check if verify button is not presented.
      */
@@ -534,7 +473,7 @@ public class AnnouncementTest {
 
     /**
      * Test which tries to verify announcement as advertiser.
-     *
+     * <p>
      * First, we login as advertiser, then we open unverified announcement.
      * We check if verify button is not presented.
      */
