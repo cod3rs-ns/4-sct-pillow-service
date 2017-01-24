@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 @Component
 public class TokenUtils {
 
+    private static final String TOKEN_UTIL_ERROR = "TokenUtils expected error";
     private static final String CREATED = "created";
     private static final String SUBJECT = "sub";
     private static final String ROLE = "role";
@@ -43,7 +44,7 @@ public class TokenUtils {
             final Claims claims = this.getClaimsFromToken(token);
             username = claims.getSubject();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error", e);
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
             username = null;
         }
         return username;
@@ -61,7 +62,7 @@ public class TokenUtils {
             final Claims claims = this.getClaimsFromToken(token);
             expirationDate = claims.getExpiration();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error", e);
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
             expirationDate = null;
         }
         return expirationDate;
@@ -81,7 +82,7 @@ public class TokenUtils {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error", e);
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
             claims = null;
         }
         return claims;
@@ -99,9 +100,8 @@ public class TokenUtils {
         try {
             final Date expirationDate = this.getExpirationDateFromToken(token);
             return expirationDate.before(this.generateCurrentDate());
-        }
-        catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error", e);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
             return true;
         }
     }
@@ -142,9 +142,8 @@ public class TokenUtils {
             final Claims claims = this.getClaimsFromToken(token);
             claims.put(CREATED, this.generateCurrentDate());
             refreshedToken = this.generateToken(claims);
-        }
-        catch (Exception e) {
-            logger.log(Level.WARNING, "TokenUtils expected error", e);
+        } catch (Exception e) {
+            logger.log(Level.WARNING, TOKEN_UTIL_ERROR, e);
             refreshedToken = null;
         }
         return refreshedToken;
@@ -165,8 +164,7 @@ public class TokenUtils {
 
         if (this.isTokenExpired(token)) {
             refreshedToken = refreshToken(token);
-        }
-        else {
+        } else {
             refreshedToken = token;
         }
 

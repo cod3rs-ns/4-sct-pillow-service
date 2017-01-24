@@ -73,8 +73,6 @@ public class ImageController {
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER, T(rs.acs.uns.sw.sct.util.AuthorityRoles).VERIFIER)")
     @PostMapping("/images/{entity}")
     public ResponseEntity<String> handleFileUpload(@PathVariable String entity, @RequestParam("file") MultipartFile file) {
-        // TODO check if entity is real
-
         if (!file.isEmpty()) {
             try {
                 String originalFileName = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.'));

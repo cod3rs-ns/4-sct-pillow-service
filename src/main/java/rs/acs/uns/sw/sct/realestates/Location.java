@@ -49,16 +49,22 @@ public class Location implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Location)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Location))
+            return false;
 
         Location location = (Location) o;
 
-        if (country != null ? !country.toLowerCase().contains(location.country.trim().toLowerCase()) : location.country != null) return false;
-        if (city != null ? !city.toLowerCase().contains(location.city.trim().toLowerCase()) : location.city != null) return false;
-        if (cityRegion != null ? !cityRegion.toLowerCase().contains(location.cityRegion.trim().toLowerCase()) : location.cityRegion != null) return false;
-        if (street != null ? !street.toLowerCase().contains(location.street.trim().toLowerCase()) : location.street != null) return false;
-        return streetNumber != null ? streetNumber.equals(location.streetNumber.toLowerCase()) : location.streetNumber == null;
+        if (country != null ? !country.toLowerCase().contains(location.country.trim().toLowerCase()) : location.country != null)
+            return false;
+        if (city != null ? !city.toLowerCase().contains(location.city.trim().toLowerCase()) : location.city != null)
+            return false;
+        if (cityRegion != null ? !cityRegion.toLowerCase().contains(location.cityRegion.trim().toLowerCase()) : location.cityRegion != null)
+            return false;
+        if (street != null ? !street.toLowerCase().contains(location.street.trim().toLowerCase()) : location.street != null)
+            return false;
+        return streetNumber != null ? streetNumber.equalsIgnoreCase(location.streetNumber) : location.streetNumber == null;
     }
 
     @Override

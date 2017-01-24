@@ -34,7 +34,8 @@ public class VerificationTokenController {
     /**
      * GET  /registration-confirm?token=token : get one verification token.
      *
-     * @param token the pagination information
+     * @param token    the pagination information
+     * @param response http response
      * @throws IOException if there is an error to generate the pagination HTTP headers
      */
     @PreAuthorize("permitAll()")

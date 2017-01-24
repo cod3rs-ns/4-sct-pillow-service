@@ -26,6 +26,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * Get all announcements created by one company.
      *
      * @param companyId the id of the company
+     * @param date      expiration date of announcement
      * @param pageable  the pagination information
      * @return list of announcements
      */
@@ -54,6 +55,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
      * Get first 3 announcements by Company order by price ascending.
      *
      * @param companyId the id of the company
+     * @param date      expiration date of announcement
      * @return list of announcements
      */
     List<Announcement> findFirst3ByAuthor_Company_IdAndExpirationDateAfterOrderByPriceAsc(Long companyId, Date date);

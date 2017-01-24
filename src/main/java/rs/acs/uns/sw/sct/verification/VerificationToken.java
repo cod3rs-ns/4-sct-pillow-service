@@ -11,7 +11,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "verification_tokens")
-public class VerificationToken implements Serializable{
+public class VerificationToken implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,7 +28,10 @@ public class VerificationToken implements Serializable{
     @OneToOne(cascade = CascadeType.REFRESH)
     private User user;
 
-    public VerificationToken(){
+    /**
+     * Verification token empty constructor
+     */
+    public VerificationToken() {
 
     }
 

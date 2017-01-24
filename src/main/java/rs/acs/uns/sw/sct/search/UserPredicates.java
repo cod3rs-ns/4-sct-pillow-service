@@ -60,7 +60,7 @@ public final class UserPredicates {
 
         BooleanBuilder where = new BooleanBuilder();
         QUser user = QUser.user;
-        if (firstName != null && !firstName.equals("") && (lastName == null || lastName.equals(""))) {
+        if (firstName != null && !"".equals(firstName) && (lastName == null || "".equals(lastName))) {
             where.or(user.firstName.containsIgnoreCase(firstName));
             where.or(user.lastName.containsIgnoreCase(firstName));
         } else {

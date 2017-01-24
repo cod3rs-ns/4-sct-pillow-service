@@ -38,12 +38,14 @@ public class MailSender {
     private Logger logger = Logger.getLogger(getClass().getName());
 
     /**
-     * Sends email to newly registerd users.
-     * @param name name of the user
-     * @param address email address of the user
+     * Sends email to newly registered users.
+     *
+     * @param name       name of the user
+     * @param address    email address of the user
+     * @param tokenValue value of verification token
      */
     @Async
-    public void sendRegistrationMail(String name, String address, String tokenValue){
+    public void sendRegistrationMail(String name, String address, String tokenValue) {
         Map<String, Object> model = new HashMap<>();
         model.put("name", name);
 
@@ -67,19 +69,19 @@ public class MailSender {
     /**
      * Send mail to advertiser upon resolving report of his announcement
      *
-     * @param reportContent     content of report attached to announcement
-     * @param announcementID    ID of reported announcement
-     * @param announcementName  name of the reported announcement
-     * @param address           address of the announcement's author
+     * @param reportContent    content of report attached to announcement
+     * @param announcementID   ID of reported announcement
+     * @param announcementName name of the reported announcement
+     * @param address          address of the announcement's author
      */
     @Async
-    public void sendReportAcceptedMail(String reportContent, Long announcementID, String announcementName, String address){
+    public void sendReportAcceptedMail(String reportContent, Long announcementID, String announcementName, String address) {
         Map<String, Object> model = new HashMap<>();
         model.put("reportContent", reportContent);
         model.put("announcementLink", Constants.MailParameters.ANNOUNCEMENT_CLIENT + String.valueOf(announcementID));
         model.put("announcementName", announcementName);
 
-        try{
+        try {
             // Rendering html page for email
             String html = Jade4J.render("./src/main/resources/templates/report-mail-template.jade", model);
             sendMail(address, "Prijava oglasa", html);
@@ -116,7 +118,7 @@ public class MailSender {
         transport.close();
     }
 
-    private String generateToken(String userMail){
+    private String generateToken(String userMail) {
         // Generate VerificationToken
         Date date = new Date();
         date.setTime(date.getTime() + Constants.MailParameters.TOKEN_EXPIRE_TIME);

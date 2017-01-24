@@ -1,11 +1,20 @@
 package rs.acs.uns.sw.sct.realestates;
 
+/**
+ * DTO class for finding similar real estates
+ */
 public class RealEstateSimilarDTO {
 
     private Location location;
 
     private Double area;
 
+    /**
+     * RealEstateSimilarDTO
+     *
+     * @param location location real estate
+     * @param area     area of real estate
+     */
     public RealEstateSimilarDTO(Location location, Double area) {
         this.location = location;
         this.area = area;

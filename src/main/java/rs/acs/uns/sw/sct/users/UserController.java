@@ -131,7 +131,6 @@ public class UserController {
     @PreAuthorize("permitAll()")
     @PostMapping("/users/")
     public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody User user) throws URISyntaxException {
-        // TODO 6 - this method should be allowed only for guests - not logged in users
         if (user.getId() != null) {
             return ResponseEntity
                     .badRequest()

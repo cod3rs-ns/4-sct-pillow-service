@@ -135,7 +135,6 @@ public class ReportController {
         if (report.getId() == null) {
             return createReport(report);
         }
-        // TODO 5 - existing of this method should be considered
         Report result = reportService.save(report);
         return ResponseEntity.ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(Constants.EntityNames.REPORT, report.getId().toString()))

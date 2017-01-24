@@ -64,13 +64,17 @@ public class RealEstate implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RealEstate)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof RealEstate))
+            return false;
 
         RealEstate that = (RealEstate) o;
 
-        if (area != null ? !area.equals(that.area) : that.area != null) return false;
-        if (location != null ? !location.equals(that.location) : that.location != null) return false;
+        if (area != null ? !area.equals(that.area) : that.area != null)
+            return false;
+        if (location != null ? !location.equals(that.location) : that.location != null)
+            return false;
 
         return true;
     }
