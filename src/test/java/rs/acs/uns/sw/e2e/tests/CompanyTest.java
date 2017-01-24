@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.e2e.tests;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -45,6 +46,11 @@ public class CompanyTest {
         ChromeOptions options = ConfigUtil.chromeOptions();
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+    }
+
+    @AfterClass
+    public static void closeDriver() {
+        driver.close();
     }
 
     /**

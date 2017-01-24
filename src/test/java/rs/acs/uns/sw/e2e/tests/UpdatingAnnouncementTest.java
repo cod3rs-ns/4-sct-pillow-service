@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.e2e.tests;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.NoSuchElementException;
@@ -37,13 +38,18 @@ public class UpdatingAnnouncementTest {
     private static WebDriverWait wait;
 
     /**
-     *  Creates instace of Chrome Driver
+     *  Creates instance of Chrome Driver
      */
     @BeforeClass
     public static void instanceDriver() {
         ChromeOptions options = ConfigUtil.chromeOptions();
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+    }
+
+    @AfterClass
+    public static void closeDriver() {
+        driver.close();
     }
 
     /**
@@ -256,9 +262,8 @@ public class UpdatingAnnouncementTest {
         driver.findElements(DELETE_UPLOADED_IMAGE).forEach(button -> button.click());
 
         final WebElement finishButton = driver.findElement(FINISH_BUTTON);
-        finishButton.click();
 
-        assertThat(finishButton.isEnabled()).isTrue();
+        assertThat(finishButton.isEnabled()).isFalse();
     }
 
     /**
@@ -329,6 +334,7 @@ public class UpdatingAnnouncementTest {
         final WebElement updateButton = driver.findElement(UPDATE_BUTTON);
         updateButton.click();
 
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlToBe(ADVERTISER_ANNOUNCEMENT_URL)));
         final WebElement continueButton = driver.findElement(CONTINUE_BUTTON);
         continueButton.click();
 

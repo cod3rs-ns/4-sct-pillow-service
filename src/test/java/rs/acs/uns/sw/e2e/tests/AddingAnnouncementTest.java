@@ -1,5 +1,6 @@
 package rs.acs.uns.sw.e2e.tests;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
@@ -19,6 +20,7 @@ import rs.acs.uns.sw.sct.SctServiceApplication;
 import javax.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
 import static rs.acs.uns.sw.e2e.pages.AddingAnnouncementPage.*;
 import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
 
@@ -37,7 +39,7 @@ public class AddingAnnouncementTest {
     private static WebDriverWait wait;
 
     /**
-     *  Creates instace of Chrome Driver
+     * Creates instance of Chrome Driver
      */
     @BeforeClass
     public static void instanceDriver() {
@@ -46,9 +48,15 @@ public class AddingAnnouncementTest {
         wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
     }
 
+    @AfterClass
+    public static void closeDriver() {
+        driver.close();
+    }
+
+
     /**
      * Test which successfully add announcement.
-     *
+     * <p>
      * First we logged as 'advertiser', then we click on link 'Dodaj oglas' where we check for existence of elements.
      * We populate all required fields with fixed data and click on button 'Nastavi'.
      * Then we creates add images of real estate that will be bonded to our annoucement.
@@ -134,11 +142,13 @@ public class AddingAnnouncementTest {
 
         // Wait to redirect to added annoucement page
         wait.until(ExpectedConditions.urlContains(ADDED_ANNOUCEMENT_URL));
+
+        logout();
     }
 
     /**
      * Test which successfully add announcement with existing announcement.
-     *
+     * <p>
      * First we logged as 'advertiser', then we click on link 'Dodaj oglas' where we check for existence of elements.
      * We populate all required fields with fixed data and click on button 'Nastavi'.
      * We recognize similar real estate and we click on first recommended real estate.
@@ -215,9 +225,11 @@ public class AddingAnnouncementTest {
 
         // We choose similar real estate
         final WebElement firstSimilarRealEstate = driver.findElement(SIMILAR_REAL_ESTATE);
+        wait.until(ExpectedConditions.presenceOfElementLocated(SIMILAR_REAL_ESTATE));
         firstSimilarRealEstate.click();
 
         final WebElement continueRealEstateButton = driver.findElement(SIMILAR_RE_CONTINUE);
+        wait.until(ExpectedConditions.presenceOfElementLocated(SIMILAR_RE_CONTINUE));
         continueRealEstateButton.click();
 
         // Last part of adding announcement
@@ -235,11 +247,13 @@ public class AddingAnnouncementTest {
 
         // Wait to redirect to added annoucement page
         wait.until(ExpectedConditions.urlContains(ADDED_ANNOUCEMENT_URL));
+
+        logout();
     }
 
     /**
      * Test which successfully add announcement with skipping existin announcement.
-     *
+     * <p>
      * First we logged as 'advertiser', then we click on link 'Dodaj oglas' where we check for existence of elements.
      * We populate all required fields with fixed data and click on button 'Nastavi'.
      * We recognize similar real estate but we skip (that means we'll create our own real estate.
@@ -330,13 +344,15 @@ public class AddingAnnouncementTest {
         final WebElement finishButton = driver.findElement(FINISH_BUTTON);
         finishButton.click();
 
-        // Wait to redirect to added annoucement page
+        // Wait to redirect to added announcement page
         wait.until(ExpectedConditions.urlContains(ADDED_ANNOUCEMENT_URL));
+
+        logout();
     }
 
     /**
      * Test which tries to add empty announcement's form
-     *
+     * <p>
      * When we logged as advertiser we try to submit empty announcement from.
      * We check if 'Nastavi' button is disabled.
      */
@@ -355,11 +371,12 @@ public class AddingAnnouncementTest {
         final WebElement continueButton = driver.findElement(CONTINUE_BUTTON);
 
         assertThat(continueButton.isEnabled()).isFalse();
+        logout();
     }
 
     /**
      * Test which tries to add annoucement without added images.
-     *
+     * <p>
      * We fill first part of form properly, and try to submit without added images.
      * Then we check if 'Zavrsi' button is disabled.
      */
@@ -433,12 +450,13 @@ public class AddingAnnouncementTest {
         final WebElement finishButton = driver.findElement(FINISH_BUTTON);
 
         assertThat(finishButton.isEnabled()).isFalse();
+        logout();
     }
 
     /**
      * Test which tries to submit announcement with wrong price type.
      * Price can only be postive number value.
-     *
+     * <p>
      * We input string as price.
      * Then we check if toaster is presented and if error message is correct.
      */
@@ -511,12 +529,13 @@ public class AddingAnnouncementTest {
 
         assertThat(announcementPrice.getAttribute("class")).contains("ng-invalid-number");
         assertThat(announcementPrice.getAttribute("class")).contains("ng-invalid");
+        logout();
     }
 
     /**
      * Test which tries to submit announcement with wrong address.
      * Wrong address is when Google Map service can't provide latitude and longitude.
-     *
+     * <p>
      * We input non existing address and try to submit it.
      * Then we check if toaster is presented and if error message is correct.
      */
@@ -587,15 +606,16 @@ public class AddingAnnouncementTest {
         final WebElement continueButton = driver.findElement(CONTINUE_BUTTON);
         continueButton.click();
 
-        wait.until(ExpectedConditions.presenceOfElementLocated(ERROR_ADDRESS));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(ERROR_ADDRESS));
         final WebElement errorToaster = driver.findElement(ERROR_ADDRESS);
 
         assertThat(errorToaster.getText()).isEqualTo(ERROR_ADDRESS_MSG);
+        logout();
     }
 
     /**
      * Test which tries to add image with size over 5 MB
-     *
+     * <p>
      * We try to add image, but then we assert if error toast message is displayed with
      * proper test defined.
      */
@@ -617,7 +637,7 @@ public class AddingAnnouncementTest {
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
         //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
-        final WebElement annoucementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
+        final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
         final WebElement realEstateType = driver.findElement(REAL_ESTATE_TYPE);
@@ -634,7 +654,7 @@ public class AddingAnnouncementTest {
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
         //assertThat(announcementDescription).isNotNull();
-        assertThat(annoucementTypeSale).isNotNull();
+        assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
         assertThat(realEstateCountry).isNotNull();
@@ -646,7 +666,7 @@ public class AddingAnnouncementTest {
         // Populate data
         announcementName.sendKeys(ANN_NAME_VALUE);
         // Set Announcement Type to 'SALE'
-        annoucementTypeSale.click();
+        announcementTypeSale.click();
         announcementPrice.sendKeys(ANN_PRICE_VALUE);
         announcementPhone.sendKeys(ANN_PHONE_VALUE);
         announcementDateExp.click();
@@ -673,19 +693,25 @@ public class AddingAnnouncementTest {
 
         DragAndDropUtil.dropFile(driver, wait, dropZone, IMAGE_PATH_OVER_5MB);
 
-        wait.until(ExpectedConditions.presenceOfElementLocated(ERROR_MAX_FILE_SIZE));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(ERROR_MAX_FILE_SIZE));
         final WebElement errorToaster = driver.findElement(ERROR_MAX_FILE_SIZE);
 
         assertThat(errorToaster.getText()).isEqualTo(ERROR_FILE_OVER_5MB);
+        errorToaster.click();
+
+        logout();
     }
 
     /**
      * Test which tries to add announcement as guest.
-     *
+     * <p>
      * We fill data and then we get Unauthorized
      */
     @Test
     public void tryToAddAnnouncementAsAGuest() {
+        // FIXME
+        driver.get("javascript:localStorage.clear();");
+        logout();
         // Go on Add Announcement URL
         driver.navigate().to(ADDING_ANNOUCEMENT_URL);
 
@@ -754,7 +780,7 @@ public class AddingAnnouncementTest {
 
     /**
      * Test which tries to add more than 4 iamges
-     *
+     * <p>
      * We try to add more than 4 images, but then we assert if error toast message is displayed with
      * proper test defined.
      */
@@ -841,5 +867,6 @@ public class AddingAnnouncementTest {
         final WebElement errorToaster = driver.findElement(ERROR_MAX_IMAGE_NUMBERS);
 
         assertThat(errorToaster.getText()).isEqualTo(ERROR_FILE_NUMBER_MSG);
+        logout();
     }
 }

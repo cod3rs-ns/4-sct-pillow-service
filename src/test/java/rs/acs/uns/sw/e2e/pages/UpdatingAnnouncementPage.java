@@ -8,7 +8,7 @@ import org.openqa.selenium.By;
 public final class UpdatingAnnouncementPage {
 
     /**
-     * Private constructor to enable instatiating constant's class
+     * Private constructor to enable instantiating constant's class
      */
     private UpdatingAnnouncementPage() {}
 
@@ -63,11 +63,8 @@ public final class UpdatingAnnouncementPage {
     public static final String ADVERTISER_WITH_ANNOUNCEMENT_PASSWORD = "123456";
 
     // New announcement data
-    public static final String ANN_NAME_VALUE        = "Izmijenjeno ime oglasa";
-
-    public static final String ANN_DESCRIPTION_VALUE = "Očuvana kuća na Pejićevim Salašima. Uz kuću dolazi i farma pilića <b>Čvarkov i baba</b>.";
-
-    public static final String RE_REGION_VALUE     = "Izmijenjeni region";
+    public static final String ANN_NAME_VALUE  = "Izmijenjeno ime oglasa";
+    public static final String RE_REGION_VALUE = "Izmijenjeni region";
 
     // Existing Real Estate address and similar area
     public static final String EXISTING_RE_COUNTRY_VALUE    = "Srbija";
@@ -77,10 +74,10 @@ public final class UpdatingAnnouncementPage {
     public static final String EXISTING_RE_STREET_NO_VALUE  = "15";
     public static final String EXISTING_RE_AREA_VALUE       = "220";
 
-    public static final String IMAGE_PATH_1 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/pejicevi-salasi-1.jpg";
-    public static final String IMAGE_PATH_2 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/pejicevi-salasi-2.jpg";
-    public static final String IMAGE_PATH_4 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/4.jpg";
-    public static final String IMAGE_PATH_5 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/5.jpg";
+    public static final String IMAGE_PATH_1 = "src/test/resources/pejicevi-salasi-1.jpg";
+    public static final String IMAGE_PATH_2 = "src/test/resources/pejicevi-salasi-2.jpg";
+    public static final String IMAGE_PATH_4 = "src/test/resources/4.jpg";
+    public static final String IMAGE_PATH_5 = "src/test/resources/5.jpg";
 
-    public static final String IMAGE_PATH_OVER_5MB = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/5mb.jpg";
+    public static final String IMAGE_PATH_OVER_5MB = "src/test/resources/5mb.jpg";
 }

@@ -20,6 +20,8 @@ import rs.acs.uns.sw.sct.users.User;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -232,7 +234,7 @@ public class SigningTest {
      * Expectation: Error message to be shown and register button to be disabled
      */
     @Test
-    public void emailExist() throws InterruptedException {
+    public void emailExist() throws InterruptedException, AWTException {
         final WebElement registrationForm = driver.findElement(FORM_REGISTER);
         final WebElement errorMessage = registrationForm.findElement(EMAIL_EXISTS);
 
@@ -241,7 +243,9 @@ public class SigningTest {
         final WebElement inputEmail = driver.findElement(INPUT_EMAIL);
         inputEmail.sendKeys(EMAIL_IN_USE);
 
-        Thread.sleep(1000);
+        Robot robot = new Robot();
+        robot.keyPress(KeyEvent.VK_BACK_SLASH);
+        robot.keyPress(KeyEvent.VK_M);
 
         // Wait until error message appear
         wait.until(visibilityOfElementLocated(EMAIL_EXISTS));

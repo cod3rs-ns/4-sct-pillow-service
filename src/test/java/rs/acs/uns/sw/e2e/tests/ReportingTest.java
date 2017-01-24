@@ -68,6 +68,7 @@ public class ReportingTest {
         wait.until(ExpectedConditions.urlToBe(REPORTING_URL));
         assertThat(driver.getCurrentUrl()).isEqualTo(REPORTING_URL);
 
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(PENDING_REPORT_ID)));
         WebElement report = driver.findElement(By.id(PENDING_REPORT_ID));
         WebElement acceptBtn = report.findElement((By.id(String.format(ACCEPT_REPORT_BTN_ID, PENDING_REPORT_ID))));
         acceptBtn.click();
@@ -95,6 +96,7 @@ public class ReportingTest {
         wait.until(ExpectedConditions.urlToBe(REPORTING_URL));
         assertThat(driver.getCurrentUrl()).isEqualTo(REPORTING_URL);
 
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(REPORT_TO_BE_REJECTED)));
         WebElement report = driver.findElement(By.id(REPORT_TO_BE_REJECTED));
         WebElement rejectBtn = report.findElement((By.id(String.format(REJECT_BTN_ID, REPORT_TO_BE_REJECTED))));
         rejectBtn.click();

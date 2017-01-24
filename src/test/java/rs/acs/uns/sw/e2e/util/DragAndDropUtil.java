@@ -6,6 +6,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+
 public class DragAndDropUtil {
 
     /**
@@ -48,7 +50,10 @@ public class DragAndDropUtil {
                 "        return input;";
 
         final WebElement input = (WebElement) jse.executeScript(JS_DROP_FILE, element, 0, 0);
-        input.sendKeys(path);
+        final String routePath = new File(".").getAbsolutePath();
+        final String absolutePath = routePath.substring(0, routePath.length() - 1) + path;
+
+        input.sendKeys(absolutePath);
         wait.until(ExpectedConditions.stalenessOf(input));
     }
 }

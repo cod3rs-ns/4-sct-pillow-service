@@ -91,11 +91,11 @@ public final class AddingAnnouncementPage {
     public static final String EXISTING_RE_STREET_NO_VALUE  = "15";
     public static final String EXISTING_RE_AREA_VALUE       = "213";
 
-    public static final String IMAGE_PATH_1 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/pejicevi-salasi-1.jpg";
-    public static final String IMAGE_PATH_2 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/pejicevi-salasi-2.jpg";
-    public static final String IMAGE_PATH_3 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/3.png";
-    public static final String IMAGE_PATH_4 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/4.jpg";
-    public static final String IMAGE_PATH_5 = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/5jpg";
+    public static final String IMAGE_PATH_1 = "src/test/resources/pejicevi-salasi-1.jpg";
+    public static final String IMAGE_PATH_2 = "src/test/resources/pejicevi-salasi-2.jpg";
+    public static final String IMAGE_PATH_3 = "src/test/resources/3.png";
+    public static final String IMAGE_PATH_4 = "src/test/resources/4.jpg";
+    public static final String IMAGE_PATH_5 = "src/test/resources/5jpg";
 
-    public static final String IMAGE_PATH_OVER_5MB = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/5mb.jpg";
+    public static final String IMAGE_PATH_OVER_5MB = "src/test/resources/5mb.jpg";
 }
