@@ -158,7 +158,6 @@ public class AnnouncementService {
     @Transactional(readOnly = true)
     public Page<Announcement> findBySearchTerm(AnnouncementSearchWrapper searchWrapper, Pageable pageable) {
         Predicate searchPredicate = search(searchWrapper);
-        Page<Announcement> searchResults = announcementRepository.findAll(searchPredicate, pageable);
-        return searchResults;
+        return announcementRepository.findAll(searchPredicate, pageable);
     }
 }

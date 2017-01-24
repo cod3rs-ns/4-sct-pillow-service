@@ -1,8 +1,6 @@
 package rs.acs.uns.sw.sct.companies;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import rs.acs.uns.sw.sct.announcements.Image;
 import rs.acs.uns.sw.sct.users.User;
 
 import javax.persistence.*;

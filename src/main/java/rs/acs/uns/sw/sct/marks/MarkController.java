@@ -148,7 +148,6 @@ public class MarkController {
     @PreAuthorize("hasAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN)")
     @GetMapping("/marks")
     public ResponseEntity<List<MarkDTO>> getAllMarks(Pageable pageable) throws URISyntaxException {
-        // TODO 3 - this option should not be allowed
         Page<MarkDTO> page = markService.findAll(pageable)
                 .map(mark -> mark.convertToDTO());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/marks");

@@ -1,8 +1,11 @@
 package rs.acs.uns.sw.sct.realestates;
 
+import com.google.common.base.Objects;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+
 
 /**
  * A location
@@ -46,16 +49,27 @@ public class Location implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Location)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Location))
+            return false;
 
         Location location = (Location) o;
 
-        if (country != null ? !country.toLowerCase().contains(location.country.trim().toLowerCase()) : location.country != null) return false;
-        if (city != null ? !city.toLowerCase().contains(location.city.trim().toLowerCase()) : location.city != null) return false;
-        if (cityRegion != null ? !cityRegion.toLowerCase().contains(location.cityRegion.trim().toLowerCase()) : location.cityRegion != null) return false;
-        if (street != null ? !street.toLowerCase().contains(location.street.trim().toLowerCase()) : location.street != null) return false;
-        return streetNumber != null ? streetNumber.equals(location.streetNumber.toLowerCase()) : location.streetNumber == null;
+        if (country != null ? !country.toLowerCase().contains(location.country.trim().toLowerCase()) : location.country != null)
+            return false;
+        if (city != null ? !city.toLowerCase().contains(location.city.trim().toLowerCase()) : location.city != null)
+            return false;
+        if (cityRegion != null ? !cityRegion.toLowerCase().contains(location.cityRegion.trim().toLowerCase()) : location.cityRegion != null)
+            return false;
+        if (street != null ? !street.toLowerCase().contains(location.street.trim().toLowerCase()) : location.street != null)
+            return false;
+        return streetNumber != null ? streetNumber.equalsIgnoreCase(location.streetNumber) : location.streetNumber == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getId(), this.getLongitude(), this.getLatitude());
     }
 
     public Long getId() {

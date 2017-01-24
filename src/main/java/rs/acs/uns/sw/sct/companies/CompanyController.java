@@ -66,7 +66,7 @@ public class CompanyController {
         Company result = companyService.save(company);
 
         Set<User> users = company.getUsers();
-        if (users != null && users.size() > 0) {
+        if (users != null && users.isEmpty()) {
             for (User u : users) {
                 User companyUser = userService.findOne(u.getId());
                 if (companyUser != null) {

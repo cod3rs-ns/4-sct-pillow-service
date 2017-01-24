@@ -452,22 +452,28 @@ public class AnnouncementController {
     /**
      * GET  /announcements/search : get all the announcements that satisfied search params.
      *
-     * @param startPrice    low limit of announcement price requirements
-     * @param endPrice      top limit of announcement price requirements
-     * @param phoneNumber   phone number of the Announcer
-     * @param type          type of announcement
-     * @param authorName    first name of the Announcer
-     * @param authorSurname last name of the Announcer
-     * @param startArea     low limit of real estate square area
-     * @param endArea       tip limit of real estate square area
-     * @param heatingType   type of heating in real estate
-     * @param name          name of the announcement
-     * @param country       country where real estate is located
-     * @param cityRegion    city region where real estate is located
-     * @param city          city where real estate is located
-     * @param street        street where real estate is located
-     * @param streetNumber  street number of building where is real estate
-     * @param pageable      the pagination information
+     * @param startPrice        low limit of announcement price requirements
+     * @param endPrice          top limit of announcement price requirements
+     * @param phoneNumber       phone number of the Announcer
+     * @param type              type of announcement
+     * @param authorName        first name of the Announcer
+     * @param authorSurname     last name of the Announcer
+     * @param startArea         low limit of real estate square area
+     * @param endArea           tip limit of real estate square area
+     * @param heatingType       type of heating in real estate
+     * @param name              name of the announcement
+     * @param country           country where real estate is located
+     * @param cityRegion        city region where real estate is located
+     * @param city              city where real estate is located
+     * @param street            street where real estate is located
+     * @param streetNumber      street number of building where is real estate
+     * @param intercom          intercom equipment
+     * @param internet          internet equipment
+     * @param phone             phone equipment
+     * @param airConditioner    airConditioner equipment
+     * @param videoSurveillance videoSurveillance equipment
+     * @param cableTV           cableTV equipment
+     * @param pageable          the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of announcements in body
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
@@ -522,11 +528,11 @@ public class AnnouncementController {
     /**
      * GET  /announcements/location-search
      *
-     * @param topRightLat        Top right corner latitude
-     * @param topRightLong       Top right corner longitude
-     * @param bottomLeftLat      Bottom left corner latitude
-     * @param bottomLeftLong     Bottom left corner longitude
-     * @param pageable the pagination information
+     * @param topRightLat    Top right corner latitude
+     * @param topRightLong   Top right corner longitude
+     * @param bottomLeftLat  Bottom left corner latitude
+     * @param bottomLeftLong Bottom left corner longitude
+     * @param pageable       the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of announcements which contains real estate in provided area
      * @throws URISyntaxException if there is an error to generate the pagination HTTP headers
      */
