@@ -21,5 +21,5 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
      * @param userId status we've search for
      * @return one token
      */
-    VerificationToken findByUser_Id(Long userId); // NOSONAR - invalid warning
+    VerificationToken findByUser_Id(Long userId);
 }

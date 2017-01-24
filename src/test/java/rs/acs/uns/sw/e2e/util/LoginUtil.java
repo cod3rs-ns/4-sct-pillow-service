@@ -14,17 +14,26 @@ import static rs.acs.uns.sw.e2e.pages.UserProfile.USER_MENU;
 
 public class LoginUtil {
 
+    /**
+     * Util for logging on system
+     *
+     * @param username user's username
+     * @param password user's password
+     * @param driver   web driver
+     * @param wait     web driver wait
+     */
     public static void login(String username, String password, WebDriver driver, WebDriverWait wait) {
 
         driver.navigate().to(SIGNING_URL);
         wait.until(ExpectedConditions.urlToBe(SIGNING_URL));
 
         // Input Username
-        final WebElement inputUsername = driver.findElement(TEXTBOX_USERNAME);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(TEXT_BOX_USERNAME));
+        final WebElement inputUsername = driver.findElement(TEXT_BOX_USERNAME);
         inputUsername.sendKeys(username);
 
         // Input Password
-        final WebElement inputPassword = driver.findElement(TEXTBOX_PASSWORD);
+        final WebElement inputPassword = driver.findElement(TEXT_BOX_PASSWORD);
         inputPassword.sendKeys(password);
 
         // Click on 'Uloguj se' button.
@@ -35,6 +44,12 @@ public class LoginUtil {
     }
 
 
+    /**
+     * Util for logging out from system
+     *
+     * @param driver web driver
+     * @param wait   web driver wait
+     */
     public static void logout(WebDriver driver, WebDriverWait wait) {
         final WebElement linkUserMenu = driver.findElement(USER_MENU);
         linkUserMenu.click();

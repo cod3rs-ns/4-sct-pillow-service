@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 import static rs.acs.uns.sw.e2e.pages.SigningPage.*;
 import static rs.acs.uns.sw.e2e.pages.UserProfile.*;
-import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
+import static rs.acs.uns.sw.e2e.util.Constants.WEB_DRIVER_TIMEOUT;
 
 @ActiveProfiles("test")
 @SpringBootTest(classes = SctServiceApplication.class)
@@ -43,7 +43,7 @@ public class UserProfileTest {
         ChromeOptions options = ConfigUtil.chromeOptions();
         options.addArguments("incognito");
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+        wait = new WebDriverWait(driver, WEB_DRIVER_TIMEOUT);
     }
 
     @AfterClass
@@ -332,6 +332,7 @@ public class UserProfileTest {
         savePassButton.click();
 
         wait.until(presenceOfElementLocated(CHANGE_PASSWORD_SUCCESS_MESSAGE));
+        wait.until(visibilityOfElementLocated(CHANGE_PASSWORD_SUCCESS_MESSAGE));
 
         final WebElement successNotification = driver.findElement(CHANGE_PASSWORD_SUCCESS_MESSAGE);
         successNotification.click();
@@ -412,35 +413,6 @@ public class UserProfileTest {
         assertThat(errorMessage.getText()).isEqualTo(DATE_EXPIRATION_ERROR_MESSAGE_CONTENT);
         errorMessage.click();
     }
-
-    /**
-     * Test extending expiration date before previous date
-     * <p>
-     * First we need to log in. Then we navigate to profile page and
-     * try to extend date of announcement that is before previous.
-     * Expectation: We expect error message to be shown
-     */
-    @Test
-    public void expirationDateBeforePreviousDate() {
-        login(USERNAME_FOR_EXTENDING_DATE, DEFAULT_PASSWORD);
-        driver.navigate().to(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/");
-        wait.until(ExpectedConditions.urlToBe(USER_PROFILE_URL + USERNAME_FOR_EXTENDING_DATE + "/"));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(EDIT_BUTTON));
-
-        final String xpath = String.format(X_PATH_ANNOUNCEMENT_FRAGMENT, ANNOUNCEMENT_LINK + ANNOUNCEMENT_ID_EXP_BEFORE_PREV);
-        wait.until(presenceOfElementLocated(By.xpath(xpath)));
-        final WebElement annFragment = driver.findElement(By.xpath(xpath));
-
-        final WebElement inputDate = annFragment.findElement(EXTENDED_DATE);
-        inputDate.clear();
-        inputDate.sendKeys(EXTENDED_DATE_BEFORE_PREV);
-
-        final WebElement btnExtendingDate = annFragment.findElement(EXTENDED_DATE_BTN);
-        btnExtendingDate.click();
-
-        // TODO: check error message appear
-    }
-
 
     /**
      * Test accepting membership request

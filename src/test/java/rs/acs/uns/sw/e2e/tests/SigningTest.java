@@ -21,7 +21,6 @@ import rs.acs.uns.sw.sct.users.User;
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +28,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElem
 import static rs.acs.uns.sw.e2e.pages.HomePage.HOME_URL;
 import static rs.acs.uns.sw.e2e.pages.HomePage.VERIFICATION_SUCCESS_URL;
 import static rs.acs.uns.sw.e2e.pages.SigningPage.*;
-import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
+import static rs.acs.uns.sw.e2e.util.Constants.WEB_DRIVER_TIMEOUT;
 
 /**
  * Signing tests.
@@ -50,7 +49,7 @@ public class SigningTest {
         ChromeOptions options = ConfigUtil.chromeOptions();
         options.addArguments("incognito");
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+        wait = new WebDriverWait(driver, WEB_DRIVER_TIMEOUT);
     }
 
     @AfterClass
@@ -113,25 +112,37 @@ public class SigningTest {
         inputPhone.sendKeys(user.getPhoneNumber());
     }
 
+    /**
+     * Test login
+     * <p>
+     * We navigate to signing page.
+     * Expectation: Expect all fields are present.
+     */
     @Test
     public void isSigningPageProperlyOpened() {
         // Check if driver's URL is equal to wanted URL
         assertThat(driver.getCurrentUrl()).isEqualTo(SIGNING_URL);
 
         // Check if page contains all components required for login feature
-        assertThat(driver.findElement(TEXTBOX_USERNAME)).isNotNull();
-        assertThat(driver.findElement(TEXTBOX_PASSWORD)).isNotNull();
+        assertThat(driver.findElement(TEXT_BOX_USERNAME)).isNotNull();
+        assertThat(driver.findElement(TEXT_BOX_PASSWORD)).isNotNull();
         assertThat(driver.findElement(BUTTON_LOGIN)).isNotNull();
     }
 
+    /**
+     * Test login successfully
+     * <p>
+     * First we navigate to signing page. Then we fill login form with admin credentials.
+     * Expectation: User's name and role has shown in navigation bar.
+     */
     @Test
     public void loginSuccessAsAdmin() {
         // Input Username
-        final WebElement inputUsername = driver.findElement(TEXTBOX_USERNAME);
+        final WebElement inputUsername = driver.findElement(TEXT_BOX_USERNAME);
         inputUsername.sendKeys(ADMIN_USERNAME);
 
         // Input Password
-        final WebElement inputPassword = driver.findElement(TEXTBOX_PASSWORD);
+        final WebElement inputPassword = driver.findElement(TEXT_BOX_PASSWORD);
         inputPassword.sendKeys(ADMIN_PASSWORD);
 
         // Click on 'Uloguj se' button.
@@ -143,18 +154,24 @@ public class SigningTest {
 
         assertThat(driver.getCurrentUrl()).isEqualTo(HOME_URL);
 
-        assertThat(driver.findElements(LOGGED_USER_NAVBAR)).isNotNull();
-        assertThat(driver.findElements(LOGGED_USER_NAVBAR).get(0).getText()).isEqualTo(loggedUserFormatter(ADMIN_USERNAME, "administrator"));
+        assertThat(driver.findElements(LOGGED_USER_NAV_BAR)).isNotNull();
+        assertThat(driver.findElements(LOGGED_USER_NAV_BAR).get(0).getText()).isEqualTo(loggedUserFormatter(ADMIN_USERNAME, "administrator"));
     }
 
+    /**
+     * Test login with wrong credentials
+     * <p>
+     * First we navigate to signing page. Then we improperly fill login form.
+     * Expectation: Message about wrong credentials has shown.
+     */
     @Test
     public void loginFailed() {
         // Input Username
-        final WebElement inputUsername = driver.findElement(TEXTBOX_USERNAME);
+        final WebElement inputUsername = driver.findElement(TEXT_BOX_USERNAME);
         inputUsername.sendKeys(WRONG_USERNAME);
 
         // Input Password
-        final WebElement inputPassword = driver.findElement(TEXTBOX_PASSWORD);
+        final WebElement inputPassword = driver.findElement(TEXT_BOX_PASSWORD);
         inputPassword.sendKeys(WRONG_PASSWORD);
 
         // Click on 'Uloguj se' button.
@@ -242,10 +259,6 @@ public class SigningTest {
 
         final WebElement inputEmail = driver.findElement(INPUT_EMAIL);
         inputEmail.sendKeys(EMAIL_IN_USE);
-
-        Robot robot = new Robot();
-        robot.keyPress(KeyEvent.VK_BACK_SLASH);
-        robot.keyPress(KeyEvent.VK_M);
 
         // Wait until error message appear
         wait.until(visibilityOfElementLocated(EMAIL_EXISTS));
@@ -504,11 +517,11 @@ public class SigningTest {
         assertThat(driver.getCurrentUrl()).isEqualTo(SIGNING_URL);
 
         // Input Username
-        final WebElement inputUsername = driver.findElement(TEXTBOX_USERNAME);
+        final WebElement inputUsername = driver.findElement(TEXT_BOX_USERNAME);
         inputUsername.sendKeys(REGISTRATION_USERNAME);
 
         // Input Password
-        final WebElement inputPassword = driver.findElement(TEXTBOX_PASSWORD);
+        final WebElement inputPassword = driver.findElement(TEXT_BOX_PASSWORD);
         inputPassword.sendKeys(REGISTRATION_PASSWORD);
 
         // Click on login button.
@@ -518,8 +531,8 @@ public class SigningTest {
         wait.until(ExpectedConditions.urlToBe(HOME_URL));
         assertThat(driver.getCurrentUrl()).isEqualTo(HOME_URL);
 
-        assertThat(driver.findElements(LOGGED_USER_NAVBAR)).isNotNull();
-        assertThat(driver.findElements(LOGGED_USER_NAVBAR).get(0).getText()).isEqualTo(loggedUserFormatter(REGISTRATION_USERNAME, REGISTRATION_TYPE));
+        assertThat(driver.findElements(LOGGED_USER_NAV_BAR)).isNotNull();
+        assertThat(driver.findElements(LOGGED_USER_NAV_BAR).get(0).getText()).isEqualTo(loggedUserFormatter(REGISTRATION_USERNAME, REGISTRATION_TYPE));
     }
 
     /**

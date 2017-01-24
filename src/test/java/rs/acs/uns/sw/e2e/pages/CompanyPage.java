@@ -26,15 +26,12 @@ public class CompanyPage {
     public static final By FORM_COMPANY_ADDRESS = By.id("company-address");
     public static final By FORM_COMPANY_PHONE   = By.id("company-phone");
     public static final By CHOOSE_LOGO_BUTTON   = By.id("choose-logo");
-    public static final By FORM_LOGO_URL        = By.id("logo-url");
     public static final By FORM_COMPANY_USER    = By.id("company-user");
     public static final By ADD_COMPANY_BUTTON   = By.id("add-company-btn");
     public static final By REQUIRED_ADDRESS     = By.id("required-address");
 
-
     public static final String REQUEST_SENT_MESSAGE     = "Uspješno ste zatražili članstvo u kompaniji.";
     public static final String REQUIRED_ADDRESS_MESSAGE = "Adresa je obavezna.";
-
 
     // Fixed data for populating
     public static final String ADVERTISER_USERNAME_WITHOUT_COMPANY = "lbj";
@@ -46,6 +43,6 @@ public class CompanyPage {
     public static final String COMPANY_NAME_VALUE    = "KMJ co.";
     public static final String COMPANY_ADDRESS_VALUE = "Klisa BB BB";
     public static final String COMPANY_PHONE_VALUE   = "+1 23 21323";
-    public static final String COMPANY_LOGO_IMAGE    = "/Users/dmarjanovic/Desktop/awt-test/awt-test-siit-project-2016-service/src/test/resources/company-logo.png";
+    public static final String COMPANY_LOGO_IMAGE    = "./src/test/resources/company-logo.jpg";
     public static final String COMPANY_USER_VALUE    = "David";
 }

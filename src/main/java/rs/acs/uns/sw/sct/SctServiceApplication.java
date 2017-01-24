@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Spring boot application - root.
  */
 @SpringBootApplication
-public class SctServiceApplication { //NOSONAR - invalid warning
+public class SctServiceApplication {
 
     /**
      * Main method
@@ -16,7 +16,6 @@ public class SctServiceApplication { //NOSONAR - invalid warning
      */
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(SctServiceApplication.class);
-        app.setAdditionalProfiles("test");
         app.run(args);
     }
 }

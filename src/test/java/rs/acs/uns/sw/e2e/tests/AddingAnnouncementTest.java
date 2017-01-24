@@ -18,11 +18,11 @@ import rs.acs.uns.sw.e2e.util.LoginUtil;
 import rs.acs.uns.sw.sct.SctServiceApplication;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
 import static rs.acs.uns.sw.e2e.pages.AddingAnnouncementPage.*;
-import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
+import static rs.acs.uns.sw.e2e.util.Constants.WEB_DRIVER_TIMEOUT;
 
 /**
  * Advertising tests.
@@ -35,7 +35,7 @@ public class AddingAnnouncementTest {
 
     private static WebDriver driver;
 
-    // Wait in webdriver until some condition is not satisfied
+    // Wait in web driver until some condition is not satisfied
     private static WebDriverWait wait;
 
     /**
@@ -45,7 +45,7 @@ public class AddingAnnouncementTest {
     public static void instanceDriver() {
         ChromeOptions options = ConfigUtil.chromeOptions();
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+        wait = new WebDriverWait(driver, WEB_DRIVER_TIMEOUT);
     }
 
     @AfterClass
@@ -59,8 +59,8 @@ public class AddingAnnouncementTest {
      * <p>
      * First we logged as 'advertiser', then we click on link 'Dodaj oglas' where we check for existence of elements.
      * We populate all required fields with fixed data and click on button 'Nastavi'.
-     * Then we creates add images of real estate that will be bonded to our annoucement.
-     * We finish adding announement clicking on button 'Zavrsi' and check if annoucement is added.
+     * Then we creates add images of real estate that will be bonded to our announcement.
+     * We finish adding announcement clicking on button 'Zavrsi' and check if announcement is added.
      */
     @Test
     public void addAdvertisementSuccessfullyNonExistingRealEstate() {
@@ -70,16 +70,15 @@ public class AddingAnnouncementTest {
         addAnnouncementLink.click();
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUNCEMENT_URL));
 
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
+        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUNCEMENT_URL);
 
         // Get elements
         final WebElement announcementName = driver.findElement(ANNOUNCEMENT_NAME);
         final WebElement announcementPrice = driver.findElement(ANNOUNCEMENT_PRICE);
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
-        //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
         final WebElement annoucementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
@@ -140,10 +139,10 @@ public class AddingAnnouncementTest {
         final WebElement finishButton = driver.findElement(FINISH_BUTTON);
         finishButton.click();
 
-        // Wait to redirect to added annoucement page
-        wait.until(ExpectedConditions.urlContains(ADDED_ANNOUCEMENT_URL));
+        // Wait to redirect to added announcement page
+        wait.until(ExpectedConditions.urlContains(ADDED_ANNOUNCEMENT_URL));
 
-        logout();
+        LoginUtil.logout(driver, wait);
     }
 
     /**
@@ -152,8 +151,8 @@ public class AddingAnnouncementTest {
      * First we logged as 'advertiser', then we click on link 'Dodaj oglas' where we check for existence of elements.
      * We populate all required fields with fixed data and click on button 'Nastavi'.
      * We recognize similar real estate and we click on first recommended real estate.
-     * Then we creates add images of real estate that will be bonded to our annoucement.
-     * We finish adding announement clicking on button 'Zavrsi' and check if annoucement is added.
+     * Then we creates add images of real estate that will be bonded to our announcement.
+     * We finish adding announcement clicking on button 'Zavrsi' and check if announcement is added.
      */
     @Test
     public void addAdvertisementSuccessfullyExistingRealEstate() {
@@ -163,9 +162,9 @@ public class AddingAnnouncementTest {
         addAnnouncementLink.click();
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUNCEMENT_URL));
 
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
+        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUNCEMENT_URL);
 
         // Get elements
         final WebElement announcementName = driver.findElement(ANNOUNCEMENT_NAME);
@@ -224,8 +223,8 @@ public class AddingAnnouncementTest {
         wait.until(ExpectedConditions.presenceOfElementLocated(SIMILAR_REAL_ESTATE));
 
         // We choose similar real estate
+        wait.until(ExpectedConditions.visibilityOfElementLocated(SIMILAR_REAL_ESTATE));
         final WebElement firstSimilarRealEstate = driver.findElement(SIMILAR_REAL_ESTATE);
-        wait.until(ExpectedConditions.presenceOfElementLocated(SIMILAR_REAL_ESTATE));
         firstSimilarRealEstate.click();
 
         final WebElement continueRealEstateButton = driver.findElement(SIMILAR_RE_CONTINUE);
@@ -246,19 +245,19 @@ public class AddingAnnouncementTest {
         finishButton.click();
 
         // Wait to redirect to added annoucement page
-        wait.until(ExpectedConditions.urlContains(ADDED_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlContains(ADDED_ANNOUNCEMENT_URL));
 
-        logout();
+        LoginUtil.logout(driver, wait);
     }
 
     /**
-     * Test which successfully add announcement with skipping existin announcement.
+     * Test which successfully add announcement with skipping existing announcement.
      * <p>
      * First we logged as 'advertiser', then we click on link 'Dodaj oglas' where we check for existence of elements.
      * We populate all required fields with fixed data and click on button 'Nastavi'.
      * We recognize similar real estate but we skip (that means we'll create our own real estate.
-     * Then we creates add images of real estate that will be bonded to our annoucement.
-     * We finish adding announement clicking on button 'Zavrsi' and check if annoucement is added.
+     * Then we creates add images of real estate that will be bonded to our announcement.
+     * We finish adding announcement clicking on button 'Zavrsi' and check if announcement is added.
      */
     @Test
     public void addAdvertisementSuccessfullySkipExistingRealEstate() {
@@ -268,9 +267,9 @@ public class AddingAnnouncementTest {
         addAnnouncementLink.click();
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUNCEMENT_URL));
 
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
+        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUNCEMENT_URL);
 
         // Get elements
         final WebElement announcementName = driver.findElement(ANNOUNCEMENT_NAME);
@@ -328,6 +327,7 @@ public class AddingAnnouncementTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(SIMILAR_REAL_ESTATE));
 
+        wait.until(ExpectedConditions.visibilityOfElementLocated(SIMILAR_RE_CONTINUE));
         final WebElement continueRealEstateButton = driver.findElement(SIMILAR_RE_CONTINUE);
         continueRealEstateButton.click();
 
@@ -345,9 +345,8 @@ public class AddingAnnouncementTest {
         finishButton.click();
 
         // Wait to redirect to added announcement page
-        wait.until(ExpectedConditions.urlContains(ADDED_ANNOUCEMENT_URL));
-
-        logout();
+        wait.until(ExpectedConditions.urlContains(ADDED_ANNOUNCEMENT_URL));
+        LoginUtil.logout(driver, wait);
     }
 
     /**
@@ -364,18 +363,18 @@ public class AddingAnnouncementTest {
         addAnnouncementLink.click();
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUNCEMENT_URL));
 
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
+        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUNCEMENT_URL);
 
         final WebElement continueButton = driver.findElement(CONTINUE_BUTTON);
 
         assertThat(continueButton.isEnabled()).isFalse();
-        logout();
+        LoginUtil.logout(driver, wait);
     }
 
     /**
-     * Test which tries to add annoucement without added images.
+     * Test which tries to add announcement without added images.
      * <p>
      * We fill first part of form properly, and try to submit without added images.
      * Then we check if 'Zavrsi' button is disabled.
@@ -388,9 +387,9 @@ public class AddingAnnouncementTest {
         addAnnouncementLink.click();
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUNCEMENT_URL));
 
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
+        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUNCEMENT_URL);
 
         // Get elements
         final WebElement announcementName = driver.findElement(ANNOUNCEMENT_NAME);
@@ -398,7 +397,7 @@ public class AddingAnnouncementTest {
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
         //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
-        final WebElement annoucementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
+        final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         // We need to populate same address for our real estate because our 'algorithm' works on that way.
         final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
@@ -416,7 +415,7 @@ public class AddingAnnouncementTest {
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
         //assertThat(announcementDescription).isNotNull();
-        assertThat(annoucementTypeSale).isNotNull();
+        assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
         assertThat(realEstateCountry).isNotNull();
@@ -428,7 +427,7 @@ public class AddingAnnouncementTest {
         // Populate data
         announcementName.sendKeys(ANN_NAME_VALUE);
         // Set Announcement Type to 'SALE'
-        annoucementTypeSale.click();
+        announcementTypeSale.click();
         announcementPrice.sendKeys(ANN_PRICE_VALUE);
         announcementPhone.sendKeys(ANN_PHONE_VALUE);
         announcementDateExp.click();
@@ -450,7 +449,7 @@ public class AddingAnnouncementTest {
         final WebElement finishButton = driver.findElement(FINISH_BUTTON);
 
         assertThat(finishButton.isEnabled()).isFalse();
-        logout();
+        LoginUtil.logout(driver, wait);
     }
 
     /**
@@ -468,9 +467,9 @@ public class AddingAnnouncementTest {
         addAnnouncementLink.click();
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUNCEMENT_URL));
 
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
+        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUNCEMENT_URL);
 
         // Get elements
         final WebElement announcementName = driver.findElement(ANNOUNCEMENT_NAME);
@@ -478,7 +477,7 @@ public class AddingAnnouncementTest {
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
         //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
-        final WebElement annoucementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
+        final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         // We need to populate same address for our real estate because our 'algorithm' works on that way.
         final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
@@ -496,7 +495,7 @@ public class AddingAnnouncementTest {
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
         //assertThat(announcementDescription).isNotNull();
-        assertThat(annoucementTypeSale).isNotNull();
+        assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
         assertThat(realEstateCountry).isNotNull();
@@ -508,7 +507,7 @@ public class AddingAnnouncementTest {
         // Populate data
         announcementName.sendKeys(ANN_NAME_VALUE);
         // Set Announcement Type to 'SALE'
-        annoucementTypeSale.click();
+        announcementTypeSale.click();
         announcementPrice.sendKeys(WRONG_ANN_PRICE_VALUE);
         announcementPhone.sendKeys(ANN_PHONE_VALUE);
         announcementDateExp.click();
@@ -529,7 +528,7 @@ public class AddingAnnouncementTest {
 
         assertThat(announcementPrice.getAttribute("class")).contains("ng-invalid-number");
         assertThat(announcementPrice.getAttribute("class")).contains("ng-invalid");
-        logout();
+        LoginUtil.logout(driver, wait);
     }
 
     /**
@@ -547,9 +546,9 @@ public class AddingAnnouncementTest {
         addAnnouncementLink.click();
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUNCEMENT_URL));
 
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
+        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUNCEMENT_URL);
 
         // Get elements
         final WebElement announcementName = driver.findElement(ANNOUNCEMENT_NAME);
@@ -557,7 +556,7 @@ public class AddingAnnouncementTest {
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
         //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
-        final WebElement annoucementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
+        final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         // We need to populate same address for our real estate because our 'algorithm' works on that way.
         final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
@@ -575,7 +574,7 @@ public class AddingAnnouncementTest {
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
         //assertThat(announcementDescription).isNotNull();
-        assertThat(annoucementTypeSale).isNotNull();
+        assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
         assertThat(realEstateCountry).isNotNull();
@@ -587,7 +586,7 @@ public class AddingAnnouncementTest {
         // Populate data
         announcementName.sendKeys(ANN_NAME_VALUE);
         // Set Announcement Type to 'SALE'
-        annoucementTypeSale.click();
+        announcementTypeSale.click();
         announcementPrice.sendKeys(ANN_PRICE_VALUE);
         announcementPhone.sendKeys(ANN_PHONE_VALUE);
         announcementDateExp.click();
@@ -610,7 +609,9 @@ public class AddingAnnouncementTest {
         final WebElement errorToaster = driver.findElement(ERROR_ADDRESS);
 
         assertThat(errorToaster.getText()).isEqualTo(ERROR_ADDRESS_MSG);
-        logout();
+        errorToaster.click();
+
+        LoginUtil.logout(driver, wait);
     }
 
     /**
@@ -627,9 +628,9 @@ public class AddingAnnouncementTest {
         addAnnouncementLink.click();
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUNCEMENT_URL));
 
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
+        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUNCEMENT_URL);
 
         // Get elements
         final WebElement announcementName = driver.findElement(ANNOUNCEMENT_NAME);
@@ -699,87 +700,27 @@ public class AddingAnnouncementTest {
         assertThat(errorToaster.getText()).isEqualTo(ERROR_FILE_OVER_5MB);
         errorToaster.click();
 
-        logout();
+        LoginUtil.logout(driver, wait);
     }
 
     /**
      * Test which tries to add announcement as guest.
      * <p>
-     * We fill data and then we get Unauthorized
+     * We try to navigate to adding announcement url
+     * and then get unauthorized message
      */
     @Test
     public void tryToAddAnnouncementAsAGuest() {
-        // FIXME
-        driver.get("javascript:localStorage.clear();");
-        logout();
-        // Go on Add Announcement URL
-        driver.navigate().to(ADDING_ANNOUCEMENT_URL);
+        driver.navigate().to(ADDING_ANNOUNCEMENT_URL);
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
-
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
-
-        // Get elements
-        final WebElement announcementName = driver.findElement(ANNOUNCEMENT_NAME);
-        final WebElement announcementPrice = driver.findElement(ANNOUNCEMENT_PRICE);
-        final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
-        final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
-        //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
-        final WebElement annoucementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
-
-        final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
-        final WebElement realEstateType = driver.findElement(REAL_ESTATE_TYPE);
-        final WebElement realEstateCountry = driver.findElement(REAL_ESTATE_CONUTRY);
-        final WebElement realEstateCity = driver.findElement(REAL_ESTATE_CITY);
-        final WebElement realEstateRegion = driver.findElement(REAL_ESTATE_REGION);
-        final WebElement realEstateStreet = driver.findElement(REAL_ESTATE_STREET);
-        final WebElement realEstateStreetNo = driver.findElement(REAL_ESTATE_STREET_NO);
-        final Select realEstateHeatingType = new Select(driver.findElement(REAL_ESTATE_HEATING));
-
-        // Assert that elements are presented
-        assertThat(announcementName).isNotNull();
-        assertThat(announcementPrice).isNotNull();
-        assertThat(announcementPhone).isNotNull();
-        assertThat(announcementDateExp).isNotNull();
-        //assertThat(announcementDescription).isNotNull();
-        assertThat(annoucementTypeSale).isNotNull();
-
-        assertThat(realEstateArea).isNotNull();
-        assertThat(realEstateCountry).isNotNull();
-        assertThat(realEstateCity).isNotNull();
-        assertThat(realEstateRegion).isNotNull();
-        assertThat(realEstateStreet).isNotNull();
-        assertThat(realEstateStreetNo).isNotNull();
-
-        // Populate data
-        announcementName.sendKeys(ANN_NAME_VALUE);
-        // Set Announcement Type to 'SALE'
-        annoucementTypeSale.click();
-        announcementPrice.sendKeys(ANN_PRICE_VALUE);
-        announcementPhone.sendKeys(ANN_PHONE_VALUE);
-        announcementDateExp.click();
-
-        realEstateArea.sendKeys(RE_AREA_VALUE);
-        realEstateHeatingType.selectByValue(RE_HEATING_TYPE);
-        // Set Real Estate type to 'HOUSE'
-        realEstateType.click();
-        realEstateCountry.sendKeys(RE_COUNTRY_VALUE);
-        realEstateCity.sendKeys(RE_CITY_VALUE);
-        realEstateRegion.sendKeys(RE_REGION_VALUE);
-        realEstateStreet.sendKeys(RE_STREET_VALUE);
-        realEstateStreetNo.sendKeys(RE_STREET_NO_VALUE);
-
-        final WebElement continueButton = driver.findElement(CONTINUE_BUTTON);
-        continueButton.click();
-
         wait.until(ExpectedConditions.urlToBe(UNAUTHORIZED_URL));
 
         assertThat(driver.getCurrentUrl()).isEqualTo(UNAUTHORIZED_URL);
     }
 
     /**
-     * Test which tries to add more than 4 iamges
+     * Test which tries to add more than 4 images
      * <p>
      * We try to add more than 4 images, but then we assert if error toast message is displayed with
      * proper test defined.
@@ -792,17 +733,16 @@ public class AddingAnnouncementTest {
         addAnnouncementLink.click();
 
         // Check if we're on right URL (Adding Announcement Form)
-        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUCEMENT_URL));
+        wait.until(ExpectedConditions.urlToBe(ADDING_ANNOUNCEMENT_URL));
 
-        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUCEMENT_URL);
+        assertThat(driver.getCurrentUrl()).isEqualTo(ADDING_ANNOUNCEMENT_URL);
 
         // Get elements
         final WebElement announcementName = driver.findElement(ANNOUNCEMENT_NAME);
         final WebElement announcementPrice = driver.findElement(ANNOUNCEMENT_PRICE);
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
-        //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
-        final WebElement annoucementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
+        final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
         final WebElement realEstateType = driver.findElement(REAL_ESTATE_TYPE);
@@ -819,7 +759,7 @@ public class AddingAnnouncementTest {
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
         //assertThat(announcementDescription).isNotNull();
-        assertThat(annoucementTypeSale).isNotNull();
+        assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
         assertThat(realEstateCountry).isNotNull();
@@ -831,7 +771,7 @@ public class AddingAnnouncementTest {
         // Populate data
         announcementName.sendKeys(ANN_NAME_VALUE);
         // Set Announcement Type to 'SALE'
-        annoucementTypeSale.click();
+        announcementTypeSale.click();
         announcementPrice.sendKeys(ANN_PRICE_VALUE);
         announcementPhone.sendKeys(ANN_PHONE_VALUE);
         announcementDateExp.click();
@@ -864,9 +804,12 @@ public class AddingAnnouncementTest {
         DragAndDropUtil.dropFile(driver, wait, dropZone, IMAGE_PATH_4);
 
         wait.until(ExpectedConditions.presenceOfElementLocated(ERROR_MAX_IMAGE_NUMBERS));
-        final WebElement errorToaster = driver.findElement(ERROR_MAX_IMAGE_NUMBERS);
+        List<WebElement> errorToasters = driver.findElements(ERROR_MAX_IMAGE_NUMBERS);
+        for (WebElement msg : errorToasters) {
+            assertThat(msg.getText()).isEqualTo(ERROR_FILE_NUMBER_MSG);
+            msg.click();
+        }
 
-        assertThat(errorToaster.getText()).isEqualTo(ERROR_FILE_NUMBER_MSG);
-        logout();
+        LoginUtil.logout(driver, wait);
     }
 }

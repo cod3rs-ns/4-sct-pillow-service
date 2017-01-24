@@ -2,7 +2,6 @@ package rs.acs.uns.sw.e2e.tests;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -19,10 +18,13 @@ import rs.acs.uns.sw.sct.SctServiceApplication;
 import javax.transaction.Transactional;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
+import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static rs.acs.uns.sw.e2e.pages.CompanyPage.*;
-import static rs.acs.uns.sw.e2e.util.Constants.WEBDRIVER_TIMEOUT;
+import static rs.acs.uns.sw.e2e.util.ConditionUtil.enabledCondition;
+import static rs.acs.uns.sw.e2e.util.Constants.WEB_DRIVER_TIMEOUT;
 
 /**
  * Company tests.
@@ -35,17 +37,17 @@ public class CompanyTest {
 
     private static WebDriver driver;
 
-    // Wait in webdriver until some condition is not satisfied
+    // Wait in web driver until some condition is not satisfied
     private static WebDriverWait wait;
 
     /**
-     *  Creates instace of Chrome Driver
+     * Creates instance of Chrome Driver
      */
     @BeforeClass
     public static void instanceDriver() {
         ChromeOptions options = ConfigUtil.chromeOptions();
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, WEBDRIVER_TIMEOUT);
+        wait = new WebDriverWait(driver, WEB_DRIVER_TIMEOUT);
     }
 
     @AfterClass
@@ -55,7 +57,7 @@ public class CompanyTest {
 
     /**
      * Send request for company membership
-     *
+     * <p>
      * We log like advertiser without company, then we show all companies and choose one.
      * Then we click on button 'membership request' and check for message.
      */
@@ -84,7 +86,7 @@ public class CompanyTest {
 
     /**
      * Send request for company membership on the same company twice
-     *
+     * <p>
      * We log like advertiser without company, then we show all companies and choose one.
      * We send request and check if button status is disabled for second time.
      */
@@ -97,6 +99,7 @@ public class CompanyTest {
         // Check if we're on right URL (Companies URL)
         wait.until(ExpectedConditions.urlToBe(COMPANIES_URL));
 
+        wait.until(ExpectedConditions.visibilityOfElementLocated(COMPANY_IDENTIFIER));
         final WebElement company = driver.findElement(COMPANY_IDENTIFIER);
         company.click();
 
@@ -110,17 +113,16 @@ public class CompanyTest {
 
     /**
      * Create new company
-     *
+     * <p>
      * We log as admin and successful populate data. Then we click on 'Dodaj' button.
      */
     @Test
-    @Ignore
     public void createNewCompanySuccessfully() throws AWTException, InterruptedException {
         loginAsAdmin();
-
         driver.navigate().to(ADD_COMPANY_URL);
 
         wait.until(ExpectedConditions.urlToBe(ADD_COMPANY_URL));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(FORM_COMPANY_USER));
 
         final WebElement inputName = driver.findElement(FORM_COMPANY_NAME);
         final WebElement inputAddress = driver.findElement(FORM_COMPANY_ADDRESS);
@@ -140,13 +142,13 @@ public class CompanyTest {
         inputUser.sendKeys(COMPANY_USER_VALUE);
         inputUser.sendKeys("\n");
 
-        //final WebElement chooseLogoButton = driver.findElement(CHOOSE_LOGO_BUTTON);
-        //chooseLogoButton.click();
+        final WebElement chooseLogoButton = driver.findElement(CHOOSE_LOGO_BUTTON);
+        chooseLogoButton.click();
 
-        StringSelection ss = new StringSelection(COMPANY_LOGO_IMAGE);
+        File file = new File(COMPANY_LOGO_IMAGE);
+        StringSelection ss = new StringSelection(file.getAbsolutePath());
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
 
-        /*
         Robot robot = new Robot();
         robot.delay(500);
         robot.keyPress(KeyEvent.VK_ENTER);
@@ -159,12 +161,16 @@ public class CompanyTest {
         robot.keyPress(KeyEvent.VK_ENTER);
         robot.delay(500);
         robot.keyRelease(KeyEvent.VK_ENTER);
-        */
+
+        wait.until(enabledCondition(driver, ADD_COMPANY_BUTTON));
+        driver.findElement(ADD_COMPANY_BUTTON).click();
+
+        wait.until(ExpectedConditions.urlContains(COMPANY_URL));
     }
 
     /**
      * Create new company without image.
-     *
+     * <p>
      * We log as admin and populate data except image.
      * Then we check if our 'Dodaj agenciju' button is disabled.
      */
@@ -201,7 +207,7 @@ public class CompanyTest {
 
     /**
      * Test which checks for required address
-     *
+     * <p>
      * We log as admin and populate data where we set empty address.
      * Then we check if our 'Dodaj agenciju' button is disabled.
      * Also check if proper message is displayed.

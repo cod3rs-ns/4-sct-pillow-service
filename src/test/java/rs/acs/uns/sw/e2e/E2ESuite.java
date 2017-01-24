@@ -22,12 +22,11 @@ import static rs.acs.uns.sw.e2e.util.Constants.PROFILE_NAME;
 })
 
 public class E2ESuite {
-    /*
+
     @BeforeClass
     public static void runApplicationInTestProfile() {
         SpringApplication app = new SpringApplication(SctServiceApplication.class);
         app.setAdditionalProfiles(PROFILE_NAME);
         app.run();
     }
-    */
 }

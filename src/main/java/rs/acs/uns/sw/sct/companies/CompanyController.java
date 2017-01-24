@@ -270,7 +270,7 @@ public class CompanyController {
      */
     @PreAuthorize("hasAnyAuthority(T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADMIN, T(rs.acs.uns.sw.sct.util.AuthorityRoles).ADVERTISER)")
     @PutMapping("/companies/resolve-request/user/{userId}")
-    public ResponseEntity<User> resolveMembershipRequest(@PathVariable Long userId, @RequestParam(value = "accepted") Boolean accepted) throws URISyntaxException { // NOSONAR
+    public ResponseEntity<User> resolveMembershipRequest(@PathVariable Long userId, @RequestParam(value = "accepted") Boolean accepted) throws URISyntaxException {
         final User companyMember = userSecurityUtil.getLoggedUser();
         final User userToResolve = userService.getUserById(userId);
 

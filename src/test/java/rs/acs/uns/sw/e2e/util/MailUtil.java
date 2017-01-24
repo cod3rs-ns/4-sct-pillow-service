@@ -9,6 +9,13 @@ import java.util.Properties;
 
 public class MailUtil {
 
+    /**
+     * Util method for reading messages from email sent box
+     *
+     * @return verification link
+     * @throws MessagingException when wrong email credentials are found
+     * @throws IOException        when problem occurred in messaging system
+     */
     public static String getMailLink() throws MessagingException, IOException {
         Properties properties = System.getProperties();
         properties.put("mail.smtp.host", rs.acs.uns.sw.sct.util.Constants.MailParameters.HOST_NAME);
