@@ -189,7 +189,6 @@ public class AddingAnnouncementTest {
         assertThat(announcementPrice).isNotNull();
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
-        //assertThat(announcementDescription).isNotNull();
         assertThat(annoucementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
@@ -276,8 +275,7 @@ public class AddingAnnouncementTest {
         final WebElement announcementPrice = driver.findElement(ANNOUNCEMENT_PRICE);
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
-        //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
-        final WebElement annoucementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
+        final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         // We need to populate same address for our real estate because our 'algorithm' works on that way.
         final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
@@ -294,8 +292,7 @@ public class AddingAnnouncementTest {
         assertThat(announcementPrice).isNotNull();
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
-        //assertThat(announcementDescription).isNotNull();
-        assertThat(annoucementTypeSale).isNotNull();
+        assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
         assertThat(realEstateCountry).isNotNull();
@@ -307,7 +304,7 @@ public class AddingAnnouncementTest {
         // Populate data
         announcementName.sendKeys(ANN_NAME_VALUE);
         // Set Announcement Type to 'SALE'
-        annoucementTypeSale.click();
+        announcementTypeSale.click();
         announcementPrice.sendKeys(ANN_PRICE_VALUE);
         announcementPhone.sendKeys(ANN_PHONE_VALUE);
         announcementDateExp.click();
@@ -396,7 +393,6 @@ public class AddingAnnouncementTest {
         final WebElement announcementPrice = driver.findElement(ANNOUNCEMENT_PRICE);
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
-        //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
         final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         // We need to populate same address for our real estate because our 'algorithm' works on that way.
@@ -414,7 +410,6 @@ public class AddingAnnouncementTest {
         assertThat(announcementPrice).isNotNull();
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
-        //assertThat(announcementDescription).isNotNull();
         assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
@@ -454,7 +449,7 @@ public class AddingAnnouncementTest {
 
     /**
      * Test which tries to submit announcement with wrong price type.
-     * Price can only be postive number value.
+     * Price can only be positive number value.
      * <p>
      * We input string as price.
      * Then we check if toaster is presented and if error message is correct.
@@ -476,7 +471,6 @@ public class AddingAnnouncementTest {
         final WebElement announcementPrice = driver.findElement(ANNOUNCEMENT_PRICE);
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
-        //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
         final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         // We need to populate same address for our real estate because our 'algorithm' works on that way.
@@ -494,7 +488,6 @@ public class AddingAnnouncementTest {
         assertThat(announcementPrice).isNotNull();
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
-        //assertThat(announcementDescription).isNotNull();
         assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
@@ -555,7 +548,6 @@ public class AddingAnnouncementTest {
         final WebElement announcementPrice = driver.findElement(ANNOUNCEMENT_PRICE);
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
-        //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
         final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         // We need to populate same address for our real estate because our 'algorithm' works on that way.
@@ -573,7 +565,6 @@ public class AddingAnnouncementTest {
         assertThat(announcementPrice).isNotNull();
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
-        //assertThat(announcementDescription).isNotNull();
         assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
@@ -637,7 +628,6 @@ public class AddingAnnouncementTest {
         final WebElement announcementPrice = driver.findElement(ANNOUNCEMENT_PRICE);
         final WebElement announcementPhone = driver.findElement(ANNOUNCEMENT_PHONE);
         final WebElement announcementDateExp = driver.findElement(DATE_PICKER_BUTTON);
-        //final WebElement announcementDescription = driver.findElement(ANNOUNCEMENT_DESCRIPTION);
         final WebElement announcementTypeSale = driver.findElement(ANNOUNCEMENT_TYPE);
 
         final WebElement realEstateArea = driver.findElement(REAL_ESTATE_AREA);
@@ -654,7 +644,6 @@ public class AddingAnnouncementTest {
         assertThat(announcementPrice).isNotNull();
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
-        //assertThat(announcementDescription).isNotNull();
         assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
@@ -758,7 +747,6 @@ public class AddingAnnouncementTest {
         assertThat(announcementPrice).isNotNull();
         assertThat(announcementPhone).isNotNull();
         assertThat(announcementDateExp).isNotNull();
-        //assertThat(announcementDescription).isNotNull();
         assertThat(announcementTypeSale).isNotNull();
 
         assertThat(realEstateArea).isNotNull();
